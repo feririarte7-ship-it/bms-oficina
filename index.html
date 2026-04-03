@@ -1386,6 +1386,9 @@ async function termReadSSE(resp){
 }
 
 function termHandleSSE(ev, payload){
+
+  // ─── Eventos existentes (lead individual / run_bartolo) ──────────────────
+
   if(ev === 'text'){
     ensureBotBubble();
     termBotText += payload.text;
@@ -1398,23 +1401,23 @@ function termHandleSSE(ev, payload){
     const card = document.createElement('div');
     card.className = 'tcard';
     card.innerHTML =
-      '<div class="tcard-title">⚙ Pipeline iniciado</div>' +
+      '<div class="tcard-title">⚙ Pipeline — lead individual</div>' +
       '<div class="tcard-row"><span>Negocio</span><span>' + escHtml(inp.nombre||'') + '</span></div>' +
       '<div class="tcard-row"><span>Ubicación</span><span>' + escHtml(inp.ubicacion||'') + '</span></div>' +
       '<div class="tcard-row"><span>Sector</span><span>' + escHtml(inp.sector||'') + '</span></div>' +
       '<div class="tcard-row" id="tcard-prog"><span>Estado</span><span style="color:var(--amber)">Eyes → buscando web...</span></div>';
     termBotBubble.appendChild(card);
     termToolCard = card;
-    termSetStatus('— Eyes → buscando web...', 'busy');
+    termSetStatus('— Eyes → buscando...', 'busy');
     termScroll();
 
   } else if(ev === 'progress'){
     const m = payload.message || '';
     let label = '';
-    if(m.includes('[EYES]'))  label = 'Eyes → escaneando web...';
-    else if(m.includes('[BRAIN]')) label = 'Brain → calculando revenue...';
-    else if(m.includes('[FACE]') && m.includes('Redactando')) label = 'Face → redactando email...';
-    else if(m.includes('[FACE]') && m.includes('Enviando'))   label = 'Face → enviando email...';
+    if(m.includes('[EYES]'))  label = 'Eyes → escaneando...';
+    else if(m.includes('[BRAIN]')) label = 'Brain → calculando...';
+    else if(m.includes('[FACE]') && m.includes('Redactando')) label = 'Face → redactando...';
+    else if(m.includes('[FACE]') && m.includes('Enviando'))   label = 'Face → enviando...';
     if(label){
       termSetStatus('— ' + label, 'busy');
       const pr = document.getElementById('tcard-prog');
@@ -1429,31 +1432,128 @@ function termHandleSSE(ev, payload){
       termToolCard.className = 'tcard done';
       termToolCard.innerHTML =
         '<div class="tcard-title">✓ Pipeline completado' + (dur ? ' · '+dur : '') + '</div>' +
-        (d.problema       ? '<div class="tcard-row"><span>Problema</span><span>'+escHtml(d.problema)+'</span></div>' : '') +
-        (d.revenue_anual  ? '<div class="tcard-row"><span>Revenue perdido/año</span><span>'+escHtml(d.revenue_anual)+'</span></div>' : '') +
-        (r.asunto         ? '<div class="tcard-row"><span>Asunto email</span><span>'+escHtml(r.asunto)+'</span></div>' : '') +
+        (d.problema ? '<div class="tcard-row"><span>Problema</span><span>'+escHtml(d.problema)+'</span></div>' : '') +
+        (d.revenue_anual ? '<div class="tcard-row"><span>Revenue perdido/año</span><span>'+escHtml(d.revenue_anual)+'</span></div>' : '') +
+        (r.asunto ? '<div class="tcard-row"><span>Asunto</span><span>'+escHtml(r.asunto)+'</span></div>' : '') +
         '<div class="tcard-row"><span>Enviado a</span><span>'+escHtml(r.email_destino||'')+(r.preview?' (preview)':'')+'</span></div>';
     }
-    termSetStatus('— completado', 'active');
+    termSetStatus('— listo');
+    termScroll();
+
+  // ─── Eventos de orquestación (rastrear_y_procesar) ────────────────────────
+
+  } else if(ev === 'orchestra_start'){
+    ensureBotBubble();
+    // Tarjeta de encabezado de la orquestación
+    const hdr = document.createElement('div');
+    hdr.className = 'tcard';
+    hdr.id = 'orch-header';
+    hdr.innerHTML =
+      '<div class="tcard-title">⚡ Bartolo orquesta — ' + escHtml(payload.sector||'') + ' · ' + escHtml(payload.zona||'') + '</div>' +
+      '<div class="tcard-row"><span>Leads objetivo</span><span>' + (payload.cantidad||'?') + '</span></div>' +
+      '<div class="tcard-row" id="orch-hstatus"><span>Estado</span><span style="color:var(--amber)">👁 Eyes rastreando sector...</span></div>';
+    termBotBubble.appendChild(hdr);
+    termSetStatus('— Eyes rastreando ' + escHtml(payload.sector||'') + '...', 'busy');
+    termScroll();
+
+  } else if(ev === 'eyes_found'){
+    // Actualizar encabezado y añadir lista de leads encontrados
+    const hdr = document.getElementById('orch-header');
+    if(hdr){
+      const st = hdr.querySelector('#orch-hstatus');
+      if(st) st.innerHTML = '<span>Eyes encontró</span><span style="color:var(--green)">' + payload.count + ' leads</span>';
+      const leadsEl = document.createElement('div');
+      leadsEl.style.cssText = 'margin-top:8px;font-size:12px;border-top:1px solid var(--border);padding-top:8px';
+      leadsEl.innerHTML = (payload.leads||[]).map(l =>
+        '<div style="padding:2px 0;color:var(--text2)">· ' + escHtml(l.nombre||'') +
+        (l.problema ? ' <span style="color:var(--text3)">— ' + escHtml(l.problema) + '</span>' : '') + '</div>'
+      ).join('');
+      hdr.appendChild(leadsEl);
+    }
+    termScroll();
+
+  } else if(ev === 'lead_start'){
+    ensureBotBubble();
+    const card = document.createElement('div');
+    card.className = 'tcard';
+    card.id = 'lead-orch-' + payload.index;
+    const phaseColors = { eyes: 'var(--amber)', brain: '#4f8ef7', face: 'var(--green)' };
+    card.innerHTML =
+      '<div class="tcard-title" style="color:var(--text2)">▶ [' + (payload.index+1) + '/' + payload.total + '] ' + escHtml(payload.nombre||'') + '</div>' +
+      (payload.problema ? '<div style="font-size:11px;color:var(--text3);margin-bottom:4px">' + escHtml(payload.problema) + '</div>' : '') +
+      '<div class="tcard-row" id="lstep-' + payload.index + '"><span style="color:var(--amber)">👁 Eyes</span><span style="color:var(--amber)">Buscando web...</span></div>';
+    termBotBubble.appendChild(card);
+    termSetStatus('— [' + (payload.index+1) + '/' + payload.total + '] ' + escHtml(payload.nombre||''), 'busy');
+    termScroll();
+
+  } else if(ev === 'lead_step'){
+    // Actualizar la tarjeta del lead activo
+    const cards = termBotBubble ? termBotBubble.querySelectorAll('[id^="lead-orch-"]') : [];
+    if(cards.length > 0){
+      const lastCard = cards[cards.length - 1];
+      const idx = lastCard.id.replace('lead-orch-', '');
+      const stepEl = document.getElementById('lstep-' + idx);
+      if(stepEl){
+        const ph = payload.phase || 'eyes';
+        const color = ph === 'brain' ? '#4f8ef7' : ph === 'face' ? 'var(--green)' : 'var(--amber)';
+        const icon  = ph === 'brain' ? '🧠 Brain' : ph === 'face' ? '📧 Face' : '👁 Eyes';
+        stepEl.innerHTML = '<span style="color:' + color + '">' + icon + '</span><span style="color:' + color + '">' + escHtml(payload.message||'') + '</span>';
+      }
+    }
+    const ph = payload.phase || 'eyes';
+    const icon = ph === 'brain' ? 'Brain' : ph === 'face' ? 'Face' : 'Eyes';
+    termSetStatus('— ' + icon + ': ' + escHtml((payload.message||'').slice(0,40)), 'busy');
+    termScroll();
+
+  } else if(ev === 'lead_done'){
+    const card = document.getElementById('lead-orch-' + payload.index);
+    if(card){
+      const d = payload.diagnostico || {};
+      card.className = 'tcard done';
+      card.innerHTML =
+        '<div class="tcard-title">✓ [' + (payload.index+1) + '/' + payload.total + '] ' + escHtml(payload.nombre||'') + '</div>' +
+        (d.revenue_anual ? '<div class="tcard-row"><span>Revenue/año perdido</span><span>' + escHtml(d.revenue_anual) + '</span></div>' : '') +
+        (d.problema ? '<div class="tcard-row"><span>Gap principal</span><span>' + escHtml(d.problema) + '</span></div>' : '') +
+        (payload.asunto ? '<div class="tcard-row"><span>Asunto email</span><span>' + escHtml(payload.asunto) + '</span></div>' : '') +
+        '<div class="tcard-row"><span>Enviado a</span><span>' + escHtml(payload.email_destino||'') + (payload.preview?' <span style="color:var(--text3)">(preview)</span>':'') + '</span></div>';
+    }
+    termScroll();
+
+  } else if(ev === 'lead_error'){
+    const card = document.getElementById('lead-orch-' + payload.index);
+    if(card){
+      card.style.borderLeftColor = 'var(--red)';
+      const stepEl = document.getElementById('lstep-' + payload.index);
+      if(stepEl) stepEl.innerHTML = '<span style="color:var(--red)">✗ Error</span><span style="color:var(--red)">' + escHtml(payload.error||'') + '</span>';
+    }
+    termScroll();
+
+  } else if(ev === 'orchestra_done'){
+    ensureBotBubble();
+    const summary = document.createElement('div');
+    summary.className = 'tcard done';
+    summary.innerHTML =
+      '<div class="tcard-title">⚡ Orquestación completada · ' + (payload.duracion_min||'?') + ' min</div>' +
+      '<div class="tcard-row"><span>Leads procesados</span><span style="color:var(--green)">' + payload.procesados + ' / ' + payload.total + '</span></div>' +
+      '<div class="tcard-row"><span>Estado pipeline</span><span style="color:var(--green)">✓ Guardados en Bartolo Live</span></div>';
+    termBotBubble.appendChild(summary);
+    termSetStatus('— listo');
     termScroll();
 
   } else if(ev === 'pipeline_update'){
     const lead = payload.lead || {};
-    // Refrescar el panel Bartolo Live inmediatamente
     fetchBartoloLeads().then(() => flashNewestLead());
-    // Actualizar badge del terminal
     const badge = document.getElementById('term-pipe-badge');
     if(badge){ badge.style.display='inline'; badge.textContent = (payload.total||0) + ' en pipeline'; }
     showPipelineToast(lead.nombre || 'Lead');
 
   } else if(ev === 'error'){
     ensureBotBubble();
-    termBotBubble.innerHTML += '<br><span style="color:var(--red)">⚠ '+escHtml(payload.message||'error')+'</span>';
+    termBotBubble.innerHTML += '<br><span style="color:var(--red)">⚠ ' + escHtml(payload.message||'error') + '</span>';
     termSetStatus('— error', 'idle');
     termScroll();
   }
 }
-
 function ensureBotBubble(){
   if(!termBotBubble) termBotBubble = termAddMsg('bot', '');
 }
