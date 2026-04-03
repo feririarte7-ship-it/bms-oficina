@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>BMS — Oficina de Agentes</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#050e0a;--bg2:#091510;--bg3:#0d1f16;
+  --green:#00ff88;--green2:#00cc6a;--green-dim:rgba(0,255,136,.08);
+  --text:#e8f5ee;--text2:#9bbfaa;--text3:#5a8a6a;
+  --border:#1a3828;--border2:#224433;
+  --card:#0a1e14;--mono:'DM Sans',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:48px 40px;width:360px;text-align:center}
+.login-logo{width:52px;height:52px;background:var(--green);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#000;margin:0 auto 20px}
+.login-box h2{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--text2);margin-bottom:28px}
+.login-box input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;text-align:center;letter-spacing:.2em;margin-bottom:14px;transition:border-color .2s}
+.login-box input:focus{border-color:var(--green)}
+.login-box button{width:100%;background:var(--green);color:#000;border:none;padding:13px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:all .2s}
+.login-box button:hover{background:var(--green2)}
+.login-err{font-size:12px;color:#ff6b6b;margin-top:8px;display:none}
+
+/* TOPBAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:32px;height:32px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;color:#000}
+.logo-text{font-family:'Syne',sans-serif;font-weight:700;font-size:14px}
+.logo-sub{font-size:11px;color:var(--text2)}
+.status-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.status-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.clock{font-size:12px;color:var(--text3);font-family:var(--mono)}
+
+/* LAYOUT */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--border);padding:16px 0;flex-shrink:0;overflow-y:auto}
+.nav-section{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:16px 16px 6px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:var(--text2);cursor:pointer;border-radius:0;transition:all .15s;position:relative}
+.nav-item:hover{background:var(--green-dim);color:var(--text)}
+.nav-item.active{background:var(--green-dim);color:var(--green);border-right:2px solid var(--green)}
+.nav-icon{font-size:14px;width:18px;text-align:center}
+.nav-badge{background:var(--green);color:#000;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:20px}
+.panel{display:none}
+.panel.active{display:block}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px}
+.stat-label{font-size:11px;color:var(--text3);margin-bottom:6px}
+.stat-value{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* FORMS */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;color:var(--text2);font-weight:500;letter-spacing:.04em}
+.field select,.field input,.field textarea{background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.field select:focus,.field input:focus,.field textarea:focus{border-color:var(--green)}
+.field select option{background:#0a1e14}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--text2);padding:8px 14px;border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
+.btn:hover{border-color:var(--green);color:var(--green)}
+.btn.primary{background:var(--green);color:#000;border-color:var(--green);font-weight:600}
+.btn.primary:hover{background:var(--green2)}
+
+/* AGENT PILL */
+.agent-pill{display:inline-flex;align-items:center;gap:7px;background:var(--green-dim);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text2);margin-bottom:14px}
+.agent-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-active{background:var(--green);box-shadow:0 0 6px var(--green)}
+.dot-idle{background:#555}
+.dot-busy{background:#f5c842;animation:pulse 1s infinite}
+
+/* STREAM BOX */
+.stream-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;color:var(--text2);line-height:1.7;min-height:80px;white-space:pre-wrap;font-family:var(--mono)}
+.stream-box.typing::after{content:'▋';animation:blink .7s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* LEADS */
+.leads-grid{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.lead-card{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .2s}
+.lead-card:hover{border-color:var(--green)}
+.lead-card.selected{border-color:var(--green);background:rgba(0,255,136,.04)}
+.lead-name{font-weight:600;font-size:13px}
+.lead-meta{font-size:11px;color:var(--text2);margin-top:2px}
+.lead-score{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--green)}
+.lead-actions{display:flex;gap:6px}
+
+/* PIPELINE */
+.pipe-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+.pipe-col{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px}
+.pipe-col-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.pipe-num{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--text)}
+.pipe-label{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* FACTURACION */
+.invoice-form{display:flex;flex-direction:column;gap:12px}
+.invoice-preview{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:20px;font-size:13px;line-height:1.8;color:var(--text2)}
+.invoice-preview h3{font-family:'Syne',sans-serif;color:var(--text);font-size:16px;margin-bottom:12px}
+.inv-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0}
+.inv-total{display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:15px;color:var(--green)}
+
+/* PLANES */
+.planes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.plan-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative}
+.plan-card.featured{border-color:var(--green)}
+.plan-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;font-size:10px;font-weight:800;padding:3px 14px;border-radius:10px;white-space:nowrap}
+.plan-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text2);margin-bottom:6px}
+.plan-price{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--text);margin-bottom:4px}
+.plan-price span{font-size:16px;font-weight:400;color:var(--text2)}
+.plan-desc{font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.5}
+.plan-feature{font-size:12px;color:var(--text2);padding:3px 0;display:flex;gap:6px}
+.plan-feature::before{content:'✓';color:var(--green);font-weight:700}
+
+/* WELCOME */
+.welcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.meta-tag{background:var(--green-dim);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--text2)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">BM</div>
+    <h2>Brand Mind Studio</h2>
+    <p>Oficina de Agentes IA — acceso restringido</p>
+    <input type="password" id="pin-input" placeholder="PIN" maxlength="8" onkeydown="if(event.key==='Enter')checkPin()"/>
+    <button onclick="checkPin()">Entrar →</button>
+    <div class="login-err" id="login-err">PIN incorrecto</div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">BM</div>
+    <div>
+      <div class="logo-text">Brand Mind Studio</div>
+      <div class="logo-sub">Oficina de Agentes IA</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px">
+    <div class="status-pill"><span class="status-dot"></span>3 agentes activos</div>
+    <div class="clock" id="clock"></div>
+  </div>
+</div>
+
+<!-- APP BODY -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="goPanel('inicio',this)"><span class="nav-icon">⌂</span> Inicio</div>
+    <div class="nav-section">Agentes</div>
+    <div class="nav-item" onclick="goPanel('captacion',this)"><span class="nav-icon">⌕</span> Captación <span class="nav-badge" id="nb-cap" style="display:none">0</span></div>
+    <div class="nav-item" onclick="goPanel('produccion',this)"><span class="nav-icon">⚙</span> Producción <span class="nav-badge" id="nb-prod" style="display:none">0</span></div>
+    <div class="nav-item" onclick="goPanel('ventas',this)"><span class="nav-icon">✉</span> Ventas <span class="nav-badge" id="nb-ven" style="display:none">0</span></div>
+    <div class="nav-section">Gestión</div>
+    <div class="nav-item" onclick="goPanel('pipeline',this)"><span class="nav-icon">◈</span> Pipeline</div>
+    <div class="nav-item" onclick="goPanel('facturacion',this)"><span class="nav-icon">◻</span> Facturación</div>
+    <div class="nav-item" onclick="goPanel('planes',this)"><span class="nav-icon">★</span> Planes</div>
+  </nav>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- INICIO -->
+    <div class="panel active" id="panel-inicio">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+        <div>
+          <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700" id="welcome-msg">Buenos días 👋</h2>
+          <p style="font-size:13px;color:var(--text2);margin-top:4px">Oficina Brand Mind Studio — todo operativo</p>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Leads captados</div><div class="stat-value" id="s-leads">0</div><div class="stat-sub">Total en sistema</div></div>
+        <div class="stat-card"><div class="stat-label">En producción</div><div class="stat-value" id="s-prod">0</div><div class="stat-sub">Pendientes análisis</div></div>
+        <div class="stat-card"><div class="stat-label">Contactados</div><div class="stat-value" id="s-cont">0</div><div class="stat-sub">Emails enviados</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🚀 Acciones rápidas</div>
+        <div class="btn-row">
+          <button class="btn primary" onclick="goPanel('captacion',document.querySelector('[onclick*=captacion]'))">Captar leads →</button>
+          <button class="btn" onclick="goPanel('ventas',document.querySelector('[onclick*=ventas]'))">Ver ventas</button>
+          <button class="btn" onclick="goPanel('facturacion',document.querySelector('[onclick*=facturacion]'))">Nueva factura</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Estado del sistema</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)">
+          <div style="display:flex;justify-content:space-between"><span>Web brandmindstudio.net</span><span style="color:var(--green)">✓ Live</span></div>
+          <div style="display:flex;justify-content:space-between"><span>IBZ Live IA (Vercel)</span><span style="color:var(--green)">✓ Live</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Email info@brandmindstudio.net</span><span style="color:#f5c842">⏳ Pendiente Workspace</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Backend IBZ (Railway)</span><span style="color:#f5c842">⏳ Pendiente deploy</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAPTACION -->
+    <div class="panel" id="panel-captacion">
+      <div class="agent-pill"><div class="agent-dot dot-active" id="dot-cap"></div><span id="label-cap">Agente Captación — listo</span></div>
+      <div class="card">
+        <div class="card-title"><div class="card-icon" style="background:rgba(0,180,255,.1)">⌕</div> Rastreo web por nicho</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Nicho / sector</label>
+            <select id="nicho-select">
+              <option value="clinicas">Clínicas y salud</option>
+              <option value="restaurantes">Restaurantes y hostelería</option>
+              <option value="inmobiliarias">Inmobiliarias</option>
+              <option value="abogados">Despachos de abogados</option>
+              <option value="veterinarias">Veterinarias</option>
+              <option value="ecommerce">E-commerce</option>
+              <option value="hoteles">Hoteles y turismo</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Ciudad / zona</label>
+            <input type="text" id="ciudad-input" placeholder="ej. Madrid, Barcelona, Ibiza…"/>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" onclick="rastrearLeads()">Rastrear leads →</button>
+        </div>
+      </div>
+      <div class="card" id="card-cap-output" style="display:none">
+        <div class="card-title">Resultado del rastreo</div>
+        <div class="stream-box" id="cap-output"></div>
+      </div>
+      <div class="card" id="card-cap-leads" style="display:none">
+        <div class="card-title">Leads encontrados</div>
+        <div class="leads-grid" id="cap-leads-list"></div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn primary" onclick="enviarAProduccion()">Enviar a Producción →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCCION -->
+    <div class="panel" id="panel-produccion">
+      <div class="agent-pill"><div class="agent-dot dot-idle" id="dot-prod"></div><span id="label-prod">Agente Producción — en espera</span></div>
+      <div class="card">
+        <div class="card-title"><div class="card-icon" style="background:rgba(245,200,66,.1)">⚙</div> Cola de leads</div>
+        <div id="prod-empty" style="font-size:13px;color:var(--text3)">Envía leads desde Captación para procesarlos aquí.</div>
+        <div class="leads-grid" id="prod-queue"></div>
+        <div id="prod-btn-row" class="btn-row" style="margin-top:12px;display:none">
+          <button class="btn primary" onclick="analizarLeads()">Analizar webs con IA →</button>
+        </div>
+      </div>
+      <div class="card" id="card-prod-analysis" style="display:none">
+        <div class="card-title">Análisis IA</div>
+        <div class="stream-box typing" id="prod-analysis"></div>
+      </div>
+      <div class="card" id="card-prod-done" style="display:none">
+        <div class="card-title">Leads cualificados</div>
+        <div class="leads-grid" id="prod-done-list"></div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn primary" onclick="enviarAVentas()">Enviar a Ventas →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VENTAS -->
+    <div class="panel" id="panel-ventas">
+      <div class="agent-pill"><div class="agent-dot dot-idle" id="dot-ven"></div><span id="label-ven">Agente Ventas — en espera</span></div>
+      <div class="card">
+        <div class="card-title"><div class="card-icon" style="background:rgba(0,255,136,.1)">✉</div> Leads cualificados</div>
+        <div id="ven-empty" style="font-size:13px;color:var(--text3)">Procesa leads en Producción para verlos aquí.</div>
+        <div class="leads-grid" id="ven-leads"></div>
+      </div>
+      <div class="card" id="card-ven-selected" style="display:none">
+        <div class="card-title">Lead seleccionado</div>
+        <div class="meta-row" id="ven-meta"></div>
+        <div class="btn-row" style="margin-bottom:12px">
+          <button class="btn" onclick="genEmail()">📧 Email personalizado</button>
+          <button class="btn" onclick="genPropuesta()">📋 Propuesta comercial</button>
+          <button class="btn" onclick="buscarCIF()">🔍 Buscar CIF</button>
+          <button class="btn" onclick="genWhatsapp()">💬 WhatsApp</button>
+        </div>
+        <div class="stream-box" id="ven-output" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="panel" id="panel-pipeline">
+      <div class="card">
+        <div class="card-title">◈ Embudo de ventas</div>
+        <div class="pipe-wrap">
+          <div class="pipe-col"><div class="pipe-col-title">Captados</div><div class="pipe-num" id="pn-cap">0</div><div class="pipe-label">leads totales</div></div>
+          <div class="pipe-col"><div class="pipe-col-title">Producción</div><div class="pipe-num" id="pn-prod">0</div><div class="pipe-label">analizados</div></div>
+          <div class="pipe-col"><div class="pipe-col-title">Contactados</div><div class="pipe-num" id="pn-ven">0</div><div class="pipe-label">emails enviados</div></div>
+          <div class="pipe-col"><div class="pipe-col-title">Cerrados</div><div class="pipe-num" id="pn-closed">0</div><div class="pipe-label">clientes</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Ingresos estimados</div>
+        <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--green)" id="ingresos-est">0 €</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">Basado en leads en pipeline × precio medio plan Pro (497€)</div>
+      </div>
+    </div>
+
+    <!-- FACTURACION -->
+    <div class="panel" id="panel-facturacion">
+      <div class="card">
+        <div class="card-title">◻ Nueva factura</div>
+        <div class="field-row">
+          <div class="field"><label>Cliente</label><input type="text" id="inv-cliente" placeholder="Nombre del cliente"/></div>
+          <div class="field"><label>CIF/NIF cliente</label><input type="text" id="inv-cif" placeholder="B12345678"/></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Servicio</label><select id="inv-servicio">
+            <option value="297">Web Presencia — 297€</option>
+            <option value="497">Web Presencia Pro — 497€</option>
+            <option value="797">Ecosistema IA — 797€</option>
+            <option value="custom">Personalizado</option>
+          </select></div>
+          <div class="field"><label>Importe base (€)</label><input type="number" id="inv-importe" placeholder="497" oninput="calcFactura()"/></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" onclick="generarFactura()">Generar factura →</button>
+        </div>
+      </div>
+      <div class="card" id="card-factura" style="display:none">
+        <div class="card-title">Vista previa</div>
+        <div class="invoice-preview" id="factura-preview"></div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn primary" onclick="window.print()">🖨 Imprimir</button>
+          <button class="btn" onclick="copiarFactura()">📋 Copiar texto</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANES -->
+    <div class="panel" id="panel-planes">
+      <div class="card">
+        <div class="card-title">★ Planes Brand Mind Studio</div>
+        <div class="planes-grid">
+          <div class="plan-card">
+            <div class="plan-name">PRESENCIA</div>
+            <div class="plan-price">297<span>€</span></div>
+            <div class="plan-desc">Para negocios que necesitan estar bien posicionados</div>
+            <div class="plan-feature">Web hasta 5 páginas</div>
+            <div class="plan-feature">Diseño a medida</div>
+            <div class="plan-feature">SEO local básico</div>
+            <div class="plan-feature">Dominio incluido 1 año</div>
+            <div class="plan-feature">SSL y hosting</div>
+          </div>
+          <div class="plan-card featured">
+            <div class="plan-badge">MÁS POPULAR</div>
+            <div class="plan-name">PRESENCIA PRO</div>
+            <div class="plan-price">497<span>€</span></div>
+            <div class="plan-desc">Para negocios que quieren una presencia activa</div>
+            <div class="plan-feature">Todo lo del plan Presencia</div>
+            <div class="plan-feature">Asistente IA integrado</div>
+            <div class="plan-feature">QR dinámico actualizable</div>
+            <div class="plan-feature">Multiidioma (3 idiomas)</div>
+            <div class="plan-feature">Panel de administración</div>
+            <div class="plan-feature">Analytics y métricas</div>
+          </div>
+          <div class="plan-card">
+            <div class="plan-name">ECOSISTEMA IA</div>
+            <div class="plan-price">797<span>€</span></div>
+            <div class="plan-desc">Sistema digital completo que trabaja solo</div>
+            <div class="plan-feature">Todo lo del plan Pro</div>
+            <div class="plan-feature">IA avanzada con voz</div>
+            <div class="plan-feature">5 idiomas con detección auto</div>
+            <div class="plan-feature">PWA instalable</div>
+            <div class="plan-feature">Sistema de reservas</div>
+            <div class="plan-feature">Mantenimiento 3 meses</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app-body -->
+
+<script>
+const PIN = 'bms2026';
+const API_KEY = ''; // Añadir API key aquí
+
+// LOGIN
+function checkPin(){
+  const v = document.getElementById('pin-input').value;
+  if(v === PIN){ document.getElementById('login-screen').style.display='none'; initApp(); }
+  else{ const e=document.getElementById('login-err'); e.style.display='block'; setTimeout(()=>e.style.display='none',2000); }
+}
+document.getElementById('pin-input').addEventListener('keydown',e=>{ if(e.key==='Enter') checkPin(); });
+
+// CLOCK
+function initApp(){
+  updateClock();
+  setInterval(updateClock, 1000);
+  const h = new Date().getHours();
+  document.getElementById('welcome-msg').textContent = (h<12?'Buenos días':'h<20?Buenas tardes':'Buenas noches') + ' Fernando 👋';
+}
+function updateClock(){
+  const n=new Date();
+  document.getElementById('clock').textContent = n.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})+' · '+n.toLocaleTimeString('es-ES');
+}
+
+// NAV
+function goPanel(id, el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+// STATE
+let leads=[], prodLeads=[], venLeads=[], venSelected=null, contados=0, cerrados=0;
+
+function updateStats(){
+  document.getElementById('s-leads').textContent=leads.length;
+  document.getElementById('s-prod').textContent=prodLeads.length;
+  document.getElementById('s-cont').textContent=contados;
+  document.getElementById('pn-cap').textContent=leads.length;
+  document.getElementById('pn-prod').textContent=prodLeads.length;
+  document.getElementById('pn-ven').textContent=contados;
+  document.getElementById('pn-closed').textContent=cerrados;
+  document.getElementById('ingresos-est').textContent=(venLeads.length*497).toLocaleString('es-ES')+'€';
+  const nb=document.getElementById('nb-cap');
+  if(leads.length>0){nb.style.display='inline';nb.textContent=leads.length;}
+}
+
+// CAPTACION
+const NICHOS = {
+  clinicas:['Clínica Mediterránea','Centro Salud Levante','Fisio & Bienestar','Dental Smile Center','Clínica Estética Sol','Psicología Integral','Rehabilitación Plus','Nutrición & Salud'],
+  restaurantes:['Restaurante La Bahía','Bar Tapas El Rincón','Marisquería Don Pedro','La Terraza Bistró','Bodega Artesanal','El Chiringuito','Cocina de Mercado','Cafetería Central'],
+  inmobiliarias:['Inmobiliaria Sol & Mar','Pisos & Casas','Home Consulting','Fincas del Valle','Real Estate Plus','Inmuebles Premium','Casas & Villas','Properties Group'],
+  abogados:['Bufete García & Asociados','Despacho Jurídico Sur','Lex & Partners','Abogacía Mediterránea','Estudio Legal Sol','Firma Jurídica Plus','Asesoría Legal 360','Despacho Miquel'],
+  veterinarias:['Clínica Vet Plus','Animales & Salud','Veterinaria Sol','Centro Animal','Dr. Pets Clínica','Hospital Veterinario','Clínica Fauna','Vet & Care'],
+  ecommerce:['Tienda Artesanía Local','Moda & Estilo','Handmade Shop','Gourmet Online','Cosmética Natural','Tech Gadgets','El Mercadillo Digital','Productos Selectos'],
+  hoteles:['Hotel Boutique Sol','Apartamentos Vista Mar','Hostal El Puerto','Hotel Rural Sierra','Alojamiento Céntrico','Casa Rural Premium','Hotel & Spa','Suites del Sur']
+};
+
+function rastrearLeads(){
+  const nicho = document.getElementById('nicho-select').value;
+  const ciudad = document.getElementById('ciudad-input').value || 'España';
+  const dot = document.getElementById('dot-cap');
+  const label = document.getElementById('label-cap');
+  dot.className='agent-dot dot-busy';
+  label.textContent='Agente Captación — rastreando...';
+  document.getElementById('card-cap-output').style.display='block';
+  document.getElementById('card-cap-leads').style.display='none';
+  const out = document.getElementById('cap-output');
+  out.className='stream-box typing';
+  out.textContent='';
+
+  const msgs = [
+    `Iniciando rastreo en ${ciudad} — sector: ${NICHOS[nicho]?nicho:'general'}...\n`,
+    `Analizando Google Maps y directorios locales...\n`,
+    `Filtrando negocios sin presencia web o con web obsoleta...\n`,
+    `Verificando dominios y velocidad de carga...\n`,
+    `Procesando resultados...\n`
+  ];
+  let i=0;
+  const iv = setInterval(()=>{
+    if(i<msgs.length){ out.textContent+=msgs[i++]; }
+    else{
+      clearInterval(iv);
+      out.className='stream-box';
+      out.textContent+=`\n✓ Rastreo completado. ${8} negocios identificados con oportunidad de mejora digital.`;
+      dot.className='agent-dot dot-active';
+      label.textContent='Agente Captación — completado';
+      generarLeads(nicho, ciudad);
+    }
+  }, 600);
+}
+
+function generarLeads(nicho, ciudad){
+  const nombres = NICHOS[nicho] || NICHOS.clinicas;
+  leads = nombres.slice(0,8).map((n,i)=>({
+    id: Date.now()+i, nombre:n, ciudad, nicho,
+    problema: ['Sin web','Web sin móvil','Sin SEO','Web obsoleta (2015)','Sin contacto online'][i%5],
+    score: Math.floor(Math.random()*30)+70
+  }));
+  const list = document.getElementById('cap-leads-list');
+  list.innerHTML='';
+  leads.forEach(l=>{
+    list.innerHTML+=`<div class="lead-card">
+      <div><div class="lead-name">${l.nombre}</div><div class="lead-meta">${l.ciudad} · ${l.problema}</div></div>
+      <div class="lead-score">${l.score}</div>
+    </div>`;
+  });
+  document.getElementById('card-cap-leads').style.display='block';
+  document.getElementById('nb-cap').style.display='inline';
+  document.getElementById('nb-cap').textContent=leads.length;
+  updateStats();
+}
+
+function enviarAProduccion(){
+  prodLeads=[...leads];
+  document.getElementById('prod-empty').style.display='none';
+  const q=document.getElementById('prod-queue');
+  q.innerHTML='';
+  prodLeads.forEach(l=>{
+    q.innerHTML+=`<div class="lead-card"><div><div class="lead-name">${l.nombre}</div><div class="lead-meta">${l.ciudad} · ${l.problema}</div></div><div class="lead-score">${l.score}</div></div>`;
+  });
+  document.getElementById('prod-btn-row').style.display='flex';
+  document.getElementById('nb-prod').style.display='inline';
+  document.getElementById('nb-prod').textContent=prodLeads.length;
+  goPanel('produccion', document.querySelector('[onclick*=produccion]'));
+  updateStats();
+}
+
+function analizarLeads(){
+  document.getElementById('dot-prod').className='agent-dot dot-busy';
+  document.getElementById('label-prod').textContent='Agente Producción — analizando...';
+  document.getElementById('card-prod-analysis').style.display='block';
+  const box=document.getElementById('prod-analysis');
+  box.className='stream-box typing';
+  box.textContent='';
+
+  const anlz = [
+    'Accediendo a webs de los leads...\n',
+    'Analizando velocidad de carga (PageSpeed)...\n',
+    'Verificando presencia en Google Maps...\n',
+    'Comprobando adaptación móvil...\n',
+    'Evaluando SEO on-page y meta tags...\n',
+    'Calculando puntuación de oportunidad...\n\n',
+    '✓ Análisis completado. Leads ordenados por potencial:\n\n',
+  ];
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i<anlz.length){ box.textContent+=anlz[i++]; }
+    else{
+      clearInterval(iv);
+      prodLeads.forEach(l=>{ box.textContent+=`  ${l.score}pts — ${l.nombre} (${l.problema})\n`; });
+      box.className='stream-box';
+      document.getElementById('dot-prod').className='agent-dot dot-active';
+      document.getElementById('label-prod').textContent='Agente Producción — completado';
+      mostrarProdDone();
+    }
+  }, 500);
+}
+
+function mostrarProdDone(){
+  venLeads=[...prodLeads];
+  const list=document.getElementById('prod-done-list');
+  list.innerHTML='';
+  venLeads.forEach(l=>{
+    list.innerHTML+=`<div class="lead-card"><div><div class="lead-name">${l.nombre}</div><div class="lead-meta">${l.ciudad} · ${l.problema} · Score: ${l.score}</div></div></div>`;
+  });
+  document.getElementById('card-prod-done').style.display='block';
+  updateStats();
+}
+
+function enviarAVentas(){
+  document.getElementById('ven-empty').style.display='none';
+  const list=document.getElementById('ven-leads');
+  list.innerHTML='';
+  venLeads.forEach(l=>{
+    list.innerHTML+=`<div class="lead-card" onclick="seleccionarLead(${l.id})">
+      <div><div class="lead-name">${l.nombre}</div><div class="lead-meta">${l.ciudad} · ${l.problema}</div></div>
+      <div class="lead-score">${l.score}pts</div>
+    </div>`;
+  });
+  document.getElementById('nb-ven').style.display='inline';
+  document.getElementById('nb-ven').textContent=venLeads.length;
+  goPanel('ventas', document.querySelector('[onclick*=ventas]'));
+  updateStats();
+}
+
+function seleccionarLead(id){
+  venSelected = venLeads.find(l=>l.id===id);
+  if(!venSelected) return;
+  document.querySelectorAll('#ven-leads .lead-card').forEach(c=>c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('card-ven-selected').style.display='block';
+  document.getElementById('ven-meta').innerHTML=`
+    <span class="meta-tag">🏢 ${venSelected.nombre}</span>
+    <span class="meta-tag">📍 ${venSelected.ciudad}</span>
+    <span class="meta-tag">⚠️ ${venSelected.problema}</span>
+    <span class="meta-tag">Score: ${venSelected.score}</span>
+  `;
+  document.getElementById('ven-output').style.display='none';
+}
+
+async function callAI(prompt){
+  const out = document.getElementById('ven-output');
+  out.style.display='block';
+  out.className='stream-box typing';
+  out.textContent='Generando...';
+
+  if(!API_KEY){
+    await new Promise(r=>setTimeout(r,1200));
+    out.className='stream-box';
+    out.textContent = generarTextoDemo(prompt);
+    contados++;
+    updateStats();
+    return;
+  }
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await resp.json();
+    out.className='stream-box';
+    out.textContent = data.content?.[0]?.text || 'Error en la respuesta';
+    contados++;
+    updateStats();
+  }catch(e){
+    out.className='stream-box';
+    out.textContent='Error conectando con la API. Añade tu API key en el código.';
+  }
+}
+
+function generarTextoDemo(tipo){
+  if(!venSelected) return '';
+  if(tipo==='email') return `Asunto: Propuesta de presencia digital para ${venSelected.nombre}\n\nEstimado equipo de ${venSelected.nombre},\n\nMe pongo en contacto con ustedes porque hemos identificado que ${venSelected.problema.toLowerCase()} está limitando su visibilidad en ${venSelected.ciudad}.\n\nEn Brand Mind Studio construimos presencias digitales que trabajan 24/7. En 48 horas les mostramos una demo personalizada con su marca y contenidos reales.\n\nPlan recomendado: Web Presencia Pro — 497€ (pago único)\n\n¿Tienen 15 minutos esta semana para una llamada?\n\nUn saludo,\nEquipo Brand Mind Studio\ninfo@brandmindstudio.net\nbrandmindstudio.net`;
+  if(tipo==='propuesta') return `PROPUESTA COMERCIAL\nBrand Mind Studio → ${venSelected.nombre}\n${'─'.repeat(40)}\n\nSITUACIÓN ACTUAL\n${venSelected.problema} — esto supone pérdida de clientes potenciales en ${venSelected.ciudad} cada día.\n\nSOLUCIÓN PROPUESTA\nPlan Presencia Pro — 497€\n\nINCLUYE:\n✓ Web profesional con diseño a medida\n✓ Asistente IA que responde clientes 24/7\n✓ QR dinámico actualizable\n✓ SEO local optimizado\n✓ Multiidioma (3 idiomas)\n✓ Panel de administración\n\nTIMELINE\n• Día 1-2: Demo personalizada\n• Día 3-7: Desarrollo y ajustes\n• Día 7: Entrega y formación\n\nINVERSIÓN: 497€ (50% depósito + 50% entrega)\n\nbrandmindstudio.net`;
+  if(tipo==='whatsapp') return `Hola! 👋 Somos Brand Mind Studio.\n\nVimos que ${venSelected.nombre} ${venSelected.problema.toLowerCase()} y queremos ayudarles.\n\nEn 48h les mostramos una demo de su web nueva — sin compromiso.\n\n¿Les parece bien esta semana? 🚀\n\nbrandmindstudio.net`;
+  return `CIF de ${venSelected.nombre} — búsqueda en registro mercantil de ${venSelected.ciudad}.\n\nPara búsqueda real visita: www.einforma.com o www.infocif.es\nBusca: "${venSelected.nombre} ${venSelected.ciudad}"`;
+}
+
+function genEmail(){ callAI('email'); }
+function genPropuesta(){ callAI('propuesta'); }
+function genWhatsapp(){ callAI('whatsapp'); }
+function buscarCIF(){ callAI('cif'); }
+
+// FACTURACION
+let factNum = 2601;
+function generarFactura(){
+  const cliente=document.getElementById('inv-cliente').value||'Cliente';
+  const cif=document.getElementById('inv-cif').value||'—';
+  const servicio=document.getElementById('inv-servicio').options[document.getElementById('inv-servicio').selectedIndex].text;
+  const importe=parseFloat(document.getElementById('inv-importe').value)||497;
+  const iva=importe*0.21;
+  const total=importe+iva;
+  const fecha=new Date().toLocaleDateString('es-ES');
+  document.getElementById('factura-preview').innerHTML=`
+    <h3>FACTURA Nº BMS-2026-${factNum++}</h3>
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:12px;color:var(--text3)">
+      <div><strong style="color:var(--text)">EMISOR</strong><br>Argón 70 S.L.<br>NIF: B24845695<br>C/ Aníbal 3, 07800 Eivissa</div>
+      <div style="text-align:right"><strong style="color:var(--text)">CLIENTE</strong><br>${cliente}<br>CIF: ${cif}<br>Fecha: ${fecha}</div>
+    </div>
+    <div class="inv-row"><span>${servicio}</span><span>${importe.toFixed(2)}€</span></div>
+    <div class="inv-row"><span>IVA 21%</span><span>${iva.toFixed(2)}€</span></div>
+    <div class="inv-total"><span>TOTAL</span><span>${total.toFixed(2)}€</span></div>
+  `;
+  document.getElementById('card-factura').style.display='block';
+}
+
+function copiarFactura(){
+  const txt=document.getElementById('factura-preview').innerText;
+  navigator.clipboard.writeText(txt).then(()=>alert('Copiado al portapapeles'));
+}
+
+// SELECT PLAN → FACTURA
+document.getElementById('inv-servicio').addEventListener('change',function(){
+  const v=this.value;
+  if(v!=='custom') document.getElementById('inv-importe').value=v;
+});
+</script>
+</body>
+</html>
