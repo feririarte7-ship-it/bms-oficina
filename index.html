@@ -309,7 +309,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
 
     <!-- VENTAS -->
     <div class="panel" id="panel-ventas">
-      <div class="agent-pill"><div class="agent-dot dot-idle" id="dot-ven"></div><span id="label-ven">Agente Ventas — en espera</span></div>
+      <div class="agent-pill"><div class="agent-dot dot-idle" id="dot-ven"></div><span id="label-ven">El Cerrador — en espera</span></div>
       <div class="card">
         <div class="card-title"><div class="card-icon" style="background:rgba(0,255,136,.1)">✉</div> Leads cualificados</div>
         <div id="ven-empty" style="font-size:13px;color:var(--text3)">Procesa leads en Producción para verlos aquí.</div>
@@ -325,6 +325,24 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
           <button class="btn" onclick="genWhatsapp()">💬 WhatsApp</button>
         </div>
         <div class="stream-box" id="ven-output" style="display:none"></div>
+      </div>
+      <div class="card" id="card-cerrador">
+        <div class="card-title"><div class="card-icon" style="background:rgba(0,255,136,.15)">🎯</div> El Cerrador — Outreach Automático</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Genera un email personalizado con IA para cada lead y lo envía automáticamente via Resend desde <strong style="color:var(--green)">info@brandmindstudio.net</strong></p>
+        <div class="field-row">
+          <div class="field">
+            <label>Resend API Key</label>
+            <input type="password" id="resend-key-input" placeholder="re_…" autocomplete="off"/>
+          </div>
+          <div class="field" style="justify-content:flex-end">
+            <label style="opacity:0">.</label>
+            <button class="btn" onclick="guardarKeys()" style="height:37px">💾 Guardar claves</button>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="btn-cerrador" onclick="elCerrador()" disabled>🚀 El Cerrador — Enviar a todos los leads →</button>
+        </div>
+        <div class="stream-box" id="cerrador-output" style="display:none;margin-top:14px;max-height:280px;overflow-y:auto"></div>
       </div>
     </div>
 
@@ -440,6 +458,7 @@ function initApp(){
   setInterval(updateClock, 1000);
   const h = new Date().getHours();
   document.getElementById('welcome-msg').textContent = (h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches') + ' Fernando 👋';
+  cargarKeys();
 }
 function updateClock(){
   const n=new Date();
@@ -514,10 +533,11 @@ async function rastrearLeads(){
 Genera una lista de exactamente ${cantidad} negocios FICTICIOS pero realistas del sector "${nicho}" ubicados en "${ciudad}" que claramente necesitan mejorar su presencia digital.
 
 Para cada negocio devuelve EXACTAMENTE este formato JSON (array):
-[{"nombre":"...","ciudad":"...","problema":"...","score":85}]
+[{"nombre":"...","ciudad":"...","email":"info@nombreslug.es","problema":"...","score":85}]
 
 Problemas posibles: "Sin web", "Web obsoleta (2015)", "Web sin adaptación móvil", "Sin posicionamiento SEO", "Sin contacto online", "Web lenta (>5s)", "Sin Google Maps", "Sin reseñas gestionadas".
 Score entre 70 y 99 (mayor = mejor oportunidad).
+Para "email": infiere el email de contacto más probable del negocio (info@, contacto@, o hola@ + slug del nombre + .es o .com).
 Devuelve SOLO el array JSON, sin texto adicional.`;
 
       const resp = await fetch('https://api.anthropic.com/v1/messages',{
@@ -568,13 +588,11 @@ Devuelve SOLO el array JSON, sin texto adicional.`;
   // Fallback demo
   const pool = NICHOS_DEMO[nicho] || NICHOS_DEMO.clinicas;
   const problemas = ['Sin web','Web obsoleta (2015)','Web sin adaptación móvil','Sin posicionamiento SEO','Sin contacto online','Web lenta (>5s)','Sin Google Maps','Sin reseñas gestionadas'];
-  leads = Array.from({length:cantidad},(_,i)=>({
-    id:Date.now()+i,
-    nombre: i < pool.length ? pool[i] : pool[i % pool.length] + ' ' + String.fromCharCode(65 + Math.floor(i/pool.length)),
-    ciudad, nicho,
-    problema:problemas[i%problemas.length],
-    score:Math.floor(Math.random()*30)+70
-  }));
+  leads = Array.from({length:cantidad},(_,i)=>{
+    const nombre = i < pool.length ? pool[i] : pool[i % pool.length] + ' ' + String.fromCharCode(65 + Math.floor(i/pool.length));
+    const slug = nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'').slice(0,20);
+    return { id:Date.now()+i, nombre, ciudad, nicho, email:`info@${slug}.es`, problema:problemas[i%problemas.length], score:Math.floor(Math.random()*30)+70 };
+  });
   out.className='stream-box';
   out.textContent+=`\n✓ Rastreo completado. ${leads.length} negocios identificados con oportunidad de mejora digital.`;
   dot.className='agent-dot dot-active';
@@ -658,16 +676,10 @@ function mostrarProdDone(){
 
 function enviarAVentas(){
   document.getElementById('ven-empty').style.display='none';
-  const list=document.getElementById('ven-leads');
-  list.innerHTML='';
-  venLeads.forEach(l=>{
-    list.innerHTML+=`<div class="lead-card" onclick="seleccionarLead(${l.id})">
-      <div><div class="lead-name">${l.nombre}</div><div class="lead-meta">${l.ciudad} · ${l.problema}</div></div>
-      <div class="lead-score">${l.score}pts</div>
-    </div>`;
-  });
+  renderVenLeads();
   document.getElementById('nb-ven').style.display='inline';
   document.getElementById('nb-ven').textContent=venLeads.length;
+  activarCerrador();
   goPanel('ventas', document.querySelector('[onclick*=ventas]'));
   updateStats();
 }
@@ -783,6 +795,148 @@ document.getElementById('inv-servicio').addEventListener('change',function(){
   const v=this.value;
   if(v!=='custom') document.getElementById('inv-importe').value=v;
 });
+
+// ─── KEYS PERSISTENCE ────────────────────────────────────────────────────────
+function guardarKeys(){
+  const ant = document.getElementById('api-key-input').value.trim();
+  const res = document.getElementById('resend-key-input').value.trim();
+  if(ant) localStorage.setItem('bms_ant_key', ant);
+  if(res) localStorage.setItem('bms_resend_key', res);
+  alert('Claves guardadas en este navegador.');
+}
+
+function cargarKeys(){
+  const ant = localStorage.getItem('bms_ant_key') || '';
+  const res = localStorage.getItem('bms_resend_key') || '';
+  if(ant){ const el=document.getElementById('api-key-input'); if(el&&!el.value) el.value=ant; }
+  if(res){ const el=document.getElementById('resend-key-input'); if(el&&!el.value) el.value=res; }
+}
+
+// Activar botón El Cerrador cuando haya leads en ventas
+function activarCerrador(){
+  const btn = document.getElementById('btn-cerrador');
+  if(btn) btn.disabled = venLeads.length === 0;
+}
+
+// ─── EL CERRADOR ─────────────────────────────────────────────────────────────
+async function elCerrador(){
+  const resendKey = document.getElementById('resend-key-input').value.trim() || localStorage.getItem('bms_resend_key') || '';
+  const antKey    = document.getElementById('api-key-input').value.trim()   || localStorage.getItem('bms_ant_key')   || '';
+  if(!resendKey){ alert('Necesito la API key de Resend en el campo de arriba.'); return; }
+  if(!venLeads.length){ alert('No hay leads en Ventas todavía.'); return; }
+
+  const dot    = document.getElementById('dot-ven');
+  const label  = document.getElementById('label-ven');
+  const output = document.getElementById('cerrador-output');
+  const btn    = document.getElementById('btn-cerrador');
+
+  dot.className   = 'agent-dot dot-busy';
+  label.textContent = `El Cerrador — procesando ${venLeads.length} leads...`;
+  output.style.display = 'block';
+  output.textContent   = `El Cerrador activado ─ ${venLeads.length} leads en cola\n${'─'.repeat(45)}\n`;
+  btn.disabled = true;
+
+  let enviados = 0, errores = 0;
+
+  for(const lead of venLeads){
+    const idx = venLeads.indexOf(lead) + 1;
+    output.textContent += `\n[${idx}/${venLeads.length}] ${lead.nombre} (${lead.ciudad})\n`;
+    output.scrollTop = output.scrollHeight;
+
+    let emailTo, emailSubject, emailHtml;
+
+    try{
+      // — Generar email con Claude (o demo) —
+      if(antKey && antKey.startsWith('sk-ant')){
+        const prompt = `Eres El Cerrador, agente de ventas de Brand Mind Studio.
+Escribe un email de prospección para "${lead.nombre}" en "${lead.ciudad}". Problema detectado: "${lead.problema}". Ofrecemos el plan Presencia Pro a 497€.
+Responde SOLO con JSON válido: {"to":"correo@empresa.es","subject":"asunto del email","html":"<p>cuerpo en HTML simple, máx 200 palabras</p>"}
+Para el campo "to": infiere el email más probable del negocio (formato info@nombreslug.es o contacto@nombreslug.com).`;
+
+        const r = await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','x-api-key':antKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+          body: JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:600,messages:[{role:'user',content:prompt}]})
+        });
+        const d = await r.json();
+        if(d.error) throw new Error(d.error.message);
+        const raw  = d.content?.[0]?.text || '{}';
+        const json = JSON.parse(raw.match(/\{[\s\S]*\}/)[0]);
+        emailTo      = json.to;
+        emailSubject = json.subject;
+        emailHtml    = json.html;
+      } else {
+        // Demo fallback
+        const slug = lead.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'').slice(0,20);
+        emailTo      = `info@${slug}.es`;
+        emailSubject = `Tu negocio en ${lead.ciudad} merece una web que venda`;
+        emailHtml    = `<p>Hola, equipo de <strong>${lead.nombre}</strong>,</p>
+<p>Detectamos que <strong>${lead.problema.toLowerCase()}</strong> está limitando tu visibilidad en ${lead.ciudad}.</p>
+<p>En <strong>Brand Mind Studio</strong> construimos presencias digitales que trabajan 24/7 por tu negocio. En 48 horas te mostramos una demo personalizada sin compromiso.</p>
+<p><strong>Plan Presencia Pro — 497€ (pago único)</strong><br>
+Web profesional · Asistente IA 24/7 · SEO local · Multiidioma · Panel de administración</p>
+<p>¿Tienes 15 minutos esta semana?</p>
+<p>— Equipo Brand Mind Studio<br><a href="https://brandmindstudio.net">brandmindstudio.net</a></p>`;
+      }
+
+      output.textContent += `  → ${emailTo}\n  → "${emailSubject}"\n`;
+      output.scrollTop = output.scrollHeight;
+
+      // — Enviar via Resend —
+      const sr = await fetch('https://api.resend.com/emails',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${resendKey}`},
+        body: JSON.stringify({
+          from:'Brand Mind Studio <info@brandmindstudio.net>',
+          to:[emailTo],
+          subject: emailSubject,
+          html: emailHtml
+        })
+      });
+      const sd = await sr.json();
+      if(sd.id){
+        output.textContent += `  ✓ Enviado — ID: ${sd.id}\n`;
+        enviados++;
+        contados++;
+        lead.emailEnviado = true;
+        lead.emailId = sd.id;
+      } else {
+        output.textContent += `  ✗ Resend error: ${JSON.stringify(sd.message || sd)}\n`;
+        errores++;
+      }
+    } catch(e){
+      output.textContent += `  ✗ Error: ${e.message}\n`;
+      errores++;
+    }
+
+    updateStats();
+    output.scrollTop = output.scrollHeight;
+    await new Promise(r=>setTimeout(r,400));
+  }
+
+  output.textContent += `\n${'─'.repeat(45)}\nOutreach completado: ${enviados} enviados · ${errores} errores\n`;
+  output.scrollTop = output.scrollHeight;
+  dot.className   = 'agent-dot dot-active';
+  label.textContent = `El Cerrador — ${enviados}/${venLeads.length} emails enviados`;
+  btn.disabled = false;
+
+  // Refrescar lista de leads con estado
+  renderVenLeads();
+}
+
+function renderVenLeads(){
+  const list = document.getElementById('ven-leads');
+  list.innerHTML = '';
+  venLeads.forEach(l=>{
+    const badge = l.emailEnviado
+      ? `<span style="font-size:10px;background:rgba(0,255,136,.15);color:var(--green);padding:2px 8px;border-radius:10px;border:1px solid var(--border2)">✓ Enviado</span>`
+      : `<div class="lead-score">${l.score}pts</div>`;
+    list.innerHTML += `<div class="lead-card" onclick="seleccionarLead(${l.id})">
+      <div><div class="lead-name">${l.nombre}</div><div class="lead-meta">${l.ciudad} · ${l.problema}</div></div>
+      ${badge}
+    </div>`;
+  });
+}
 </script>
 </body>
 </html>
