@@ -235,6 +235,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
               <option value="dental">Clínicas dentales</option>
               <option value="hoteles">Hoteles y turismo</option>
               <option value="gimnasios">Gimnasios y fitness</option>
+              <option value="peluquerias">Peluquerías y barberías</option>
+              <option value="talleres">Talleres y mecánica</option>
+              <option value="academias">Academias y formación</option>
+              <option value="veterinarias">Clínicas veterinarias</option>
+              <option value="farmacias">Farmacias y parafarmacia</option>
+              <option value="asesorias">Asesorías y gestorías</option>
+              <option value="fotografia">Estudios de fotografía</option>
+              <option value="arquitectos">Arquitectos e interioristas</option>
             </select>
           </div>
           <div class="field">
@@ -464,14 +472,22 @@ function updateStats(){
 
 // CAPTACION — fallback demo data
 const NICHOS_DEMO = {
-  clinicas:   ['Clínica Mediterránea','Centro Salud Levante','Fisio & Bienestar','Clínica Estética Sol','Psicología Integral','Rehabilitación Plus','Nutrición & Salud','Clínica Integral','Osteopatía Avanzada','Médicos del Sur'],
-  restaurantes:['Restaurante La Bahía','Bar Tapas El Rincón','Marisquería Don Pedro','La Terraza Bistró','Bodega Artesanal','El Chiringuito','Cocina de Mercado','Cafetería Central','Pizzería Bella Napoli','Asador El Roble'],
-  abogados:   ['Bufete García & Asociados','Despacho Jurídico Sur','Lex & Partners','Abogacía Mediterránea','Estudio Legal Sol','Firma Jurídica Plus','Asesoría Legal 360','Despacho Miquel','Jurídico & Asociados','Abogados del Mar'],
-  inmobiliarias:['Inmobiliaria Sol & Mar','Pisos & Casas','Home Consulting','Fincas del Valle','Real Estate Plus','Inmuebles Premium','Casas & Villas','Properties Group','Habitat Consulting','Domus Gestión'],
-  estetica:   ['Centro Belleza Luna','Spa & Beauty Sol','Estética Avanzada','Centro Bienestar Mar','Salón de Belleza Eva','Beauty Center Plus','Estudio Facial Pro','Nails & Beauty','Masajes & Bienestar','Centro Estético 360'],
-  dental:     ['Clínica Dental Sonrisa','Ortodoncia & Estética','Dental Center Plus','Clínica Implantes Sol','Odontología Avanzada','Dental Boutique','Sonrisa Perfecta','Implantes del Sur','Clínica Dental Mar','Dental & Estética'],
-  hoteles:    ['Hotel Boutique Sol','Apartamentos Vista Mar','Hostal El Puerto','Hotel Rural Sierra','Alojamiento Céntrico','Casa Rural Premium','Hotel & Spa','Suites del Sur','Pensión Central','Hotel Playa Azul'],
-  gimnasios:  ['Gym Fitness Plus','Centro Deportivo Sur','CrossFit Zone','Body & Mind Studio','Gym & Wellness','Centro Pilates Sol','Boxing Club','Yoga & Fitness','Entrenamiento Personal','Sport Center 360']
+  clinicas:     ['Clínica Mediterránea','Centro Salud Levante','Fisio & Bienestar','Clínica Estética Sol','Psicología Integral','Rehabilitación Plus','Nutrición & Salud','Clínica Integral','Osteopatía Avanzada','Médicos del Sur','Clínica Norte','Centro Médico Familiar','Fisioterapia Activa','Clínica del Deporte','Consulta Médica Plaza','Salud & Vida','Centro Holístico','Podología Avanzada','Clínica Privada Sol','Medicina Estética Plus'],
+  restaurantes: ['Restaurante La Bahía','Bar Tapas El Rincón','Marisquería Don Pedro','La Terraza Bistró','Bodega Artesanal','El Chiringuito','Cocina de Mercado','Cafetería Central','Pizzería Bella Napoli','Asador El Roble','Casa de Comidas Aurora','El Mesón Viejo','Taberna del Puerto','Restaurante Fusión','La Cantina','Gastrobar El Mirador','El Olivo Restaurant','Cervecería Norte','Trattoria del Sol','Brasa & Leña'],
+  abogados:     ['Bufete García & Asociados','Despacho Jurídico Sur','Lex & Partners','Abogacía Mediterránea','Estudio Legal Sol','Firma Jurídica Plus','Asesoría Legal 360','Despacho Miquel','Jurídico & Asociados','Abogados del Mar','Torres & Asociados','Despacho Navarro','Legal Consulting Sur','Abogacía Familiar','Defensa Legal Plus','Asesoría Jurídica Pro','Bufete Internacional','Legal & Partners','Derecho & Gestión','Consultoría Legal'],
+  inmobiliarias:['Inmobiliaria Sol & Mar','Pisos & Casas','Home Consulting','Fincas del Valle','Real Estate Plus','Inmuebles Premium','Casas & Villas','Properties Group','Habitat Consulting','Domus Gestión','Gestión Inmobiliaria Norte','Piso Fácil','Top Inmobiliaria','Casas del Sur','Agencia Inmobiliaria Central','Fincas & Suelos','Propiedades Premium','Real Estate Sur','Viviendas Plus','Home & Living'],
+  estetica:     ['Centro Belleza Luna','Spa & Beauty Sol','Estética Avanzada','Centro Bienestar Mar','Salón de Belleza Eva','Beauty Center Plus','Estudio Facial Pro','Nails & Beauty','Masajes & Bienestar','Centro Estético 360','Belleza Natural','Spa Relax','Depilación Láser Plus','Beauty Studio Norte','Centro Estetico Premium','Skin Care Clinic','Bienestar & Salud','Tratamientos Faciales Pro','Centro Antiedad','Estética Integral'],
+  dental:       ['Clínica Dental Sonrisa','Ortodoncia & Estética','Dental Center Plus','Clínica Implantes Sol','Odontología Avanzada','Dental Boutique','Sonrisa Perfecta','Implantes del Sur','Clínica Dental Mar','Dental & Estética','Orthodontia Plus','Clínica Dental Norte','Blanqueamiento Dental','Endodoncia Avanzada','Dental Premium','Clínica Familiar Dental','Implantología Sur','Dental Studio','Ortodoncia Invisible','Centro Dental Integral'],
+  hoteles:      ['Hotel Boutique Sol','Apartamentos Vista Mar','Hostal El Puerto','Hotel Rural Sierra','Alojamiento Céntrico','Casa Rural Premium','Hotel & Spa','Suites del Sur','Pensión Central','Hotel Playa Azul','Aparthotel Norte','Casa de Huéspedes','Hotel Ciudad','Posada del Camino','Villas & Suites','Hotel Familiar','Albergue Turístico','Hostel Central','Hotel Boutique Norte','Resort & Spa'],
+  gimnasios:    ['Gym Fitness Plus','Centro Deportivo Sur','CrossFit Zone','Body & Mind Studio','Gym & Wellness','Centro Pilates Sol','Boxing Club','Yoga & Fitness','Entrenamiento Personal','Sport Center 360','Gimnasio 24H','Functional Training','Athletic Club','Gym Premium','Centro Deportivo Norte','Power Gym','Studio Pilates','Spinning Center','Gym & Spa','Fitness Factory'],
+  peluquerias:  ['Salón Marco Antonio','Barbería El Señor','Corte & Estilo','Studio Hair','Peluquería Mía','Barbershop Norte','Hair & Beauty','Peluquería Moderna','The Barber Shop','Estudio Capilar','Peluquería Familiar','Barber Club','Color & Corte','Hair Studio Pro','Peluquería Unisex Sol','Barbería Clásica','Tinte & Forma','Estilo Urbano','Peluquería Premium','The Hair Loft'],
+  talleres:     ['Taller Mecánico Norte','Auto Servicio Sur','Mecánica Rápida','Taller El Motor','Auto Center Plus','Carrocerías del Sur','Mecánica Express','Taller Central','Auto Repair Pro','Mecánica Integral','Taller Oficial','Servicio Rápido Auto','Pintura & Carrocería','Diagnóstico Auto','Taller Multimarca','Mecánica Familiar','Auto Service Plus','Taller Diesel Norte','Electromecánica Sur','Taller 24H'],
+  academias:    ['Academia Inglés Plus','Centro Formación Norte','Escuela de Idiomas','Academia Informática','Centro de Estudios Sol','Clases Particulares Pro','Academia Oposiciones','Formación Continua','Escuela de Negocios','Academia Música','Centro Educativo Plus','Instituto de Idiomas','Academia Matemáticas','Formación Online Pro','Escuela Arte & Diseño','Academia Driving','Centro Yoga & Meditación','Escuela de Cocina','Academia Danza','Formación Profesional Sur'],
+  veterinarias: ['Clínica Veterinaria Sol','Veterinario de Guardia','Centro Animal Plus','Clínica Mascotas Norte','Vet & Pet','Animal Health Center','Clínica Felina','Veterinaria del Mar','Centro Veterinario Plus','Animal Care','Clínica Canina Norte','Vet 24H','Clínica Animal Integral','Centro Veterinario Sur','Mascotas & Salud','Clínica Exóticos','Veterinaria Express','Animal Clinic Pro','Clínica Veterinaria Central','Pet Health Plus'],
+  farmacias:    ['Farmacia Central','Farmacia Norte','Parafarmacia Plus','Farmacia del Mar','Farmacia 24H','Farmacia Familiar','Farmacia & Ortopedia','Farmacia Online Sur','Farmacia Comunitaria','Farmacia del Puerto','Farmacia Compounding','Parafarmacia Sol','Farmacia Especializada','Farmacia Naturopatía','Farmacia del Valle','Farmacia Salud Plus','Farmacia Moderna','Farmacia Integral','Farmacia Express','Farmacia & Nutrición'],
+  asesorias:    ['Asesoría García','Gestoría del Sur','Consultoría Fiscal','Asesoría Laboral Plus','Gestoría Central','Contabilidad & Más','Asesoría Empresarial','Gestoría Norte','Fiscal & Laboral','Consultoría de Empresas','Asesoría Integral','Gestoría Familiar','Tax Consulting','Asesoría Contable','Gestoría Online','Auditoría & Consultoría','Asesoría Pyme','Gestoría Profesional','Fiscal Plus','Asesoría 360'],
+  fotografia:   ['Estudio Fotografía Sol','Photo Studio Norte','Fotografía de Boda','Studio Pro Photo','Fotografía Comercial','Retrato Studio','Foto Estudio Central','Fotografía Ibérica','Studio Creativo','Foto Arte Sur','Photo & Video Pro','Estudio de Imagen','Fotografía Integral','Studio Moments','Foto Profesional Norte','Fotografía Moda','Studio Light','Fotografía Corporativa','Foto Arte Plus','Estudio Creativo 360'],
+  arquitectos:  ['Estudio Arquitectura Sol','Interiorismo & Diseño','Arquitectos Asociados','Reforma & Diseño','Studio Interiores','Arquitectura Moderna','Diseño & Construcción','Estudio Reforma','Arquitectura Interior','Home Design Studio','Arquitectos Norte','Reforma Integral','Diseño de Interiores Plus','Studio Arquitectónico','Construcción & Diseño','Interiorismo Avanzado','Reforma Premium','Estudio Diseño Sur','Arquitectura & Reforma','Design Studio Pro']
 };
 
 async function rastrearLeads(){
@@ -551,9 +567,11 @@ Devuelve SOLO el array JSON, sin texto adicional.`;
 
   // Fallback demo
   const pool = NICHOS_DEMO[nicho] || NICHOS_DEMO.clinicas;
-  const problemas = ['Sin web','Web obsoleta (2015)','Web sin adaptación móvil','Sin posicionamiento SEO','Sin contacto online','Web lenta (>5s)'];
-  leads = Array.from({length:Math.min(cantidad,pool.length)},(_,i)=>({
-    id:Date.now()+i, nombre:pool[i], ciudad, nicho,
+  const problemas = ['Sin web','Web obsoleta (2015)','Web sin adaptación móvil','Sin posicionamiento SEO','Sin contacto online','Web lenta (>5s)','Sin Google Maps','Sin reseñas gestionadas'];
+  leads = Array.from({length:cantidad},(_,i)=>({
+    id:Date.now()+i,
+    nombre: i < pool.length ? pool[i] : pool[i % pool.length] + ' ' + String.fromCharCode(65 + Math.floor(i/pool.length)),
+    ciudad, nicho,
     problema:problemas[i%problemas.length],
     score:Math.floor(Math.random()*30)+70
   }));
