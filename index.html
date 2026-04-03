@@ -135,6 +135,111 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
 .welcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
 .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 .meta-tag{background:var(--green-dim);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--text2)}
+
+/* ── APP-BODY: necesita min-height:0 para que el terminal empuje desde abajo ── */
+/* (se parchea inline con JS, ver abajo) */
+
+/* ── BARTOLO TERMINAL ────────────────────────────────────────────────────────── */
+#bartolo-terminal{
+  flex-shrink:0;background:var(--bg2);border-top:2px solid var(--border2);
+  display:flex;flex-direction:column;height:290px;
+  transition:height .22s cubic-bezier(.4,0,.2,1);overflow:hidden;
+  position:relative;
+}
+#bartolo-terminal.collapsed{height:40px}
+.term-header{
+  height:40px;flex-shrink:0;display:flex;align-items:center;gap:10px;
+  padding:0 14px;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);
+}
+.term-header:hover{background:rgba(255,255,255,.02)}
+.term-hgroup{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.term-hdot{width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 7px var(--green);flex-shrink:0}
+.term-hdot.busy{background:var(--amber);box-shadow:0 0 7px var(--amber);animation:pulse 1s infinite}
+.term-hdot.idle{background:var(--text3);box-shadow:none}
+.term-hlabel{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap}
+.term-hstatus{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+.term-hright{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0}
+.term-hbtn{
+  background:none;border:1px solid var(--border);color:var(--text3);
+  padding:2px 8px;border-radius:4px;cursor:pointer;font-size:10px;
+  font-family:inherit;transition:all .15s;white-space:nowrap;
+}
+.term-hbtn:hover{border-color:var(--green);color:var(--green)}
+.term-body{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.term-msgs{
+  flex:1;overflow-y:auto;padding:10px 14px;
+  display:flex;flex-direction:column;gap:7px;scroll-behavior:smooth;
+}
+.term-msgs::-webkit-scrollbar{width:3px}
+.term-msgs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.term-input-row{
+  display:flex;align-items:center;gap:8px;padding:7px 14px;
+  border-top:1px solid var(--border);flex-shrink:0;
+}
+.term-prompt{color:var(--green);font-weight:800;font-size:15px;flex-shrink:0}
+.term-input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;
+}
+.term-input::placeholder{color:var(--text3)}
+.term-input:disabled{opacity:.4}
+.term-send-btn{
+  background:var(--green-dim);border:1px solid rgba(0,255,136,.25);color:var(--green);
+  padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;
+  font-family:'Syne',sans-serif;font-weight:700;transition:all .15s;white-space:nowrap;
+}
+.term-send-btn:hover{background:rgba(0,255,136,.15)}
+.term-send-btn:disabled{opacity:.3;cursor:not-allowed}
+/* Mensajes */
+.tmsg{display:flex;gap:8px;align-items:flex-start;max-width:90%}
+.tmsg.user{align-self:flex-end;flex-direction:row-reverse}
+.tmsg.bot{align-self:flex-start}
+.tmsg-av{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;
+}
+.tmsg.user .tmsg-av{background:var(--bg3);border:1px solid var(--border2);color:var(--text3)}
+.tmsg.bot  .tmsg-av{background:var(--green);color:#000}
+.tmsg-bub{
+  padding:6px 11px;border-radius:10px;font-size:13px;line-height:1.55;
+  white-space:pre-wrap;word-break:break-word;
+}
+.tmsg.user .tmsg-bub{background:var(--bg3);border:1px solid var(--border);border-bottom-right-radius:3px;color:var(--text2)}
+.tmsg.bot  .tmsg-bub{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.14);color:var(--text);border-bottom-left-radius:3px}
+.tmsg-bub strong{color:#fff}
+.tmsg-bub code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-family:'DM Sans',monospace;font-size:12px}
+/* Tool cards en terminal */
+.tcard{
+  background:var(--bg);border:1px solid var(--border2);
+  border-left:2px solid var(--amber);border-radius:7px;
+  padding:8px 12px;font-size:12px;line-height:1.6;
+  margin-top:3px;width:100%;max-width:460px;
+}
+.tcard.done{border-left-color:var(--green)}
+.tcard-title{font-size:10px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--amber);margin-bottom:5px}
+.tcard.done .tcard-title{color:var(--green)}
+.tcard-row{display:flex;justify-content:space-between;gap:16px;
+  color:var(--text3);padding:1px 0}
+.tcard-row span:last-child{color:var(--text2);text-align:right;max-width:220px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Flash del pipeline lead nuevo */
+@keyframes lead-flash{
+  0%{background:rgba(0,255,136,.22);border-color:var(--green)}
+  100%{background:var(--bg3);border-color:var(--border)}
+}
+.lead-card.new-lead{animation:lead-flash 2s ease-out forwards}
+/* Toast pipeline */
+.pipeline-toast{
+  position:fixed;bottom:300px;right:20px;
+  background:var(--green);color:#000;font-size:12px;font-weight:700;
+  padding:8px 14px;border-radius:8px;z-index:200;
+  animation:toast-in .3s ease,toast-out .4s ease 2.5s forwards;
+  font-family:'Syne',sans-serif;
+}
+@keyframes toast-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toast-out{to{opacity:0;transform:translateY(10px)}}
 </style>
 </head>
 <body>
@@ -1076,6 +1181,327 @@ function startBartoloPolling(){
     if(el) el.textContent = bartoloCountdown + 's';
   }, 1000);
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BARTOLO TERMINAL — chat integrado con pipeline en tiempo real
+// ═══════════════════════════════════════════════════════════════════════════════
+let termCollapsed   = false;
+let termBusy        = false;
+let termHistory     = [];   // historial para el /chat endpoint
+let termBotBubble   = null; // burbuja activa mientras Bartolo escribe
+let termBotText     = '';
+let termToolCard    = null;
+
+// ── Fix layout: app-body necesita min-height:0 ──────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const ab = document.querySelector('.app-body');
+  if (ab) ab.style.minHeight = '0';
+});
+
+// ── Toggle ───────────────────────────────────────────────────────────────────
+function toggleTerminal(){
+  const t = document.getElementById('bartolo-terminal');
+  const btn = document.getElementById('term-toggle-btn');
+  termCollapsed = !termCollapsed;
+  t.classList.toggle('collapsed', termCollapsed);
+  btn.textContent = termCollapsed ? '▲' : '▼';
+}
+
+function expandTerminal(){
+  if(!termCollapsed) return;
+  termCollapsed = false;
+  document.getElementById('bartolo-terminal').classList.remove('collapsed');
+  document.getElementById('term-toggle-btn').textContent = '▼';
+}
+
+function clearTerminal(){
+  document.getElementById('term-msgs').innerHTML = '';
+  termHistory = [];
+  termBotBubble = null;
+  termBotText = '';
+  termToolCard = null;
+}
+
+// ── Keyboard shortcut Shift+B ─────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if(e.shiftKey && e.key === 'B' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+    expandTerminal();
+    setTimeout(() => document.getElementById('term-input').focus(), 250);
+  }
+});
+
+function termKeydown(e){
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); termSend(); }
+}
+
+// ── Render helpers ────────────────────────────────────────────────────────────
+function termScroll(){
+  const m = document.getElementById('term-msgs');
+  m.scrollTop = m.scrollHeight;
+}
+
+function termAddMsg(role, htmlContent){
+  const msgs = document.getElementById('term-msgs');
+  const wrap = document.createElement('div');
+  wrap.className = 'tmsg ' + role;
+  const av = document.createElement('div');
+  av.className = 'tmsg-av';
+  av.textContent = role === 'user' ? 'F' : 'B';
+  const bub = document.createElement('div');
+  bub.className = 'tmsg-bub';
+  bub.innerHTML = htmlContent;
+  wrap.appendChild(av);
+  wrap.appendChild(bub);
+  msgs.appendChild(wrap);
+  termScroll();
+  return bub;
+}
+
+function termFormatText(t){
+  return escHtml(t)
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\n/g,'<br>');
+}
+
+function termAddTyping(){
+  const msgs = document.getElementById('term-msgs');
+  const wrap = document.createElement('div');
+  wrap.className = 'tmsg bot'; wrap.id = 'term-typing';
+  wrap.innerHTML = '<div class="tmsg-av">B</div><div class="tmsg-bub" style="color:var(--green);letter-spacing:3px">···</div>';
+  msgs.appendChild(wrap);
+  termScroll();
+}
+
+function termRemoveTyping(){
+  const el = document.getElementById('term-typing');
+  if(el) el.remove();
+}
+
+function termSetStatus(text, state='active'){
+  document.getElementById('term-status').textContent = text;
+  const dot = document.getElementById('term-dot');
+  dot.className = 'term-hdot' + (state === 'busy' ? ' busy' : state === 'idle' ? ' idle' : '');
+}
+
+// ── Pipeline toast ────────────────────────────────────────────────────────────
+function showPipelineToast(nombre){
+  const t = document.createElement('div');
+  t.className = 'pipeline-toast';
+  t.textContent = '✓ ' + nombre + ' → pipeline';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ── SEND ──────────────────────────────────────────────────────────────────────
+async function termSend(){
+  if(termBusy) return;
+  const input = document.getElementById('term-input');
+  const text = input.value.trim();
+  if(!text) return;
+
+  input.value = '';
+  input.disabled = true;
+  document.getElementById('term-send-btn').disabled = true;
+  termBusy = true;
+  expandTerminal();
+  termSetStatus('— procesando...', 'busy');
+
+  termAddMsg('user', termFormatText(text));
+  termAddTyping();
+  termHistory.push({ role: 'user', content: text });
+
+  try {
+    const resp = await fetch(BARTOLO_URL + '/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + bartoloToken
+      },
+      body: JSON.stringify({ message: text, history: termHistory.slice(0, -1) })
+    });
+
+    termRemoveTyping();
+
+    if(resp.status === 401){
+      termAddMsg('bot', '<span style="color:var(--red)">⚠ Token inválido. Actualizá el token en el panel Bartolo Live.</span>');
+      termSetStatus('— error auth', 'idle');
+    } else {
+      const ct = resp.headers.get('content-type') || '';
+      if(ct.includes('text/event-stream')){
+        await termReadSSE(resp);
+      } else {
+        const d = await resp.json();
+        const msg = d.reply || d.error || JSON.stringify(d);
+        termBotBubble = termAddMsg('bot', termFormatText(msg));
+        termHistory.push({ role: 'assistant', content: d.reply || msg });
+        termSetStatus('— listo');
+      }
+    }
+  } catch(err){
+    termRemoveTyping();
+    termAddMsg('bot', '<span style="color:var(--red)">⚠ Error de conexión: ' + escHtml(err.message) + '</span>');
+    termSetStatus('— sin conexión', 'idle');
+  }
+
+  termBusy = false;
+  input.disabled = false;
+  document.getElementById('term-send-btn').disabled = false;
+  input.focus();
+}
+
+// ── SSE reader ────────────────────────────────────────────────────────────────
+async function termReadSSE(resp){
+  const reader = resp.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '';
+  termBotBubble = null;
+  termBotText   = '';
+  termToolCard  = null;
+
+  const ensureBubble = () => {
+    if(!termBotBubble) termBotBubble = termAddMsg('bot', '');
+  };
+
+  while(true){
+    const { done, value } = await reader.read();
+    if(done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop();
+
+    let ev = '', da = '';
+    for(const line of lines){
+      if(line.startsWith('event:')) ev = line.slice(6).trim();
+      else if(line.startsWith('data:')) da = line.slice(5).trim();
+      else if(line === '' && (ev || da)){
+        try{ termHandleSSE(ev, JSON.parse(da)); }catch(_){}
+        ev = ''; da = '';
+      }
+    }
+  }
+
+  if(termBotText) termHistory.push({ role: 'assistant', content: termBotText });
+  termSetStatus('— listo');
+}
+
+function termHandleSSE(ev, payload){
+  if(ev === 'text'){
+    ensureBotBubble();
+    termBotText += payload.text;
+    termBotBubble.innerHTML = termFormatText(termBotText);
+    termScroll();
+
+  } else if(ev === 'tool_start'){
+    ensureBotBubble();
+    const inp = payload.input || {};
+    const card = document.createElement('div');
+    card.className = 'tcard';
+    card.innerHTML =
+      '<div class="tcard-title">⚙ Pipeline iniciado</div>' +
+      '<div class="tcard-row"><span>Negocio</span><span>' + escHtml(inp.nombre||'') + '</span></div>' +
+      '<div class="tcard-row"><span>Ubicación</span><span>' + escHtml(inp.ubicacion||'') + '</span></div>' +
+      '<div class="tcard-row"><span>Sector</span><span>' + escHtml(inp.sector||'') + '</span></div>' +
+      '<div class="tcard-row" id="tcard-prog"><span>Estado</span><span style="color:var(--amber)">Eyes → buscando web...</span></div>';
+    termBotBubble.appendChild(card);
+    termToolCard = card;
+    termSetStatus('— Eyes → buscando web...', 'busy');
+    termScroll();
+
+  } else if(ev === 'progress'){
+    const m = payload.message || '';
+    let label = '';
+    if(m.includes('[EYES]'))  label = 'Eyes → escaneando web...';
+    else if(m.includes('[BRAIN]')) label = 'Brain → calculando revenue...';
+    else if(m.includes('[FACE]') && m.includes('Redactando')) label = 'Face → redactando email...';
+    else if(m.includes('[FACE]') && m.includes('Enviando'))   label = 'Face → enviando email...';
+    if(label){
+      termSetStatus('— ' + label, 'busy');
+      const pr = document.getElementById('tcard-prog');
+      if(pr) pr.innerHTML = '<span>Estado</span><span style="color:var(--amber)">' + label + '</span>';
+    }
+
+  } else if(ev === 'tool_result'){
+    const r = payload.result || {};
+    const d = r.diagnostico || {};
+    const dur = r.duracion_ms ? (r.duracion_ms/1000).toFixed(1)+'s' : '';
+    if(termToolCard){
+      termToolCard.className = 'tcard done';
+      termToolCard.innerHTML =
+        '<div class="tcard-title">✓ Pipeline completado' + (dur ? ' · '+dur : '') + '</div>' +
+        (d.problema       ? '<div class="tcard-row"><span>Problema</span><span>'+escHtml(d.problema)+'</span></div>' : '') +
+        (d.revenue_anual  ? '<div class="tcard-row"><span>Revenue perdido/año</span><span>'+escHtml(d.revenue_anual)+'</span></div>' : '') +
+        (r.asunto         ? '<div class="tcard-row"><span>Asunto email</span><span>'+escHtml(r.asunto)+'</span></div>' : '') +
+        '<div class="tcard-row"><span>Enviado a</span><span>'+escHtml(r.email_destino||'')+(r.preview?' (preview)':'')+'</span></div>';
+    }
+    termSetStatus('— completado', 'active');
+    termScroll();
+
+  } else if(ev === 'pipeline_update'){
+    const lead = payload.lead || {};
+    // Refrescar el panel Bartolo Live inmediatamente
+    fetchBartoloLeads().then(() => flashNewestLead());
+    // Actualizar badge del terminal
+    const badge = document.getElementById('term-pipe-badge');
+    if(badge){ badge.style.display='inline'; badge.textContent = (payload.total||0) + ' en pipeline'; }
+    showPipelineToast(lead.nombre || 'Lead');
+
+  } else if(ev === 'error'){
+    ensureBotBubble();
+    termBotBubble.innerHTML += '<br><span style="color:var(--red)">⚠ '+escHtml(payload.message||'error')+'</span>';
+    termSetStatus('— error', 'idle');
+    termScroll();
+  }
+}
+
+function ensureBotBubble(){
+  if(!termBotBubble) termBotBubble = termAddMsg('bot', '');
+}
+
+// Destacar el lead más nuevo en el panel Bartolo Live
+function flashNewestLead(){
+  const list = document.getElementById('bartolo-leads-list');
+  const first = list && list.querySelector('.lead-card');
+  if(first){
+    first.classList.remove('new-lead');
+    void first.offsetWidth; // reflow para reiniciar animación
+    first.classList.add('new-lead');
+    // Si no estamos en el panel bartolo, encender el badge extra
+    const panel = document.getElementById('panel-bartolo');
+    if(!panel || !panel.classList.contains('active')){
+      const nb = document.getElementById('nb-bartolo');
+      if(nb){ nb.style.display='inline'; nb.style.background='var(--green)'; }
+    }
+  }
+}
+
 </script>
+
+<!-- ═══════════════════════════════ BARTOLO TERMINAL ═══════════════════════════ -->
+<div id="bartolo-terminal">
+  <div class="term-header" onclick="toggleTerminal()">
+    <div class="term-hgroup">
+      <div class="term-hdot" id="term-dot"></div>
+      <span class="term-hlabel">Bartolo</span>
+      <span class="term-hstatus" id="term-status">— escribí una orden</span>
+    </div>
+    <div class="term-hright">
+      <span id="term-pipe-badge" style="display:none;background:var(--green);color:#000;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px"></span>
+      <button class="term-hbtn" onclick="event.stopPropagation();clearTerminal()">✕ limpiar</button>
+      <button class="term-hbtn" id="term-toggle-btn" onclick="event.stopPropagation();toggleTerminal()">▼</button>
+    </div>
+  </div>
+  <div class="term-body">
+    <div class="term-msgs" id="term-msgs"></div>
+    <div class="term-input-row">
+      <span class="term-prompt">→</span>
+      <input class="term-input" id="term-input"
+        placeholder="Darle una orden a Bartolo...  (Shift+B para enfocar)"
+        maxlength="1000" onkeydown="termKeydown(event)">
+      <button class="term-send-btn" id="term-send-btn" onclick="termSend()">↵ Enviar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
