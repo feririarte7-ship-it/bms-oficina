@@ -177,6 +177,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
     <div class="nav-item" onclick="goPanel('captacion',this)"><span class="nav-icon">⌕</span> Captación <span class="nav-badge" id="nb-cap" style="display:none">0</span></div>
     <div class="nav-item" onclick="goPanel('produccion',this)"><span class="nav-icon">⚙</span> Producción <span class="nav-badge" id="nb-prod" style="display:none">0</span></div>
     <div class="nav-item" onclick="goPanel('ventas',this)"><span class="nav-icon">✉</span> Ventas <span class="nav-badge" id="nb-ven" style="display:none">0</span></div>
+    <div class="nav-section">Live</div>
+    <div class="nav-item" onclick="goPanel('bartolo',this)"><span class="nav-icon">⚡</span> Bartolo Live <span class="nav-badge" id="nb-bartolo" style="display:none">0</span></div>
     <div class="nav-section">Gestión</div>
     <div class="nav-item" onclick="goPanel('pipeline',this)"><span class="nav-icon">◈</span> Pipeline</div>
     <div class="nav-item" onclick="goPanel('facturacion',this)"><span class="nav-icon">◻</span> Facturación</div>
@@ -437,6 +439,50 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
       </div>
     </div>
 
+
+    <!-- BARTOLO LIVE -->
+    <div class="panel" id="panel-bartolo">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <div class="agent-pill"><div class="agent-dot dot-active" id="dot-bartolo"></div><span id="label-bartolo">Bartolo — conectando...</span></div>
+        <span id="bartolo-sync" style="font-size:11px;color:var(--text3);margin-left:auto"></span>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:16px">
+        <div class="stat-card"><div class="stat-label">Total en pipeline</div><div class="stat-value" id="bt-total">0</div><div class="stat-sub">leads recibidos</div></div>
+        <div class="stat-card"><div class="stat-label">Actualizando</div><div class="stat-value" style="font-size:18px;padding-top:6px" id="bt-next">—</div><div class="stat-sub">próxima sync</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="display:flex;align-items:center;gap:8px">
+          <div class="card-icon" style="background:rgba(0,255,136,.1)">⚡</div>
+          Feed de leads
+          <div style="margin-left:auto;display:flex;gap:6px">
+            <button class="btn" onclick="fetchBartoloLeads()" style="padding:4px 10px;font-size:12px">↻ Sync</button>
+            <select id="bt-filter" onchange="renderBartoloLeads()" style="background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;color:var(--text2);font-size:12px;outline:none">
+              <option value="all">Todos</option>
+              <option value="captado">Captados</option>
+              <option value="procesando">Procesando</option>
+              <option value="completado">Completados</option>
+            </select>
+          </div>
+        </div>
+        <div id="bartolo-leads-list" class="leads-grid" style="margin-top:8px">
+          <div style="font-size:13px;color:var(--text3);padding:8px 0">Conectando con Bartolo...</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Configuración</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Bartolo API Token</label>
+            <input type="password" id="bartolo-token-input" placeholder="bms-2026" autocomplete="off"/>
+          </div>
+          <div class="field" style="justify-content:flex-end">
+            <label style="opacity:0">.</label>
+            <button class="btn" onclick="guardarBartoloToken()" style="height:37px">💾 Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /app-body -->
 
@@ -456,6 +502,7 @@ document.getElementById('pin-input').addEventListener('keydown',e=>{ if(e.key===
 function initApp(){
   updateClock();
   setInterval(updateClock, 1000);
+  startBartoloPolling();
   const h = new Date().getHours();
   document.getElementById('welcome-msg').textContent = (h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches') + ' Fernando 👋';
   cargarKeys();
@@ -936,6 +983,98 @@ function renderVenLeads(){
       ${badge}
     </div>`;
   });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BARTOLO LIVE — polling y feed en tiempo real
+// ═══════════════════════════════════════════════════════════════════════════
+const BARTOLO_URL = 'https://bartolo.brandmindstudio.net';
+let bartoloLeads  = [];
+let bartoloToken  = localStorage.getItem('bms_bartolo_token') || 'bms-2026';
+let bartoloTimer  = null;
+let bartoloCountdown = 30;
+
+function guardarBartoloToken(){
+  const val = document.getElementById('bartolo-token-input').value.trim();
+  if(val){ bartoloToken = val; localStorage.setItem('bms_bartolo_token', val); fetchBartoloLeads(); }
+}
+
+async function fetchBartoloLeads(){
+  const dot   = document.getElementById('dot-bartolo');
+  const label = document.getElementById('label-bartolo');
+  dot.className = 'agent-dot dot-busy';
+  label.textContent = 'Bartolo — actualizando...';
+  try {
+    const r = await fetch(BARTOLO_URL + '/pipeline?limit=100', {
+      headers: { 'Authorization': 'Bearer ' + bartoloToken }
+    });
+    if(!r.ok){
+      dot.className = 'agent-dot dot-idle';
+      label.textContent = 'Bartolo — error ' + r.status;
+      document.getElementById('bartolo-sync').textContent = 'Error de autenticación';
+      return;
+    }
+    const data = await r.json();
+    bartoloLeads = data.leads || [];
+    renderBartoloLeads();
+    dot.className = 'agent-dot dot-active';
+    const now = new Date().toLocaleTimeString('es-ES');
+    label.textContent = 'Bartolo — en vivo';
+    document.getElementById('bartolo-sync').textContent = 'Sync ' + now;
+    document.getElementById('bt-total').textContent = data.total || 0;
+    const nb = document.getElementById('nb-bartolo');
+    if(bartoloLeads.length > 0){ nb.style.display='inline'; nb.textContent=bartoloLeads.length; }
+    bartoloCountdown = 30;
+  } catch(e) {
+    dot.className = 'agent-dot dot-idle';
+    label.textContent = 'Bartolo — sin conexión';
+    document.getElementById('bartolo-sync').textContent = 'Sin conexión';
+  }
+}
+
+function renderBartoloLeads(){
+  const list   = document.getElementById('bartolo-leads-list');
+  const filter = (document.getElementById('bt-filter') || {}).value || 'all';
+  const data   = filter === 'all' ? bartoloLeads : bartoloLeads.filter(l => l.estado === filter);
+  if(!data.length){
+    list.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:12px 0">' +
+      (bartoloLeads.length === 0 ? 'No hay leads todavía.' : 'Sin resultados para ese filtro.') + '</div>';
+    return;
+  }
+  const ESTADO_COLOR = { captado:'var(--amber)', procesando:'#4f8ef7', completado:'var(--green)', error:'#ff6b6b' };
+  list.innerHTML = data.map(l => {
+    const color = ESTADO_COLOR[l.estado] || 'var(--text3)';
+    const ts = l.timestamp
+      ? new Date(l.timestamp).toLocaleDateString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+      : '';
+    const meta = [l.ubicacion, l.sector, ts].filter(Boolean).join(' · ');
+    const src  = l.source && l.source !== 'api' ? ' <span style="font-size:10px;opacity:.6">['+escHtml(l.source)+']</span>' : '';
+    return '<div class="lead-card">' +
+      '<div><div class="lead-name">' + escHtml(l.nombre) + src + '</div>' +
+      (meta ? '<div class="lead-meta">' + escHtml(meta) + '</div>' : '') + '</div>' +
+      '<div style="font-size:10px;font-weight:700;color:' + color + ';text-transform:uppercase;white-space:nowrap;text-align:right">' +
+        escHtml(l.estado || 'captado') +
+        (l.email ? '<br><span style="color:var(--text3);font-weight:400;text-transform:none">' + escHtml(l.email) + '</span>' : '') +
+      '</div></div>';
+  }).join('');
+}
+
+function escHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function startBartoloPolling(){
+  fetchBartoloLeads();
+  // Countdown visual
+  setInterval(() => {
+    bartoloCountdown--;
+    if(bartoloCountdown <= 0){
+      fetchBartoloLeads();
+      bartoloCountdown = 30;
+    }
+    const el = document.getElementById('bt-next');
+    if(el) el.textContent = bartoloCountdown + 's';
+  }, 1000);
 }
 </script>
 </body>
