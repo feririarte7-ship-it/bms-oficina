@@ -718,7 +718,7 @@ Devuelve SOLO el array JSON, sin texto adicional.`;
       out.textContent+=`Analizando directorios y Google Maps...\nFiltrando oportunidades...\n\n✓ Rastreo IA completado. ${leads.length} leads identificados en ${ciudad}.`;
       dot.className='agent-dot dot-active';
       label.textContent=`Agente Captación — ${leads.length} leads encontrados`;
-      renderLeads();
+      renderLeads(); autoEnviarABartolo(leads);
       return;
     }catch(e){
       out.textContent+=`\n⚠ Error API: ${e.message}\nUsando modo demo...\n`;
@@ -749,7 +749,7 @@ Devuelve SOLO el array JSON, sin texto adicional.`;
   out.textContent+=`\n✓ Rastreo completado. ${leads.length} negocios identificados con oportunidad de mejora digital.`;
   dot.className='agent-dot dot-active';
   label.textContent=`Agente Captación — ${leads.length} leads encontrados`;
-  renderLeads();
+  renderLeads(); autoEnviarABartolo(leads);
 }
 
 function renderLeads(){
@@ -1473,6 +1473,123 @@ function flashNewestLead(){
       if(nb){ nb.style.display='inline'; nb.style.background='var(--green)'; }
     }
   }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AUTO-ENVÍO DE LEADS A BARTOLO — el Rastreador alimenta el pipeline directamente
+// ═══════════════════════════════════════════════════════════════════════════════
+async function autoEnviarABartolo(leadsArr) {
+  if (!leadsArr || leadsArr.length === 0) return;
+
+  expandTerminal();
+
+  // Si el terminal está ocupado, encolar y avisar
+  if (termBusy) {
+    termAddMsg('bot', '<span style="color:var(--amber)">⚠ El terminal está ocupado. Cuando termine te proceso estos ' + leadsArr.length + ' leads.</span>');
+    termScroll();
+    return;
+  }
+
+  termBusy = true;
+  document.getElementById('term-input').disabled  = true;
+  document.getElementById('term-send-btn').disabled = true;
+
+  // Reiniciar estado SSE
+  termBotBubble = null; termBotText = ''; termToolCard = null;
+
+  // Mensaje inicial de Bartolo
+  const intro = termAddMsg('bot',
+    'Recibí <strong>' + leadsArr.length + ' lead' + (leadsArr.length > 1 ? 's' : '') +
+    '</strong> del Rastreador — proceso cada uno con Eyes\u2192Brain\u2192Face.'
+  );
+
+  // Botón cancelar
+  let cancelado = false;
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'term-hbtn';
+  cancelBtn.style.cssText = 'margin-top:8px;display:inline-block;color:#ff6b6b;border-color:rgba(255,107,107,.3)';
+  cancelBtn.textContent = '\u2715 Cancelar procesamiento';
+  cancelBtn.onclick = () => { cancelado = true; cancelBtn.textContent = 'Cancelando...'; cancelBtn.disabled = true; };
+  intro.appendChild(cancelBtn);
+  termScroll();
+
+  let procesados = 0, errores = 0;
+
+  for (let i = 0; i < leadsArr.length; i++) {
+    if (cancelado) break;
+
+    const lead     = leadsArr[i];
+    const nombre   = lead.nombre   || '';
+    const ciudad   = lead.ciudad   || lead.ubicacion || '';
+    const sector   = lead.nicho    || lead.sector    || '';
+    const msgText  = 'Procesá "' + nombre + '", ' + ciudad + ', ' + sector;
+
+    termSetStatus('\u2014 [' + (i+1) + '/' + leadsArr.length + '] ' + escHtml(nombre), 'busy');
+    termAddMsg('user', '[' + (i+1) + '/' + leadsArr.length + '] ' + escHtml(msgText));
+
+    // Contexto fresco por lead
+    termHistory = [];
+    termBotBubble = null; termBotText = ''; termToolCard = null;
+    termAddTyping();
+
+    try {
+      const resp = await fetch(BARTOLO_URL + '/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + bartoloToken
+        },
+        body: JSON.stringify({ message: msgText, history: [] })
+      });
+
+      termRemoveTyping();
+
+      if (resp.ok) {
+        const ct = resp.headers.get('content-type') || '';
+        if (ct.includes('text/event-stream')) {
+          await termReadSSE(resp);
+          procesados++;
+        } else {
+          const d = await resp.json();
+          termAddMsg('bot', termFormatText(d.reply || d.error || 'OK'));
+          procesados++;
+        }
+      } else if (resp.status === 401) {
+        termAddMsg('bot', '<span style="color:var(--red)">\u26a0 Token inválido. Actualizá el token en el panel Bartolo Live.</span>');
+        break; // no seguir si el token es inválido
+      } else {
+        termAddMsg('bot', '<span style="color:var(--red)">\u26a0 Error ' + resp.status + ' para ' + escHtml(nombre) + '</span>');
+        errores++;
+      }
+    } catch (err) {
+      termRemoveTyping();
+      termAddMsg('bot', '<span style="color:var(--red)">\u26a0 ' + escHtml(err.message) + '</span>');
+      errores++;
+    }
+
+    termHistory = []; // limpiar contexto entre leads
+
+    // Pausa corta entre leads
+    if (i < leadsArr.length - 1 && !cancelado) {
+      await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+
+  // Resumen final
+  try { cancelBtn.remove(); } catch(_) {}
+  const resumen = cancelado
+    ? 'Cancelado. ' + procesados + '/' + leadsArr.length + ' leads procesados.'
+    : '\u2713 <strong>' + procesados + ' lead' + (procesados !== 1 ? 's' : '') +
+      ' procesado' + (procesados !== 1 ? 's' : '') + '</strong> y guardados en el pipeline.' +
+      (errores > 0 ? ' (' + errores + ' errores)' : '');
+  termAddMsg('bot', resumen);
+  termSetStatus('\u2014 listo');
+
+  termBusy = false;
+  document.getElementById('term-input').disabled  = false;
+  document.getElementById('term-send-btn').disabled = false;
+  termHistory = [];
 }
 
 </script>
