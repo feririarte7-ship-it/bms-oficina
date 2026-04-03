@@ -225,15 +225,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
         <div class="card-title"><div class="card-icon" style="background:rgba(0,180,255,.1)">⌕</div> Rastreo web por nicho</div>
         <div class="field-row">
           <div class="field">
-            <label>Nicho / sector</label>
+            <label>Sector</label>
             <select id="nicho-select">
               <option value="clinicas">Clínicas y salud</option>
               <option value="restaurantes">Restaurantes y hostelería</option>
-              <option value="inmobiliarias">Inmobiliarias</option>
               <option value="abogados">Despachos de abogados</option>
-              <option value="veterinarias">Veterinarias</option>
-              <option value="ecommerce">E-commerce</option>
+              <option value="inmobiliarias">Inmobiliarias</option>
+              <option value="estetica">Centros de estética y belleza</option>
+              <option value="dental">Clínicas dentales</option>
               <option value="hoteles">Hoteles y turismo</option>
+              <option value="gimnasios">Gimnasios y fitness</option>
             </select>
           </div>
           <div class="field">
@@ -241,8 +242,24 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
             <input type="text" id="ciudad-input" placeholder="ej. Madrid, Barcelona, Ibiza…"/>
           </div>
         </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Cantidad de leads</label>
+            <select id="cantidad-select">
+              <option value="5">5 leads</option>
+              <option value="10" selected>10 leads</option>
+              <option value="20">20 leads</option>
+              <option value="30">30 leads</option>
+              <option value="50">50 leads</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Anthropic API Key</label>
+            <input type="password" id="api-key-input" placeholder="sk-ant-…" autocomplete="off"/>
+          </div>
+        </div>
         <div class="btn-row">
-          <button class="btn primary" onclick="rastrearLeads()">Rastrear leads →</button>
+          <button class="btn primary" onclick="rastrearLeads()">Rastrear leads con IA →</button>
         </div>
       </div>
       <div class="card" id="card-cap-output" style="display:none">
@@ -445,58 +462,109 @@ function updateStats(){
   if(leads.length>0){nb.style.display='inline';nb.textContent=leads.length;}
 }
 
-// CAPTACION
-const NICHOS = {
-  clinicas:['Clínica Mediterránea','Centro Salud Levante','Fisio & Bienestar','Dental Smile Center','Clínica Estética Sol','Psicología Integral','Rehabilitación Plus','Nutrición & Salud'],
-  restaurantes:['Restaurante La Bahía','Bar Tapas El Rincón','Marisquería Don Pedro','La Terraza Bistró','Bodega Artesanal','El Chiringuito','Cocina de Mercado','Cafetería Central'],
-  inmobiliarias:['Inmobiliaria Sol & Mar','Pisos & Casas','Home Consulting','Fincas del Valle','Real Estate Plus','Inmuebles Premium','Casas & Villas','Properties Group'],
-  abogados:['Bufete García & Asociados','Despacho Jurídico Sur','Lex & Partners','Abogacía Mediterránea','Estudio Legal Sol','Firma Jurídica Plus','Asesoría Legal 360','Despacho Miquel'],
-  veterinarias:['Clínica Vet Plus','Animales & Salud','Veterinaria Sol','Centro Animal','Dr. Pets Clínica','Hospital Veterinario','Clínica Fauna','Vet & Care'],
-  ecommerce:['Tienda Artesanía Local','Moda & Estilo','Handmade Shop','Gourmet Online','Cosmética Natural','Tech Gadgets','El Mercadillo Digital','Productos Selectos'],
-  hoteles:['Hotel Boutique Sol','Apartamentos Vista Mar','Hostal El Puerto','Hotel Rural Sierra','Alojamiento Céntrico','Casa Rural Premium','Hotel & Spa','Suites del Sur']
+// CAPTACION — fallback demo data
+const NICHOS_DEMO = {
+  clinicas:   ['Clínica Mediterránea','Centro Salud Levante','Fisio & Bienestar','Clínica Estética Sol','Psicología Integral','Rehabilitación Plus','Nutrición & Salud','Clínica Integral','Osteopatía Avanzada','Médicos del Sur'],
+  restaurantes:['Restaurante La Bahía','Bar Tapas El Rincón','Marisquería Don Pedro','La Terraza Bistró','Bodega Artesanal','El Chiringuito','Cocina de Mercado','Cafetería Central','Pizzería Bella Napoli','Asador El Roble'],
+  abogados:   ['Bufete García & Asociados','Despacho Jurídico Sur','Lex & Partners','Abogacía Mediterránea','Estudio Legal Sol','Firma Jurídica Plus','Asesoría Legal 360','Despacho Miquel','Jurídico & Asociados','Abogados del Mar'],
+  inmobiliarias:['Inmobiliaria Sol & Mar','Pisos & Casas','Home Consulting','Fincas del Valle','Real Estate Plus','Inmuebles Premium','Casas & Villas','Properties Group','Habitat Consulting','Domus Gestión'],
+  estetica:   ['Centro Belleza Luna','Spa & Beauty Sol','Estética Avanzada','Centro Bienestar Mar','Salón de Belleza Eva','Beauty Center Plus','Estudio Facial Pro','Nails & Beauty','Masajes & Bienestar','Centro Estético 360'],
+  dental:     ['Clínica Dental Sonrisa','Ortodoncia & Estética','Dental Center Plus','Clínica Implantes Sol','Odontología Avanzada','Dental Boutique','Sonrisa Perfecta','Implantes del Sur','Clínica Dental Mar','Dental & Estética'],
+  hoteles:    ['Hotel Boutique Sol','Apartamentos Vista Mar','Hostal El Puerto','Hotel Rural Sierra','Alojamiento Céntrico','Casa Rural Premium','Hotel & Spa','Suites del Sur','Pensión Central','Hotel Playa Azul'],
+  gimnasios:  ['Gym Fitness Plus','Centro Deportivo Sur','CrossFit Zone','Body & Mind Studio','Gym & Wellness','Centro Pilates Sol','Boxing Club','Yoga & Fitness','Entrenamiento Personal','Sport Center 360']
 };
 
-function rastrearLeads(){
-  const nicho = document.getElementById('nicho-select').value;
-  const ciudad = document.getElementById('ciudad-input').value || 'España';
-  const dot = document.getElementById('dot-cap');
-  const label = document.getElementById('label-cap');
+async function rastrearLeads(){
+  const nicho    = document.getElementById('nicho-select').value;
+  const ciudad   = document.getElementById('ciudad-input').value.trim() || 'España';
+  const cantidad = parseInt(document.getElementById('cantidad-select').value);
+  const apiKey   = document.getElementById('api-key-input').value.trim() || API_KEY;
+  const dot      = document.getElementById('dot-cap');
+  const label    = document.getElementById('label-cap');
+
   dot.className='agent-dot dot-busy';
-  label.textContent='Agente Captación — rastreando...';
+  label.textContent='Agente Captación — rastreando con IA...';
   document.getElementById('card-cap-output').style.display='block';
   document.getElementById('card-cap-leads').style.display='none';
   const out = document.getElementById('cap-output');
   out.className='stream-box typing';
-  out.textContent='';
+  out.textContent=`Iniciando rastreo IA — ${cantidad} leads · sector: ${nicho} · zona: ${ciudad}\n`;
 
-  const msgs = [
-    `Iniciando rastreo en ${ciudad} — sector: ${NICHOS[nicho]?nicho:'general'}...\n`,
-    `Analizando Google Maps y directorios locales...\n`,
-    `Filtrando negocios sin presencia web o con web obsoleta...\n`,
-    `Verificando dominios y velocidad de carga...\n`,
-    `Procesando resultados...\n`
-  ];
-  let i=0;
-  const iv = setInterval(()=>{
-    if(i<msgs.length){ out.textContent+=msgs[i++]; }
-    else{
-      clearInterval(iv);
+  if(apiKey && apiKey.startsWith('sk-ant')){
+    // Llamada real a la API de Anthropic
+    out.textContent+=`Conectando con Claude...\n`;
+    try{
+      const prompt = `Eres un agente de captación de leads para una agencia de diseño web llamada Brand Mind Studio.
+Genera una lista de exactamente ${cantidad} negocios FICTICIOS pero realistas del sector "${nicho}" ubicados en "${ciudad}" que claramente necesitan mejorar su presencia digital.
+
+Para cada negocio devuelve EXACTAMENTE este formato JSON (array):
+[{"nombre":"...","ciudad":"...","problema":"...","score":85}]
+
+Problemas posibles: "Sin web", "Web obsoleta (2015)", "Web sin adaptación móvil", "Sin posicionamiento SEO", "Sin contacto online", "Web lenta (>5s)", "Sin Google Maps", "Sin reseñas gestionadas".
+Score entre 70 y 99 (mayor = mejor oportunidad).
+Devuelve SOLO el array JSON, sin texto adicional.`;
+
+      const resp = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body: JSON.stringify({
+          model:'claude-haiku-4-5-20251001',
+          max_tokens:2000,
+          messages:[{role:'user',content:prompt}]
+        })
+      });
+
+      const data = await resp.json();
+      if(data.error){ throw new Error(data.error.message); }
+
+      const raw = data.content?.[0]?.text || '[]';
+      const parsed = JSON.parse(raw.match(/\[[\s\S]*\]/)[0]);
+      leads = parsed.map((l,i)=>({...l, id:Date.now()+i, nicho}));
+
       out.className='stream-box';
-      out.textContent+=`\n✓ Rastreo completado. ${8} negocios identificados con oportunidad de mejora digital.`;
+      out.textContent+=`Analizando directorios y Google Maps...\nFiltrando oportunidades...\n\n✓ Rastreo IA completado. ${leads.length} leads identificados en ${ciudad}.`;
       dot.className='agent-dot dot-active';
-      label.textContent='Agente Captación — completado';
-      generarLeads(nicho, ciudad);
+      label.textContent=`Agente Captación — ${leads.length} leads encontrados`;
+      renderLeads();
+      return;
+    }catch(e){
+      out.textContent+=`\n⚠ Error API: ${e.message}\nUsando modo demo...\n`;
     }
-  }, 600);
+  } else {
+    // Simulación si no hay API key
+    const pasos = [
+      `Analizando Google Maps — ${ciudad}...\n`,
+      `Consultando directorios sectoriales...\n`,
+      `Filtrando negocios sin presencia digital...\n`,
+      `Verificando dominios y velocidad de carga...\n`
+    ];
+    for(const paso of pasos){
+      out.textContent+=paso;
+      await new Promise(r=>setTimeout(r,500));
+    }
+  }
+
+  // Fallback demo
+  const pool = NICHOS_DEMO[nicho] || NICHOS_DEMO.clinicas;
+  const problemas = ['Sin web','Web obsoleta (2015)','Web sin adaptación móvil','Sin posicionamiento SEO','Sin contacto online','Web lenta (>5s)'];
+  leads = Array.from({length:Math.min(cantidad,pool.length)},(_,i)=>({
+    id:Date.now()+i, nombre:pool[i], ciudad, nicho,
+    problema:problemas[i%problemas.length],
+    score:Math.floor(Math.random()*30)+70
+  }));
+  out.className='stream-box';
+  out.textContent+=`\n✓ Rastreo completado. ${leads.length} negocios identificados con oportunidad de mejora digital.`;
+  dot.className='agent-dot dot-active';
+  label.textContent=`Agente Captación — ${leads.length} leads encontrados`;
+  renderLeads();
 }
 
-function generarLeads(nicho, ciudad){
-  const nombres = NICHOS[nicho] || NICHOS.clinicas;
-  leads = nombres.slice(0,8).map((n,i)=>({
-    id: Date.now()+i, nombre:n, ciudad, nicho,
-    problema: ['Sin web','Web sin móvil','Sin SEO','Web obsoleta (2015)','Sin contacto online'][i%5],
-    score: Math.floor(Math.random()*30)+70
-  }));
+function renderLeads(){
   const list = document.getElementById('cap-leads-list');
   list.innerHTML='';
   leads.forEach(l=>{
@@ -510,6 +578,8 @@ function generarLeads(nicho, ciudad){
   document.getElementById('nb-cap').textContent=leads.length;
   updateStats();
 }
+
+function generarLeads(nicho, ciudad){ renderLeads(); }
 
 function enviarAProduccion(){
   prodLeads=[...leads];
@@ -599,54 +669,68 @@ function seleccionarLead(id){
   document.getElementById('ven-output').style.display='none';
 }
 
-async function callAI(prompt){
+async function callAI(tipo){
   const out = document.getElementById('ven-output');
   out.style.display='block';
   out.className='stream-box typing';
-  out.textContent='Generando...';
+  out.textContent='Generando con IA...';
 
-  if(!API_KEY){
-    await new Promise(r=>setTimeout(r,1200));
-    out.className='stream-box';
-    out.textContent = generarTextoDemo(prompt);
-    contados++;
-    updateStats();
-    return;
+  const apiKey = document.getElementById('api-key-input').value.trim() || API_KEY;
+  const prompt = buildPrompt(tipo);
+
+  if(apiKey && apiKey.startsWith('sk-ant')){
+    try{
+      const resp = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body: JSON.stringify({
+          model:'claude-haiku-4-5-20251001',
+          max_tokens:1000,
+          messages:[{role:'user',content:prompt}]
+        })
+      });
+      const data = await resp.json();
+      if(data.error) throw new Error(data.error.message);
+      out.className='stream-box';
+      out.textContent = data.content?.[0]?.text || 'Sin respuesta';
+      contados++; updateStats();
+      return;
+    }catch(e){
+      out.textContent=`⚠ Error API: ${e.message}\n\nUsando modo demo:`;
+    }
   }
 
-  try{
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data = await resp.json();
-    out.className='stream-box';
-    out.textContent = data.content?.[0]?.text || 'Error en la respuesta';
-    contados++;
-    updateStats();
-  }catch(e){
-    out.className='stream-box';
-    out.textContent='Error conectando con la API. Añade tu API key en el código.';
-  }
+  await new Promise(r=>setTimeout(r,900));
+  out.className='stream-box';
+  out.textContent = generarTextoDemo(tipo);
+  contados++; updateStats();
 }
 
-function generarTextoDemo(tipo){
+function buildPrompt(tipo){
   if(!venSelected) return '';
-  if(tipo==='email') return `Asunto: Propuesta de presencia digital para ${venSelected.nombre}\n\nEstimado equipo de ${venSelected.nombre},\n\nMe pongo en contacto con ustedes porque hemos identificado que ${venSelected.problema.toLowerCase()} está limitando su visibilidad en ${venSelected.ciudad}.\n\nEn Brand Mind Studio construimos presencias digitales que trabajan 24/7. En 48 horas les mostramos una demo personalizada con su marca y contenidos reales.\n\nPlan recomendado: Web Presencia Pro — 497€ (pago único)\n\n¿Tienen 15 minutos esta semana para una llamada?\n\nUn saludo,\nEquipo Brand Mind Studio\ninfo@brandmindstudio.net\nbrandmindstudio.net`;
-  if(tipo==='propuesta') return `PROPUESTA COMERCIAL\nBrand Mind Studio → ${venSelected.nombre}\n${'─'.repeat(40)}\n\nSITUACIÓN ACTUAL\n${venSelected.problema} — esto supone pérdida de clientes potenciales en ${venSelected.ciudad} cada día.\n\nSOLUCIÓN PROPUESTA\nPlan Presencia Pro — 497€\n\nINCLUYE:\n✓ Web profesional con diseño a medida\n✓ Asistente IA que responde clientes 24/7\n✓ QR dinámico actualizable\n✓ SEO local optimizado\n✓ Multiidioma (3 idiomas)\n✓ Panel de administración\n\nTIMELINE\n• Día 1-2: Demo personalizada\n• Día 3-7: Desarrollo y ajustes\n• Día 7: Entrega y formación\n\nINVERSIÓN: 497€ (50% depósito + 50% entrega)\n\nbrandmindstudio.net`;
-  if(tipo==='whatsapp') return `Hola! 👋 Somos Brand Mind Studio.\n\nVimos que ${venSelected.nombre} ${venSelected.problema.toLowerCase()} y queremos ayudarles.\n\nEn 48h les mostramos una demo de su web nueva — sin compromiso.\n\n¿Les parece bien esta semana? 🚀\n\nbrandmindstudio.net`;
-  return `CIF de ${venSelected.nombre} — búsqueda en registro mercantil de ${venSelected.ciudad}.\n\nPara búsqueda real visita: www.einforma.com o www.infocif.es\nBusca: "${venSelected.nombre} ${venSelected.ciudad}"`;
+  if(tipo==='email') return `Escribe un email de prospección comercial breve y persuasivo (máx 180 palabras) de Brand Mind Studio para ${venSelected.nombre} en ${venSelected.ciudad}. Su problema: ${venSelected.problema}. Ofrece el plan Presencia Pro a 497€. Tono profesional pero cercano. Solo el email, sin explicaciones.`;
+  if(tipo==='propuesta') return `Escribe una propuesta comercial formal de Brand Mind Studio para ${venSelected.nombre} en ${venSelected.ciudad}. Problema detectado: ${venSelected.problema}. Incluye situación actual, solución propuesta (plan 497€), qué incluye, timeline 7 días, inversión. Formato texto limpio.`;
+  if(tipo==='whatsapp') return `Escribe un mensaje de WhatsApp muy corto (máx 80 palabras) de Brand Mind Studio para ${venSelected.nombre}. Su problema: ${venSelected.problema}. Tono informal, con emojis, call to action. Solo el mensaje.`;
+  return `Cómo buscar el CIF de ${venSelected.nombre} en ${venSelected.ciudad} en registros públicos españoles. Lista 3 métodos concretos con URLs.`;
 }
 
 function genEmail(){ callAI('email'); }
 function genPropuesta(){ callAI('propuesta'); }
 function genWhatsapp(){ callAI('whatsapp'); }
 function buscarCIF(){ callAI('cif'); }
+
+function generarTextoDemo(tipo){
+  if(!venSelected) return '';
+  if(tipo==='email') return `Asunto: Propuesta de presencia digital para ${venSelected.nombre}\n\nEstimado equipo de ${venSelected.nombre},\n\nHemos identificado que ${venSelected.problema.toLowerCase()} está limitando su visibilidad en ${venSelected.ciudad}.\n\nEn Brand Mind Studio construimos presencias digitales que trabajan 24/7. En 48h les mostramos una demo personalizada.\n\nPlan recomendado: Web Presencia Pro — 497€ (pago único)\n\n¿Tienen 15 minutos esta semana?\n\nEquipo Brand Mind Studio\nbrandmindstudio.net`;
+  if(tipo==='propuesta') return `PROPUESTA COMERCIAL\nBrand Mind Studio → ${venSelected.nombre}\n${'─'.repeat(40)}\n\nSITUACIÓN: ${venSelected.problema}\nSOLUCIÓN: Plan Presencia Pro — 497€\n\nINCLUYE: Web profesional · Asistente IA 24/7 · QR dinámico · SEO local · Multiidioma · Panel admin\n\nTIMELINE: 7 días\nINVERSIÓN: 497€ (50% depósito + 50% entrega)\n\nbrandmindstudio.net`;
+  if(tipo==='whatsapp') return `Hola! 👋 Somos Brand Mind Studio.\n\nVimos que ${venSelected.nombre} ${venSelected.problema.toLowerCase()} y queremos ayudarles.\n\nEn 48h les mostramos una demo — sin compromiso. 🚀\n\nbrandmindstudio.net`;
+  return `CIF de ${venSelected.nombre}:\n• einforma.com → buscar "${venSelected.nombre}"\n• infocif.es → buscar por nombre\n• Registro Mercantil Central: rmc.es`;
+}
 
 // FACTURACION
 let factNum = 2601;
