@@ -414,7 +414,7 @@ function initApp(){
   updateClock();
   setInterval(updateClock, 1000);
   const h = new Date().getHours();
-  document.getElementById('welcome-msg').textContent = (h<12?'Buenos días':'h<20?Buenas tardes':'Buenas noches') + ' Fernando 👋';
+  document.getElementById('welcome-msg').textContent = (h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches') + ' Fernando 👋';
 }
 function updateClock(){
   const n=new Date();
