@@ -9,9 +9,16 @@
 :root{
   --bg:#050e0a;--bg2:#091510;--bg3:#0d1f16;
   --green:#00ff88;--green2:#00cc6a;--green-dim:rgba(0,255,136,.08);
+  --amber:#f5c842;--blue:#4f8ef7;--pink:#ff7eb3;
+  --red:#ff6b6b;
   --text:#e8f5ee;--text2:#9bbfaa;--text3:#5a8a6a;
   --border:#1a3828;--border2:#224433;
   --card:#0a1e14;--mono:'DM Sans',monospace;
+  /* Agent accent colors */
+  --chapu:#00b4ff;--chapu-dim:rgba(0,180,255,.08);
+  --pampa:#f5c842;--pampa-dim:rgba(245,200,66,.08);
+  --milie:#ff7eb3;--milie-dim:rgba(255,126,179,.08);
+  --sort:#00ff88;--sort-dim:rgba(0,255,136,.08);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
@@ -29,224 +36,214 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
 .login-err{font-size:12px;color:#ff6b6b;margin-top:8px;display:none}
 
 /* TOPBAR */
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-mark{width:32px;height:32px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;color:#000}
+.logo-mark{width:30px;height:30px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:#000}
 .logo-text{font-family:'Syne',sans-serif;font-weight:700;font-size:14px}
-.logo-sub{font-size:11px;color:var(--text2)}
-.status-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
-.status-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+.logo-sub{font-size:10px;color:var(--text3)}
+.status-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.status-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.clock{font-size:12px;color:var(--text3);font-family:var(--mono)}
+.clock{font-size:11px;color:var(--text3);font-family:var(--mono)}
 
 /* LAYOUT */
-.app-body{display:flex;flex:1;overflow:hidden}
+.app-body{display:flex;flex:1;overflow:hidden;min-height:0}
 
 /* SIDEBAR */
-.sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--border);padding:16px 0;flex-shrink:0;overflow-y:auto}
-.nav-section{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:16px 16px 6px}
-.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:var(--text2);cursor:pointer;border-radius:0;transition:all .15s;position:relative}
+.sidebar{width:192px;background:var(--bg2);border-right:1px solid var(--border);padding:12px 0;flex-shrink:0;overflow-y:auto;display:flex;flex-direction:column}
+.nav-section{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:14px 14px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;position:relative;border-right:2px solid transparent}
 .nav-item:hover{background:var(--green-dim);color:var(--text)}
-.nav-item.active{background:var(--green-dim);color:var(--green);border-right:2px solid var(--green)}
-.nav-icon{font-size:14px;width:18px;text-align:center}
-.nav-badge{background:var(--green);color:#000;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto}
+.nav-item.active{color:var(--text);border-right-color:var(--green)}
+.nav-item.active .nav-icon-box{opacity:1}
+.nav-icon-box{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;opacity:.6}
+.nav-item.active .nav-icon-box{opacity:1}
+/* Per-agent active backgrounds */
+.nav-item.active[data-agent="chapu"]{background:var(--chapu-dim);border-right-color:var(--chapu)}
+.nav-item.active[data-agent="pampa"]{background:var(--pampa-dim);border-right-color:var(--pampa)}
+.nav-item.active[data-agent="milie"]{background:var(--milie-dim);border-right-color:var(--milie)}
+.nav-item.active[data-agent="sort"]{background:var(--sort-dim);border-right-color:var(--sort)}
+.nav-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:9px;margin-left:auto;display:none}
+.nav-badge.show{display:inline}
 
 /* CONTENT */
-.content{flex:1;overflow-y:auto;padding:20px}
-.panel{display:none}
-.panel.active{display:block}
+.content{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column}
+.panel{display:none;flex-direction:column;gap:0}
+.panel.active{display:flex}
+/* Sort panel takes full height */
+body.sort-active .content{overflow:hidden;padding:0}
+#panel-sort{height:100%}
 
 /* CARDS */
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
-.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.card-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;flex-shrink:0}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.card-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
 
-/* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px}
-.stat-label{font-size:11px;color:var(--text3);margin-bottom:6px}
-.stat-value{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text)}
-.stat-sub{font-size:11px;color:var(--text3);margin-top:2px}
+/* AGENT HEADER */
+.agent-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-shrink:0}
+.agent-pill{display:inline-flex;align-items:center;gap:8px;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;border:1px solid;flex-shrink:0}
+.agent-pill.chapu{background:var(--chapu-dim);border-color:rgba(0,180,255,.25);color:var(--chapu)}
+.agent-pill.pampa{background:var(--pampa-dim);border-color:rgba(245,200,66,.25);color:var(--pampa)}
+.agent-pill.milie{background:var(--milie-dim);border-color:rgba(255,126,179,.25);color:var(--milie)}
+.agent-pill.sort{background:var(--sort-dim);border-color:rgba(0,255,136,.25);color:var(--sort)}
+.agent-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-chapu{background:var(--chapu);box-shadow:0 0 6px var(--chapu)}
+.dot-pampa{background:var(--pampa);box-shadow:0 0 6px var(--pampa)}
+.dot-milie{background:var(--milie);box-shadow:0 0 6px var(--milie)}
+.dot-sort{background:var(--sort);box-shadow:0 0 6px var(--sort)}
+.dot-idle{background:#555;box-shadow:none}
+.dot-busy{animation:pulse 1s infinite}
+
+/* STATS MINI */
+.stats-row{display:flex;gap:10px;margin-bottom:14px;flex-shrink:0}
+.stat-mini{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 14px;flex:1}
+.stat-mini-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800}
+.stat-mini-lbl{font-size:10px;color:var(--text3);margin-top:2px}
 
 /* FORMS */
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.field{display:flex;flex-direction:column;gap:6px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:11px;color:var(--text2);font-weight:500;letter-spacing:.04em}
-.field select,.field input,.field textarea{background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.field select,.field input,.field textarea{background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:7px;padding:8px 11px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
 .field select:focus,.field input:focus,.field textarea:focus{border-color:var(--green)}
 .field select option{background:#0a1e14}
 
 /* BUTTONS */
 .btn-row{display:flex;gap:8px;flex-wrap:wrap}
-.btn{background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--text2);padding:8px 14px;border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
+.btn{background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--text2);padding:7px 14px;border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
 .btn:hover{border-color:var(--green);color:var(--green)}
 .btn.primary{background:var(--green);color:#000;border-color:var(--green);font-weight:600}
 .btn.primary:hover{background:var(--green2)}
+.btn.chapu-btn{background:var(--chapu-dim);border-color:rgba(0,180,255,.3);color:var(--chapu)}
+.btn.pampa-btn{background:var(--pampa-dim);border-color:rgba(245,200,66,.3);color:var(--pampa)}
+.btn.milie-btn{background:var(--milie-dim);border-color:rgba(255,126,179,.3);color:var(--milie)}
 
-/* AGENT PILL */
-.agent-pill{display:inline-flex;align-items:center;gap:7px;background:var(--green-dim);border:1px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text2);margin-bottom:14px}
-.agent-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dot-active{background:var(--green);box-shadow:0 0 6px var(--green)}
-.dot-idle{background:#555}
-.dot-busy{background:#f5c842;animation:pulse 1s infinite}
+/* HISTORY LIST */
+.hist-list{display:flex;flex-direction:column;gap:7px;overflow-y:auto;flex:1;min-height:0}
+.hist-card{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:11px 13px;cursor:pointer;transition:border-color .2s;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hist-card:hover{border-color:var(--green)}
+.hist-card.new-lead{animation:lead-flash 2s ease-out forwards}
+@keyframes lead-flash{0%{background:rgba(0,255,136,.2);border-color:var(--green)}100%{background:var(--bg3);border-color:var(--border)}}
+.hist-name{font-weight:600;font-size:13px}
+.hist-meta{font-size:11px;color:var(--text2);margin-top:2px}
+.hist-badge{font-size:10px;font-weight:700;text-transform:uppercase;white-space:nowrap;text-align:right}
+.hist-badge.completado{color:var(--green)}
+.hist-badge.procesando{color:var(--blue)}
+.hist-badge.captado{color:var(--amber)}
+.hist-badge.error{color:var(--red)}
+.hist-badge.pendiente{color:#f5c842}
+.hist-empty{font-size:13px;color:var(--text3);padding:20px 0;text-align:center}
+
+/* SECTION HEADER (inside panel) */
+.sect-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0}
+.sect-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px}
 
 /* STREAM BOX */
-.stream-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;color:var(--text2);line-height:1.7;min-height:80px;white-space:pre-wrap;font-family:var(--mono)}
+.stream-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--text2);line-height:1.7;min-height:60px;white-space:pre-wrap;font-family:var(--mono)}
 .stream-box.typing::after{content:'▋';animation:blink .7s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
-/* LEADS */
-.leads-grid{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-.lead-card{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .2s}
-.lead-card:hover{border-color:var(--green)}
-.lead-card.selected{border-color:var(--green);background:rgba(0,255,136,.04)}
-.lead-name{font-weight:600;font-size:13px}
-.lead-meta{font-size:11px;color:var(--text2);margin-top:2px}
-.lead-score{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--green)}
-.lead-actions{display:flex;gap:6px}
-
-/* PIPELINE */
-.pipe-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
-.pipe-col{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px}
-.pipe-col-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
-.pipe-num{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--text)}
-.pipe-label{font-size:11px;color:var(--text3);margin-top:2px}
-
-/* FACTURACION */
-.invoice-form{display:flex;flex-direction:column;gap:12px}
-.invoice-preview{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:20px;font-size:13px;line-height:1.8;color:var(--text2)}
-.invoice-preview h3{font-family:'Syne',sans-serif;color:var(--text);font-size:16px;margin-bottom:12px}
-.inv-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:6px 0}
-.inv-total{display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:15px;color:var(--green)}
+/* LEAD DETAIL MODAL */
+#lead-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;padding:20px}
+#lead-modal.open{display:flex}
+#lead-modal-box{background:#0a1e14;border:1px solid var(--border2);border-radius:16px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;padding:26px 26px 18px}
+.lm-h{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:14px}
+.lm-badge{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;color:var(--green);white-space:nowrap}
+.lm-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+.lm-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.lm-section{margin-bottom:16px}
+.lm-section-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.lm-section-title span{border-radius:5px;padding:2px 8px}
+.lm-section-title.chapu-st span{background:var(--chapu-dim);color:var(--chapu);border:1px solid rgba(0,180,255,.2)}
+.lm-section-title.pampa-st span{background:var(--pampa-dim);color:var(--pampa);border:1px solid rgba(245,200,66,.2)}
+.lm-section-title.milie-st span{background:var(--milie-dim);color:var(--milie);border:1px solid rgba(255,126,179,.2)}
+.lm-row{display:flex;gap:8px;margin-bottom:5px;font-size:12px;flex-wrap:wrap}
+.lm-row .lm-k{color:var(--text3);min-width:120px;flex-shrink:0}
+.lm-row .lm-v{color:var(--text2);flex:1}
+.lm-row .lm-v.hi{color:var(--green);font-weight:700}
+.lm-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.lm-tag{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:11px;color:var(--text2)}
+.lm-tag.miss{color:#ff9966;border-color:rgba(255,153,102,.3);background:rgba(255,153,102,.05)}
+.lm-email-body{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap;font-family:var(--mono);max-height:180px;overflow-y:auto}
+.lm-close{margin-left:auto;background:none;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px}
+.lm-close:hover{border-color:var(--green);color:var(--green)}
 
 /* PLANES */
 .planes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.plan-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative}
+.plan-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative}
 .plan-card.featured{border-color:var(--green)}
 .plan-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;font-size:10px;font-weight:800;padding:3px 14px;border-radius:10px;white-space:nowrap}
-.plan-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text2);margin-bottom:6px}
-.plan-price{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--text);margin-bottom:4px}
-.plan-price span{font-size:16px;font-weight:400;color:var(--text2)}
+.plan-name{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--text2);margin-bottom:6px}
+.plan-price{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;margin-bottom:4px}
+.plan-price span{font-size:15px;font-weight:400;color:var(--text2)}
 .plan-desc{font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.5}
 .plan-feature{font-size:12px;color:var(--text2);padding:3px 0;display:flex;gap:6px}
 .plan-feature::before{content:'✓';color:var(--green);font-weight:700}
 
-/* WELCOME */
-.welcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
-.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.meta-tag{background:var(--green-dim);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--text2)}
+/* FACTURA */
+.invoice-preview{background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:18px;font-size:13px;line-height:1.8;color:var(--text2)}
+.invoice-preview h3{font-family:'Syne',sans-serif;color:var(--text);font-size:15px;margin-bottom:12px}
+.inv-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0}
+.inv-total{display:flex;justify-content:space-between;padding:7px 0;font-weight:700;font-size:15px;color:var(--green)}
 
-/* ── APP-BODY: necesita min-height:0 para que el terminal empuje desde abajo ── */
-/* (se parchea inline con JS, ver abajo) */
-
-/* ── RENDIMIENTO BAR ─────────────────────────────────────────────────────────── */
-#rendimiento-bar{
-  flex-shrink:0;background:var(--bg2);border-top:1px solid var(--border);
-  height:32px;display:flex;align-items:center;padding:0 16px;gap:18px;
+/* ══ SORT TERMINAL (embedded in panel) ══════════════════════════════════════ */
+#sort-terminal{
+  display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;
 }
-.rend-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
-.rend-sep{width:1px;height:14px;background:var(--border2)}
-.rend-item{display:flex;align-items:center;gap:7px}
-.rend-key{font-size:10px;color:var(--text3)}
-.rend-val{font-size:11px;color:var(--text2);font-family:var(--mono)}
-#rend-revenue-wrap{display:flex;align-items:center;gap:4px}
-#rend-revenue{background:none;border:none;outline:none;color:var(--text2);font-size:11px;font-family:var(--mono);width:72px;cursor:text;padding:0}
-#rend-revenue:focus{color:var(--green)}
-
-/* ── BARTOLO TERMINAL ────────────────────────────────────────────────────────── */
-#bartolo-terminal{
-  flex-shrink:0;background:var(--bg2);border-top:2px solid var(--border2);
-  display:flex;flex-direction:column;height:290px;
-  transition:height .22s cubic-bezier(.4,0,.2,1);overflow:hidden;
-  position:relative;
+.sort-term-header{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;
 }
-#bartolo-terminal.collapsed{height:40px}
-.term-header{
-  height:40px;flex-shrink:0;display:flex;align-items:center;gap:10px;
-  padding:0 14px;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);
+.sort-stats-strip{
+  display:flex;align-items:center;gap:14px;padding:8px 16px;
+  background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;
+  font-size:11px;color:var(--text3);flex-wrap:wrap;
 }
-.term-header:hover{background:rgba(255,255,255,.02)}
-.term-hgroup{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
-.term-hdot{width:8px;height:8px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 7px var(--green);flex-shrink:0}
-.term-hdot.busy{background:var(--amber);box-shadow:0 0 7px var(--amber);animation:pulse 1s infinite}
-.term-hdot.idle{background:var(--text3);box-shadow:none}
-.term-hlabel{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap}
-.term-hstatus{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
-.term-hright{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0}
-.term-hbtn{
-  background:none;border:1px solid var(--border);color:var(--text3);
-  padding:2px 8px;border-radius:4px;cursor:pointer;font-size:10px;
-  font-family:inherit;transition:all .15s;white-space:nowrap;
-}
-.term-hbtn:hover{border-color:var(--green);color:var(--green)}
-.term-body{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.sort-stats-strip span{color:var(--text2)}
 .term-msgs{
-  flex:1;overflow-y:auto;padding:10px 14px;
-  display:flex;flex-direction:column;gap:7px;scroll-behavior:smooth;
+  flex:1;overflow-y:auto;padding:12px 16px;
+  display:flex;flex-direction:column;gap:8px;
 }
 .term-msgs::-webkit-scrollbar{width:3px}
 .term-msgs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 .term-input-row{
-  display:flex;align-items:center;gap:8px;padding:7px 14px;
-  border-top:1px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;gap:8px;padding:9px 14px;
+  border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0;
 }
 .term-prompt{color:var(--green);font-weight:800;font-size:15px;flex-shrink:0}
-.term-input{
-  flex:1;background:transparent;border:none;outline:none;
-  color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;
-}
+.term-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif}
 .term-input::placeholder{color:var(--text3)}
 .term-input:disabled{opacity:.4}
 .term-send-btn{
-  background:var(--green-dim);border:1px solid rgba(0,255,136,.25);color:var(--green);
+  background:var(--sort-dim);border:1px solid rgba(0,255,136,.25);color:var(--green);
   padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;
-  font-family:'Syne',sans-serif;font-weight:700;transition:all .15s;white-space:nowrap;
+  font-family:'Syne',sans-serif;font-weight:700;transition:all .15s;
 }
 .term-send-btn:hover{background:rgba(0,255,136,.15)}
 .term-send-btn:disabled{opacity:.3;cursor:not-allowed}
-/* Mensajes */
-.tmsg{display:flex;gap:8px;align-items:flex-start;max-width:90%}
+/* Chat bubbles */
+.tmsg{display:flex;gap:8px;align-items:flex-start;max-width:92%}
 .tmsg.user{align-self:flex-end;flex-direction:row-reverse}
 .tmsg.bot{align-self:flex-start}
-.tmsg-av{
-  width:22px;height:22px;border-radius:50%;flex-shrink:0;margin-top:2px;
-  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;
-}
+.tmsg-av{width:22px;height:22px;border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
 .tmsg.user .tmsg-av{background:var(--bg3);border:1px solid var(--border2);color:var(--text3)}
 .tmsg.bot  .tmsg-av{background:var(--green);color:#000}
-.tmsg-bub{
-  padding:6px 11px;border-radius:10px;font-size:13px;line-height:1.55;
-  white-space:pre-wrap;word-break:break-word;
-}
+.tmsg-bub{padding:7px 12px;border-radius:10px;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
 .tmsg.user .tmsg-bub{background:var(--bg3);border:1px solid var(--border);border-bottom-right-radius:3px;color:var(--text2)}
 .tmsg.bot  .tmsg-bub{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.14);color:var(--text);border-bottom-left-radius:3px}
 .tmsg-bub strong{color:#fff}
-.tmsg-bub code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-family:'DM Sans',monospace;font-size:12px}
-/* Tool cards en terminal */
-.tcard{
-  background:var(--bg);border:1px solid var(--border2);
-  border-left:2px solid var(--amber);border-radius:7px;
-  padding:8px 12px;font-size:12px;line-height:1.6;
-  margin-top:3px;width:100%;max-width:460px;
-}
+.tmsg-bub code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-size:11px}
+/* Tool cards */
+.tcard{background:var(--bg);border:1px solid var(--border2);border-left:2px solid var(--amber);border-radius:7px;padding:8px 12px;font-size:12px;line-height:1.6;margin-top:3px;width:100%;max-width:460px}
 .tcard.done{border-left-color:var(--green)}
-.tcard-title{font-size:10px;font-weight:800;text-transform:uppercase;
-  letter-spacing:.5px;color:var(--amber);margin-bottom:5px}
+.tcard-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--amber);margin-bottom:5px}
 .tcard.done .tcard-title{color:var(--green)}
-.tcard-row{display:flex;justify-content:space-between;gap:16px;
-  color:var(--text3);padding:1px 0}
-.tcard-row span:last-child{color:var(--text2);text-align:right;max-width:220px;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* Flash del pipeline lead nuevo */
-@keyframes lead-flash{
-  0%{background:rgba(0,255,136,.22);border-color:var(--green)}
-  100%{background:var(--bg3);border-color:var(--border)}
-}
-.lead-card.new-lead{animation:lead-flash 2s ease-out forwards}
-/* Toast pipeline */
+.tcard-row{display:flex;justify-content:space-between;gap:16px;color:var(--text3);padding:1px 0}
+.tcard-row span:last-child{color:var(--text2);text-align:right;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* PIPELINE TOAST */
 .pipeline-toast{
-  position:fixed;bottom:300px;right:20px;
+  position:fixed;bottom:20px;right:20px;
   background:var(--green);color:#000;font-size:12px;font-weight:700;
   padding:8px 14px;border-radius:8px;z-index:200;
   animation:toast-in .3s ease,toast-out .4s ease 2.5s forwards;
@@ -254,6 +251,19 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
 }
 @keyframes toast-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toast-out{to{opacity:0;transform:translateY(10px)}}
+
+/* RENDIMIENTO BAR */
+#rendimiento-bar{
+  flex-shrink:0;background:var(--bg2);border-top:1px solid var(--border);
+  height:30px;display:flex;align-items:center;padding:0 16px;gap:16px;
+}
+.rend-label{font-size:9px;color:var(--text3);font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.rend-sep{width:1px;height:12px;background:var(--border2)}
+.rend-item{display:flex;align-items:center;gap:6px}
+.rend-key{font-size:9px;color:var(--text3)}
+.rend-val{font-size:10px;color:var(--text2);font-family:var(--mono)}
+#rend-revenue{background:none;border:none;outline:none;color:var(--text2);font-size:10px;font-family:var(--mono);width:72px;cursor:text;padding:0}
+#rend-revenue:focus{color:var(--green)}
 </style>
 </head>
 <body>
@@ -264,7 +274,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
     <div class="login-logo">BM</div>
     <h2>Brand Mind Studio</h2>
     <p>Oficina de Agentes IA — acceso restringido</p>
-    <input type="password" id="pin-input" placeholder="PIN" maxlength="8" onkeydown="if(event.key==='Enter')checkPin()"/>
+    <input type="password" id="pin-input" placeholder="PIN" maxlength="8"/>
     <button onclick="checkPin()">Entrar →</button>
     <div class="login-err" id="login-err">PIN incorrecto</div>
   </div>
@@ -279,8 +289,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
       <div class="logo-sub">Oficina de Agentes IA</div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:20px">
-    <div class="status-pill"><span class="status-dot"></span>3 agentes activos</div>
+  <div style="display:flex;align-items:center;gap:18px">
+    <div class="status-pill"><span class="status-dot"></span><span id="topbar-status">4 agentes activos</span></div>
     <div class="clock" id="clock"></div>
   </div>
 </div>
@@ -290,60 +300,62 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
 
   <!-- SIDEBAR -->
   <nav class="sidebar">
-    <div class="nav-section">Principal</div>
-    <div class="nav-item active" onclick="goPanel('inicio',this)"><span class="nav-icon">⌂</span> Inicio</div>
     <div class="nav-section">Agentes</div>
-    <div class="nav-item" onclick="goPanel('captacion',this)"><span class="nav-icon">⌕</span> Captación <span class="nav-badge" id="nb-cap" style="display:none">0</span></div>
-    <div class="nav-item" onclick="goPanel('produccion',this)"><span class="nav-icon">⚙</span> Producción <span class="nav-badge" id="nb-prod" style="display:none">0</span></div>
-    <div class="nav-item" onclick="goPanel('ventas',this)"><span class="nav-icon">✉</span> Ventas <span class="nav-badge" id="nb-ven" style="display:none">0</span></div>
-    <div class="nav-section">Live</div>
-    <div class="nav-item" onclick="goPanel('bartolo',this)"><span class="nav-icon">⚡</span> Bartolo Live <span class="nav-badge" id="nb-bartolo" style="display:none">0</span></div>
+
+    <div class="nav-item" data-agent="chapu" onclick="goPanel('chapu',this)">
+      <div class="nav-icon-box" style="background:var(--chapu-dim)">👁</div>
+      <span>Chapu</span>
+      <span class="nav-badge" id="nb-chapu" style="background:var(--chapu);color:#000"></span>
+    </div>
+    <div class="nav-item" data-agent="pampa" onclick="goPanel('pampa',this)">
+      <div class="nav-icon-box" style="background:var(--pampa-dim)">🧠</div>
+      <span>Pampa</span>
+      <span class="nav-badge" id="nb-pampa" style="background:var(--pampa);color:#000"></span>
+    </div>
+    <div class="nav-item" data-agent="milie" onclick="goPanel('milie',this)">
+      <div class="nav-icon-box" style="background:var(--milie-dim)">📧</div>
+      <span>Milie</span>
+      <span class="nav-badge" id="nb-milie" style="background:var(--milie);color:#000"></span>
+    </div>
+    <div class="nav-item active" data-agent="sort" onclick="goPanel('sort',this)">
+      <div class="nav-icon-box" style="background:var(--sort-dim)">⚡</div>
+      <span>Sort</span>
+      <span class="nav-badge" id="nb-sort" style="background:var(--sort);color:#000"></span>
+    </div>
+
     <div class="nav-section">Gestión</div>
-    <div class="nav-item" onclick="goPanel('pipeline',this)"><span class="nav-icon">◈</span> Pipeline</div>
-    <div class="nav-item" onclick="goPanel('facturacion',this)"><span class="nav-icon">◻</span> Facturación</div>
-    <div class="nav-item" onclick="goPanel('planes',this)"><span class="nav-icon">★</span> Planes</div>
+    <div class="nav-item" onclick="goPanel('facturacion',this)">
+      <div class="nav-icon-box" style="background:rgba(255,255,255,.04)">◻</div>
+      <span>Facturación</span>
+    </div>
+    <div class="nav-item" onclick="goPanel('planes',this)">
+      <div class="nav-icon-box" style="background:rgba(255,255,255,.04)">★</div>
+      <span>Planes</span>
+    </div>
+
+    <!-- spacer + token -->
+    <div style="flex:1"></div>
+    <div style="padding:10px 14px;border-top:1px solid var(--border);margin-top:8px">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:5px">Token Sort</div>
+      <input type="password" id="bartolo-token-input" placeholder="bms-2026"
+        style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:6px;padding:5px 8px;color:var(--text);font-size:11px;outline:none"
+        onchange="guardarBartoloToken()"/>
+    </div>
   </nav>
 
   <!-- CONTENT -->
-  <div class="content">
+  <div class="content" id="content-area">
 
-    <!-- INICIO -->
-    <div class="panel active" id="panel-inicio">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
-        <div>
-          <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700" id="welcome-msg">Buenos días 👋</h2>
-          <p style="font-size:13px;color:var(--text2);margin-top:4px">Oficina Brand Mind Studio — todo operativo</p>
-        </div>
+    <!-- ══════════════════ CHAPU ══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-chapu">
+      <div class="agent-header">
+        <div class="agent-pill chapu"><div class="agent-dot dot-chapu" id="dot-chapu"></div><span id="label-chapu">Chapu — captación y rastreo</span></div>
+        <span id="chapu-sync" style="font-size:11px;color:var(--text3);margin-left:auto"></span>
       </div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Leads captados</div><div class="stat-value" id="s-leads">0</div><div class="stat-sub">Total en sistema</div></div>
-        <div class="stat-card"><div class="stat-label">En producción</div><div class="stat-value" id="s-prod">0</div><div class="stat-sub">Pendientes análisis</div></div>
-        <div class="stat-card"><div class="stat-label">Contactados</div><div class="stat-value" id="s-cont">0</div><div class="stat-sub">Emails enviados</div></div>
-      </div>
-      <div class="card">
-        <div class="card-title">🚀 Acciones rápidas</div>
-        <div class="btn-row">
-          <button class="btn primary" onclick="goPanel('captacion',document.querySelector('[onclick*=captacion]'))">Captar leads →</button>
-          <button class="btn" onclick="goPanel('ventas',document.querySelector('[onclick*=ventas]'))">Ver ventas</button>
-          <button class="btn" onclick="goPanel('facturacion',document.querySelector('[onclick*=facturacion]'))">Nueva factura</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">📋 Estado del sistema</div>
-        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)">
-          <div style="display:flex;justify-content:space-between"><span>Web brandmindstudio.net</span><span style="color:var(--green)">✓ Live</span></div>
-          <div style="display:flex;justify-content:space-between"><span>IBZ Live IA (Vercel)</span><span style="color:var(--green)">✓ Live</span></div>
-          <div style="display:flex;justify-content:space-between"><span>Email info@brandmindstudio.net</span><span style="color:#f5c842">⏳ Pendiente Workspace</span></div>
-          <div style="display:flex;justify-content:space-between"><span>Backend IBZ (Railway)</span><span style="color:#f5c842">⏳ Pendiente deploy</span></div>
-        </div>
-      </div>
-    </div>
 
-    <!-- CAPTACION -->
-    <div class="panel" id="panel-captacion">
-      <div class="agent-pill"><div class="agent-dot dot-active" id="dot-cap"></div><span id="label-cap">Agente Captación — listo</span></div>
+      <!-- Rastreo form -->
       <div class="card">
-        <div class="card-title"><div class="card-icon" style="background:rgba(0,180,255,.1)">⌕</div> Rastreo web por nicho</div>
+        <div class="card-title"><div class="card-icon" style="background:var(--chapu-dim)">🔍</div> Nuevo rastreo</div>
         <div class="field-row">
           <div class="field">
             <label>Sector</label>
@@ -373,13 +385,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
         </div>
         <div class="field-row">
           <div class="field">
-            <label>Cantidad de leads</label>
+            <label>Cantidad</label>
             <select id="cantidad-select">
               <option value="5">5 leads</option>
               <option value="10" selected>10 leads</option>
               <option value="20">20 leads</option>
               <option value="30">30 leads</option>
-              <option value="50">50 leads</option>
             </select>
           </div>
           <div class="field">
@@ -388,68 +399,69 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
           </div>
         </div>
         <div class="btn-row">
-          <button class="btn primary" onclick="rastrearLeads()">Rastrear leads con IA →</button>
+          <button class="btn chapu-btn" onclick="rastrearLeads()">👁 Rastrear leads con IA →</button>
+        </div>
+        <div id="cap-output-wrap" style="display:none;margin-top:12px">
+          <div class="stream-box typing" id="cap-output"></div>
         </div>
       </div>
-      <div class="card" id="card-cap-output" style="display:none">
-        <div class="card-title">Resultado del rastreo</div>
-        <div class="stream-box" id="cap-output"></div>
-      </div>
-      <div class="card" id="card-cap-leads" style="display:none">
-        <div class="card-title">Leads encontrados</div>
-        <div class="leads-grid" id="cap-leads-list"></div>
-        <div class="btn-row" style="margin-top:12px">
-          <button class="btn primary" onclick="enviarAProduccion()">Enviar a Producción →</button>
+
+      <!-- History -->
+      <div class="sect-header" style="padding:0 2px">
+        <span class="sect-title">Historial de leads encontrados</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn" onclick="fetchBartoloLeads()" style="padding:3px 9px;font-size:11px">↻ Sync</button>
+          <select id="chapu-filter" onchange="renderChapuHistory()" style="background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:6px;padding:3px 8px;color:var(--text2);font-size:11px;outline:none">
+            <option value="all">Todos</option>
+            <option value="completado">Completados</option>
+            <option value="procesando">Procesando</option>
+            <option value="captado">Captados</option>
+            <option value="error">Errores</option>
+          </select>
         </div>
+      </div>
+      <div id="chapu-hist" class="hist-list" style="margin-top:10px">
+        <div class="hist-empty">Conectando con Sort...</div>
       </div>
     </div>
 
-    <!-- PRODUCCION -->
-    <div class="panel" id="panel-produccion">
-      <div class="agent-pill"><div class="agent-dot dot-idle" id="dot-prod"></div><span id="label-prod">Agente Producción — en espera</span></div>
-      <div class="card">
-        <div class="card-title"><div class="card-icon" style="background:rgba(245,200,66,.1)">⚙</div> Cola de leads</div>
-        <div id="prod-empty" style="font-size:13px;color:var(--text3)">Envía leads desde Captación para procesarlos aquí.</div>
-        <div class="leads-grid" id="prod-queue"></div>
-        <div id="prod-btn-row" class="btn-row" style="margin-top:12px;display:none">
-          <button class="btn primary" onclick="analizarLeads()">Analizar webs con IA →</button>
-        </div>
+    <!-- ══════════════════ PAMPA ══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-pampa">
+      <div class="agent-header">
+        <div class="agent-pill pampa"><div class="agent-dot dot-pampa" id="dot-pampa"></div><span>Pampa — diagnóstico y propuesta</span></div>
       </div>
-      <div class="card" id="card-prod-analysis" style="display:none">
-        <div class="card-title">Análisis IA</div>
-        <div class="stream-box typing" id="prod-analysis"></div>
+
+      <div class="stats-row">
+        <div class="stat-mini"><div class="stat-mini-val" id="pm-total" style="color:var(--pampa)">0</div><div class="stat-mini-lbl">Diagnósticos completados</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="pm-revenue" style="color:var(--pampa);font-size:16px;padding-top:3px">—</div><div class="stat-mini-lbl">Mayor revenue detectado</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="pm-avg" style="color:var(--pampa)">—</div><div class="stat-mini-lbl">Problema más común</div></div>
       </div>
-      <div class="card" id="card-prod-done" style="display:none">
-        <div class="card-title">Leads cualificados</div>
-        <div class="leads-grid" id="prod-done-list"></div>
-        <div class="btn-row" style="margin-top:12px">
-          <button class="btn primary" onclick="enviarAVentas()">Enviar a Ventas →</button>
-        </div>
+
+      <div class="sect-header" style="padding:0 2px">
+        <span class="sect-title">Diagnósticos realizados</span>
+        <div style="font-size:11px;color:var(--text3)" id="pampa-count">0 con datos</div>
+      </div>
+      <div id="pampa-hist" class="hist-list" style="margin-top:10px">
+        <div class="hist-empty">Sin diagnósticos todavía.</div>
       </div>
     </div>
 
-    <!-- VENTAS -->
-    <div class="panel" id="panel-ventas">
-      <div class="agent-pill"><div class="agent-dot dot-idle" id="dot-ven"></div><span id="label-ven">El Cerrador — en espera</span></div>
+    <!-- ══════════════════ MILIE ══════════════════════════════════════════════ -->
+    <div class="panel" id="panel-milie">
+      <div class="agent-header">
+        <div class="agent-pill milie"><div class="agent-dot dot-milie" id="dot-milie"></div><span>Milie — ventas y emails</span></div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-mini"><div class="stat-mini-val" id="ml-sent" style="color:var(--milie)">0</div><div class="stat-mini-lbl">Emails enviados</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="ml-preview" style="color:var(--amber)">0</div><div class="stat-mini-lbl">En preview</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="ml-pending" style="color:var(--text3)">0</div><div class="stat-mini-lbl">Sin contactar</div></div>
+      </div>
+
+      <!-- El Cerrador -->
       <div class="card">
-        <div class="card-title"><div class="card-icon" style="background:rgba(0,255,136,.1)">✉</div> Leads cualificados</div>
-        <div id="ven-empty" style="font-size:13px;color:var(--text3)">Procesa leads en Producción para verlos aquí.</div>
-        <div class="leads-grid" id="ven-leads"></div>
-      </div>
-      <div class="card" id="card-ven-selected" style="display:none">
-        <div class="card-title">Lead seleccionado</div>
-        <div class="meta-row" id="ven-meta"></div>
-        <div class="btn-row" style="margin-bottom:12px">
-          <button class="btn" onclick="genEmail()">📧 Email personalizado</button>
-          <button class="btn" onclick="genPropuesta()">📋 Propuesta comercial</button>
-          <button class="btn" onclick="buscarCIF()">🔍 Buscar CIF</button>
-          <button class="btn" onclick="genWhatsapp()">💬 WhatsApp</button>
-        </div>
-        <div class="stream-box" id="ven-output" style="display:none"></div>
-      </div>
-      <div class="card" id="card-cerrador">
-        <div class="card-title"><div class="card-icon" style="background:rgba(0,255,136,.15)">🎯</div> El Cerrador — Outreach Automático</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Genera un email personalizado con IA para cada lead y lo envía automáticamente via Resend desde <strong style="color:var(--green)">info@brandmindstudio.net</strong></p>
+        <div class="card-title"><div class="card-icon" style="background:var(--milie-dim)">🎯</div> El Cerrador — Outreach masivo</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Genera y envía emails personalizados con IA a todos los leads del pipeline de Sort via Resend.</p>
         <div class="field-row">
           <div class="field">
             <label>Resend API Key</label>
@@ -457,41 +469,75 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
           </div>
           <div class="field" style="justify-content:flex-end">
             <label style="opacity:0">.</label>
-            <button class="btn" onclick="guardarKeys()" style="height:37px">💾 Guardar claves</button>
+            <button class="btn" onclick="guardarKeys()" style="height:36px">💾 Guardar</button>
           </div>
         </div>
         <div class="btn-row">
-          <button class="btn primary" id="btn-cerrador" onclick="elCerrador()" disabled>🚀 El Cerrador — Enviar a todos los leads →</button>
+          <button class="btn milie-btn" id="btn-cerrador" onclick="elCerrador()" disabled>📧 El Cerrador — Enviar a todos →</button>
         </div>
-        <div class="stream-box" id="cerrador-output" style="display:none;margin-top:14px;max-height:280px;overflow-y:auto"></div>
+        <div class="stream-box" id="cerrador-output" style="display:none;margin-top:12px;max-height:240px;overflow-y:auto"></div>
+      </div>
+
+      <!-- History -->
+      <div class="sect-header" style="padding:0 2px">
+        <span class="sect-title">Historial de emails</span>
+        <div style="font-size:11px;color:var(--text3)" id="milie-count">0 emails</div>
+      </div>
+      <div id="milie-hist" class="hist-list" style="margin-top:10px">
+        <div class="hist-empty">Sin emails todavía.</div>
       </div>
     </div>
 
-    <!-- PIPELINE -->
-    <div class="panel" id="panel-pipeline">
-      <div class="card">
-        <div class="card-title">◈ Embudo de ventas</div>
-        <div class="pipe-wrap">
-          <div class="pipe-col"><div class="pipe-col-title">Captados</div><div class="pipe-num" id="pn-cap">0</div><div class="pipe-label">leads totales</div></div>
-          <div class="pipe-col"><div class="pipe-col-title">Producción</div><div class="pipe-num" id="pn-prod">0</div><div class="pipe-label">analizados</div></div>
-          <div class="pipe-col"><div class="pipe-col-title">Contactados</div><div class="pipe-num" id="pn-ven">0</div><div class="pipe-label">emails enviados</div></div>
-          <div class="pipe-col"><div class="pipe-col-title">Cerrados</div><div class="pipe-num" id="pn-closed">0</div><div class="pipe-label">clientes</div></div>
+    <!-- ══════════════════ SORT ════════════════════════════════════════════════ -->
+    <div class="panel active" id="panel-sort">
+      <div id="sort-terminal">
+        <!-- Terminal header -->
+        <div class="sort-term-header">
+          <div class="agent-pill sort" style="margin:0"><div class="agent-dot dot-sort" id="term-dot"></div><span class="term-hlabel">Sort</span></div>
+          <span class="term-hstatus" id="term-status" style="font-size:11px;color:var(--text3);margin-left:8px">— coordinación y chat</span>
+          <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+            <span id="term-pipe-badge" style="display:none;background:var(--sort);color:#000;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px"></span>
+            <button onclick="clearTerminal()" style="background:none;border:1px solid var(--border);color:var(--text3);padding:3px 8px;border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit">✕ limpiar</button>
+          </div>
         </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Ingresos estimados</div>
-        <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--green)" id="ingresos-est">0 €</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:4px">Basado en leads en pipeline × precio medio plan Pro (497€)</div>
+        <!-- Stats strip -->
+        <div class="sort-stats-strip">
+          <span>Pipeline: <span id="bt-total">0</span> leads</span>
+          <span style="color:var(--border2)">·</span>
+          <span>Sync: <span id="bt-next">—</span></span>
+          <span style="color:var(--border2)">·</span>
+          <span style="margin-left:auto">
+            <button onclick="fetchBartoloLeads()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:10px;font-family:inherit">↻ Sync ahora</button>
+          </span>
+        </div>
+        <!-- Messages -->
+        <div class="term-msgs" id="term-msgs">
+          <div class="tmsg bot">
+            <div class="tmsg-av">S</div>
+            <div class="tmsg-bub">Hola Fernando. Soy Sort — puedo rastrear leads, analizar negocios y coordinar el pipeline. ¿Qué hacemos?</div>
+          </div>
+        </div>
+        <!-- Input -->
+        <div class="term-input-row">
+          <span class="term-prompt">→</span>
+          <input class="term-input" id="term-input"
+            placeholder="Darle una orden a Sort…  (ej: Procesá Alorac, Ibiza, inmobiliaria)"
+            maxlength="1000" onkeydown="termKeydown(event)">
+          <button class="term-send-btn" id="term-send-btn" onclick="termSend()">↵ Enviar</button>
+        </div>
       </div>
     </div>
 
-    <!-- FACTURACION -->
+    <!-- ══════════════════ FACTURACIÓN ════════════════════════════════════════ -->
     <div class="panel" id="panel-facturacion">
+      <div style="margin-bottom:14px">
+        <h2 style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700">Facturación</h2>
+      </div>
       <div class="card">
         <div class="card-title">◻ Nueva factura</div>
         <div class="field-row">
           <div class="field"><label>Cliente</label><input type="text" id="inv-cliente" placeholder="Nombre del cliente"/></div>
-          <div class="field"><label>CIF/NIF cliente</label><input type="text" id="inv-cif" placeholder="B12345678"/></div>
+          <div class="field"><label>CIF/NIF</label><input type="text" id="inv-cif" placeholder="B12345678"/></div>
         </div>
         <div class="field-row">
           <div class="field"><label>Servicio</label><select id="inv-servicio">
@@ -511,45 +557,44 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
         <div class="invoice-preview" id="factura-preview"></div>
         <div class="btn-row" style="margin-top:12px">
           <button class="btn primary" onclick="window.print()">🖨 Imprimir</button>
-          <button class="btn" onclick="copiarFactura()">📋 Copiar texto</button>
+          <button class="btn" onclick="copiarFactura()">📋 Copiar</button>
         </div>
       </div>
     </div>
 
-    <!-- PLANES -->
+    <!-- ══════════════════ PLANES ══════════════════════════════════════════════ -->
     <div class="panel" id="panel-planes">
+      <div style="margin-bottom:14px">
+        <h2 style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700">Planes BMS</h2>
+      </div>
       <div class="card">
-        <div class="card-title">★ Planes Brand Mind Studio</div>
         <div class="planes-grid">
           <div class="plan-card">
             <div class="plan-name">PRESENCIA</div>
             <div class="plan-price">297<span>€</span></div>
-            <div class="plan-desc">Para negocios que necesitan estar bien posicionados</div>
+            <div class="plan-desc">Para negocios que necesitan presencia digital básica</div>
             <div class="plan-feature">Web hasta 5 páginas</div>
             <div class="plan-feature">Diseño a medida</div>
             <div class="plan-feature">SEO local básico</div>
-            <div class="plan-feature">Dominio incluido 1 año</div>
-            <div class="plan-feature">SSL y hosting</div>
+            <div class="plan-feature">Dominio + SSL + hosting</div>
           </div>
           <div class="plan-card featured">
             <div class="plan-badge">MÁS POPULAR</div>
             <div class="plan-name">PRESENCIA PRO</div>
             <div class="plan-price">497<span>€</span></div>
-            <div class="plan-desc">Para negocios que quieren una presencia activa</div>
+            <div class="plan-desc">Para negocios que quieren presencia activa</div>
             <div class="plan-feature">Todo lo del plan Presencia</div>
             <div class="plan-feature">Asistente IA integrado</div>
             <div class="plan-feature">QR dinámico actualizable</div>
             <div class="plan-feature">Multiidioma (3 idiomas)</div>
             <div class="plan-feature">Panel de administración</div>
-            <div class="plan-feature">Analytics y métricas</div>
           </div>
           <div class="plan-card">
             <div class="plan-name">ECOSISTEMA IA</div>
             <div class="plan-price">797<span>€</span></div>
-            <div class="plan-desc">Sistema digital completo que trabaja solo</div>
+            <div class="plan-desc">Sistema digital completo con IA avanzada</div>
             <div class="plan-feature">Todo lo del plan Pro</div>
-            <div class="plan-feature">IA avanzada con voz</div>
-            <div class="plan-feature">5 idiomas con detección auto</div>
+            <div class="plan-feature">IA con voz + 5 idiomas</div>
             <div class="plan-feature">PWA instalable</div>
             <div class="plan-feature">Sistema de reservas</div>
             <div class="plan-feature">Mantenimiento 3 meses</div>
@@ -558,58 +603,77 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
       </div>
     </div>
 
-
-    <!-- BARTOLO LIVE -->
-    <div class="panel" id="panel-bartolo">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-        <div class="agent-pill"><div class="agent-dot dot-active" id="dot-bartolo"></div><span id="label-bartolo">Bartolo — conectando...</span></div>
-        <span id="bartolo-sync" style="font-size:11px;color:var(--text3);margin-left:auto"></span>
-      </div>
-      <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:16px">
-        <div class="stat-card"><div class="stat-label">Total en pipeline</div><div class="stat-value" id="bt-total">0</div><div class="stat-sub">leads recibidos</div></div>
-        <div class="stat-card"><div class="stat-label">Actualizando</div><div class="stat-value" style="font-size:18px;padding-top:6px" id="bt-next">—</div><div class="stat-sub">próxima sync</div></div>
-      </div>
-      <div class="card">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px">
-          <div class="card-icon" style="background:rgba(0,255,136,.1)">⚡</div>
-          Feed de leads
-          <div style="margin-left:auto;display:flex;gap:6px">
-            <button class="btn" onclick="fetchBartoloLeads()" style="padding:4px 10px;font-size:12px">↻ Sync</button>
-            <select id="bt-filter" onchange="renderBartoloLeads()" style="background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;color:var(--text2);font-size:12px;outline:none">
-              <option value="all">Todos</option>
-              <option value="captado">Captados</option>
-              <option value="procesando">Procesando</option>
-              <option value="completado">Completados</option>
-            </select>
-          </div>
-        </div>
-        <div id="bartolo-leads-list" class="leads-grid" style="margin-top:8px">
-          <div style="font-size:13px;color:var(--text3);padding:8px 0">Conectando con Bartolo...</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Configuración</div>
-        <div class="field-row">
-          <div class="field">
-            <label>Bartolo API Token</label>
-            <input type="password" id="bartolo-token-input" placeholder="bms-2026" autocomplete="off"/>
-          </div>
-          <div class="field" style="justify-content:flex-end">
-            <label style="opacity:0">.</label>
-            <button class="btn" onclick="guardarBartoloToken()" style="height:37px">💾 Guardar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div><!-- /content -->
 </div><!-- /app-body -->
 
+<!-- LEAD DETAIL MODAL -->
+<div id="lead-modal" onclick="if(event.target===this)closeLeadModal()">
+  <div id="lead-modal-box">
+    <div class="lm-h">
+      <div>
+        <div class="lm-title" id="lm-nombre"></div>
+        <div class="lm-sub" id="lm-meta"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-start;margin-left:auto">
+        <span class="lm-badge" id="lm-estado"></span>
+        <button class="lm-close" onclick="closeLeadModal()">✕ Cerrar</button>
+      </div>
+    </div>
+    <!-- Chapu -->
+    <div class="lm-section">
+      <div class="lm-section-title chapu-st">👁 <span>Chapu — Análisis de presencia</span></div>
+      <div class="lm-row"><span class="lm-k">Web</span><span class="lm-v" id="lm-url"></span></div>
+      <div class="lm-row"><span class="lm-k">Email encontrado</span><span class="lm-v" id="lm-email"></span></div>
+      <div style="margin-top:8px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em">Tiene</div>
+        <div class="lm-tags" id="lm-tiene"></div>
+      </div>
+      <div style="margin-top:8px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em">Falta</div>
+        <div class="lm-tags" id="lm-falta"></div>
+      </div>
+    </div>
+    <!-- Pampa -->
+    <div class="lm-section">
+      <div class="lm-section-title pampa-st">🧠 <span>Pampa — Diagnóstico revenue</span></div>
+      <div id="lm-diag-rows"></div>
+    </div>
+    <!-- Milie -->
+    <div class="lm-section">
+      <div class="lm-section-title milie-st">📧 <span>Milie — Email redactado</span></div>
+      <div class="lm-row"><span class="lm-k">Asunto</span><span class="lm-v hi" id="lm-asunto"></span></div>
+      <div class="lm-row"><span class="lm-k">Destinatario</span><span class="lm-v" id="lm-dest"></span></div>
+      <div id="lm-preview-wrap" style="margin-top:8px;display:none">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em">Vista previa</div>
+        <div class="lm-email-body" id="lm-preview"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RENDIMIENTO BAR -->
+<div id="rendimiento-bar">
+  <span class="rend-label">Rendimiento</span>
+  <div class="rend-sep"></div>
+  <div class="rend-item"><span class="rend-key">Activo</span><span class="rend-val" id="rend-timer">0d 0h 0m</span></div>
+  <div class="rend-sep"></div>
+  <div class="rend-item">
+    <span class="rend-key">Revenue</span>
+    <input id="rend-revenue" type="text" value="0€" title="Click para editar"/>
+  </div>
+</div>
+
 <script>
 const PIN = 'bms2026';
-const API_KEY = ''; // Añadir API key aquí
+const BARTOLO_URL = 'https://bartolo.brandmindstudio.net';
 
-// LOGIN
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let bartoloLeads  = [];
+let bartoloToken  = localStorage.getItem('bms_bartolo_token') || 'bms-2026';
+let bartoloCountdown = 30;
+let venLeads      = [];
+
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
 function checkPin(){
   const v = document.getElementById('pin-input').value;
   if(v === PIN){ document.getElementById('login-screen').style.display='none'; initApp(); }
@@ -617,427 +681,323 @@ function checkPin(){
 }
 document.getElementById('pin-input').addEventListener('keydown',e=>{ if(e.key==='Enter') checkPin(); });
 
-// CLOCK
 function initApp(){
   updateClock();
   setInterval(updateClock, 1000);
   initRevenue();
   startBartoloPolling();
-  const h = new Date().getHours();
-  document.getElementById('welcome-msg').textContent = (h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches') + ' Fernando 👋';
   cargarKeys();
+  // Default: Sort panel active
+  document.body.classList.add('sort-active');
+  const tokenInput = document.getElementById('bartolo-token-input');
+  if(tokenInput) tokenInput.value = bartoloToken;
 }
+
 function updateClock(){
-  const n=new Date();
-  document.getElementById('clock').textContent = n.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})+' · '+n.toLocaleTimeString('es-ES');
-  // Rendimiento countdown desde 2026-04-03 10:00:00
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    n.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}) + ' · ' + n.toLocaleTimeString('es-ES');
   const start = new Date('2026-04-03T10:00:00');
   const diff  = Math.max(0, n - start);
   const days  = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins  = Math.floor((diff % 3600000)  / 60000);
+  const mins  = Math.floor((diff % 3600000) / 60000);
   const el = document.getElementById('rend-timer');
   if(el) el.textContent = days + 'd ' + hours + 'h ' + mins + 'm';
 }
 
-// REVENUE — persistir en localStorage
 function initRevenue(){
   const inp = document.getElementById('rend-revenue');
   if(!inp) return;
   const saved = localStorage.getItem('bms_revenue');
   if(saved) inp.value = saved;
-  inp.addEventListener('blur', () => { localStorage.setItem('bms_revenue', inp.value); });
+  inp.addEventListener('blur', () => localStorage.setItem('bms_revenue', inp.value));
   inp.addEventListener('keydown', e => { if(e.key==='Enter') inp.blur(); });
 }
 
-// NAV
+// ─── NAV ──────────────────────────────────────────────────────────────────────
 function goPanel(id, el){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const panel = document.getElementById('panel-' + id);
+  if(panel) panel.classList.add('active');
   if(el) el.classList.add('active');
-}
-
-// STATE
-let leads=[], prodLeads=[], venLeads=[], venSelected=null, contados=0, cerrados=0;
-
-function updateStats(){
-  document.getElementById('s-leads').textContent=leads.length;
-  document.getElementById('s-prod').textContent=prodLeads.length;
-  document.getElementById('s-cont').textContent=contados;
-  document.getElementById('pn-cap').textContent=leads.length;
-  document.getElementById('pn-prod').textContent=prodLeads.length;
-  document.getElementById('pn-ven').textContent=contados;
-  document.getElementById('pn-closed').textContent=cerrados;
-  document.getElementById('ingresos-est').textContent=(venLeads.length*497).toLocaleString('es-ES')+'€';
-  const nb=document.getElementById('nb-cap');
-  if(leads.length>0){nb.style.display='inline';nb.textContent=leads.length;}
-}
-
-// CAPTACION — fallback demo data
-const NICHOS_DEMO = {
-  clinicas:     ['Clínica Mediterránea','Centro Salud Levante','Fisio & Bienestar','Clínica Estética Sol','Psicología Integral','Rehabilitación Plus','Nutrición & Salud','Clínica Integral','Osteopatía Avanzada','Médicos del Sur','Clínica Norte','Centro Médico Familiar','Fisioterapia Activa','Clínica del Deporte','Consulta Médica Plaza','Salud & Vida','Centro Holístico','Podología Avanzada','Clínica Privada Sol','Medicina Estética Plus'],
-  restaurantes: ['Restaurante La Bahía','Bar Tapas El Rincón','Marisquería Don Pedro','La Terraza Bistró','Bodega Artesanal','El Chiringuito','Cocina de Mercado','Cafetería Central','Pizzería Bella Napoli','Asador El Roble','Casa de Comidas Aurora','El Mesón Viejo','Taberna del Puerto','Restaurante Fusión','La Cantina','Gastrobar El Mirador','El Olivo Restaurant','Cervecería Norte','Trattoria del Sol','Brasa & Leña'],
-  abogados:     ['Bufete García & Asociados','Despacho Jurídico Sur','Lex & Partners','Abogacía Mediterránea','Estudio Legal Sol','Firma Jurídica Plus','Asesoría Legal 360','Despacho Miquel','Jurídico & Asociados','Abogados del Mar','Torres & Asociados','Despacho Navarro','Legal Consulting Sur','Abogacía Familiar','Defensa Legal Plus','Asesoría Jurídica Pro','Bufete Internacional','Legal & Partners','Derecho & Gestión','Consultoría Legal'],
-  inmobiliarias:['Inmobiliaria Sol & Mar','Pisos & Casas','Home Consulting','Fincas del Valle','Real Estate Plus','Inmuebles Premium','Casas & Villas','Properties Group','Habitat Consulting','Domus Gestión','Gestión Inmobiliaria Norte','Piso Fácil','Top Inmobiliaria','Casas del Sur','Agencia Inmobiliaria Central','Fincas & Suelos','Propiedades Premium','Real Estate Sur','Viviendas Plus','Home & Living'],
-  estetica:     ['Centro Belleza Luna','Spa & Beauty Sol','Estética Avanzada','Centro Bienestar Mar','Salón de Belleza Eva','Beauty Center Plus','Estudio Facial Pro','Nails & Beauty','Masajes & Bienestar','Centro Estético 360','Belleza Natural','Spa Relax','Depilación Láser Plus','Beauty Studio Norte','Centro Estetico Premium','Skin Care Clinic','Bienestar & Salud','Tratamientos Faciales Pro','Centro Antiedad','Estética Integral'],
-  dental:       ['Clínica Dental Sonrisa','Ortodoncia & Estética','Dental Center Plus','Clínica Implantes Sol','Odontología Avanzada','Dental Boutique','Sonrisa Perfecta','Implantes del Sur','Clínica Dental Mar','Dental & Estética','Orthodontia Plus','Clínica Dental Norte','Blanqueamiento Dental','Endodoncia Avanzada','Dental Premium','Clínica Familiar Dental','Implantología Sur','Dental Studio','Ortodoncia Invisible','Centro Dental Integral'],
-  hoteles:      ['Hotel Boutique Sol','Apartamentos Vista Mar','Hostal El Puerto','Hotel Rural Sierra','Alojamiento Céntrico','Casa Rural Premium','Hotel & Spa','Suites del Sur','Pensión Central','Hotel Playa Azul','Aparthotel Norte','Casa de Huéspedes','Hotel Ciudad','Posada del Camino','Villas & Suites','Hotel Familiar','Albergue Turístico','Hostel Central','Hotel Boutique Norte','Resort & Spa'],
-  gimnasios:    ['Gym Fitness Plus','Centro Deportivo Sur','CrossFit Zone','Body & Mind Studio','Gym & Wellness','Centro Pilates Sol','Boxing Club','Yoga & Fitness','Entrenamiento Personal','Sport Center 360','Gimnasio 24H','Functional Training','Athletic Club','Gym Premium','Centro Deportivo Norte','Power Gym','Studio Pilates','Spinning Center','Gym & Spa','Fitness Factory'],
-  peluquerias:  ['Salón Marco Antonio','Barbería El Señor','Corte & Estilo','Studio Hair','Peluquería Mía','Barbershop Norte','Hair & Beauty','Peluquería Moderna','The Barber Shop','Estudio Capilar','Peluquería Familiar','Barber Club','Color & Corte','Hair Studio Pro','Peluquería Unisex Sol','Barbería Clásica','Tinte & Forma','Estilo Urbano','Peluquería Premium','The Hair Loft'],
-  talleres:     ['Taller Mecánico Norte','Auto Servicio Sur','Mecánica Rápida','Taller El Motor','Auto Center Plus','Carrocerías del Sur','Mecánica Express','Taller Central','Auto Repair Pro','Mecánica Integral','Taller Oficial','Servicio Rápido Auto','Pintura & Carrocería','Diagnóstico Auto','Taller Multimarca','Mecánica Familiar','Auto Service Plus','Taller Diesel Norte','Electromecánica Sur','Taller 24H'],
-  academias:    ['Academia Inglés Plus','Centro Formación Norte','Escuela de Idiomas','Academia Informática','Centro de Estudios Sol','Clases Particulares Pro','Academia Oposiciones','Formación Continua','Escuela de Negocios','Academia Música','Centro Educativo Plus','Instituto de Idiomas','Academia Matemáticas','Formación Online Pro','Escuela Arte & Diseño','Academia Driving','Centro Yoga & Meditación','Escuela de Cocina','Academia Danza','Formación Profesional Sur'],
-  veterinarias: ['Clínica Veterinaria Sol','Veterinario de Guardia','Centro Animal Plus','Clínica Mascotas Norte','Vet & Pet','Animal Health Center','Clínica Felina','Veterinaria del Mar','Centro Veterinario Plus','Animal Care','Clínica Canina Norte','Vet 24H','Clínica Animal Integral','Centro Veterinario Sur','Mascotas & Salud','Clínica Exóticos','Veterinaria Express','Animal Clinic Pro','Clínica Veterinaria Central','Pet Health Plus'],
-  farmacias:    ['Farmacia Central','Farmacia Norte','Parafarmacia Plus','Farmacia del Mar','Farmacia 24H','Farmacia Familiar','Farmacia & Ortopedia','Farmacia Online Sur','Farmacia Comunitaria','Farmacia del Puerto','Farmacia Compounding','Parafarmacia Sol','Farmacia Especializada','Farmacia Naturopatía','Farmacia del Valle','Farmacia Salud Plus','Farmacia Moderna','Farmacia Integral','Farmacia Express','Farmacia & Nutrición'],
-  asesorias:    ['Asesoría García','Gestoría del Sur','Consultoría Fiscal','Asesoría Laboral Plus','Gestoría Central','Contabilidad & Más','Asesoría Empresarial','Gestoría Norte','Fiscal & Laboral','Consultoría de Empresas','Asesoría Integral','Gestoría Familiar','Tax Consulting','Asesoría Contable','Gestoría Online','Auditoría & Consultoría','Asesoría Pyme','Gestoría Profesional','Fiscal Plus','Asesoría 360'],
-  fotografia:   ['Estudio Fotografía Sol','Photo Studio Norte','Fotografía de Boda','Studio Pro Photo','Fotografía Comercial','Retrato Studio','Foto Estudio Central','Fotografía Ibérica','Studio Creativo','Foto Arte Sur','Photo & Video Pro','Estudio de Imagen','Fotografía Integral','Studio Moments','Foto Profesional Norte','Fotografía Moda','Studio Light','Fotografía Corporativa','Foto Arte Plus','Estudio Creativo 360'],
-  arquitectos:  ['Estudio Arquitectura Sol','Interiorismo & Diseño','Arquitectos Asociados','Reforma & Diseño','Studio Interiores','Arquitectura Moderna','Diseño & Construcción','Estudio Reforma','Arquitectura Interior','Home Design Studio','Arquitectos Norte','Reforma Integral','Diseño de Interiores Plus','Studio Arquitectónico','Construcción & Diseño','Interiorismo Avanzado','Reforma Premium','Estudio Diseño Sur','Arquitectura & Reforma','Design Studio Pro']
-};
-
-async function rastrearLeads(){
-  const nicho    = document.getElementById('nicho-select').value;
-  const ciudad   = document.getElementById('ciudad-input').value.trim() || 'España';
-  const cantidad = parseInt(document.getElementById('cantidad-select').value);
-  const apiKey   = document.getElementById('api-key-input').value.trim() || API_KEY;
-  const dot      = document.getElementById('dot-cap');
-  const label    = document.getElementById('label-cap');
-
-  dot.className='agent-dot dot-busy';
-  label.textContent='Agente Captación — rastreando con IA...';
-  document.getElementById('card-cap-output').style.display='block';
-  document.getElementById('card-cap-leads').style.display='none';
-  const out = document.getElementById('cap-output');
-  out.className='stream-box typing';
-  out.textContent=`Iniciando rastreo IA — ${cantidad} leads · sector: ${nicho} · zona: ${ciudad}\n`;
-
-  if(apiKey && apiKey.startsWith('sk-ant')){
-    // Llamada real a la API de Anthropic
-    out.textContent+=`Conectando con Claude...\n`;
-    try{
-      const prompt = `Eres un agente de captación de leads para una agencia de diseño web llamada Brand Mind Studio.
-Genera una lista de exactamente ${cantidad} negocios FICTICIOS pero realistas del sector "${nicho}" ubicados en "${ciudad}" que claramente necesitan mejorar su presencia digital.
-
-Para cada negocio devuelve EXACTAMENTE este formato JSON (array):
-[{"nombre":"...","ciudad":"...","email":"info@nombreslug.es","problema":"...","score":85}]
-
-Problemas posibles: "Sin web", "Web obsoleta (2015)", "Web sin adaptación móvil", "Sin posicionamiento SEO", "Sin contacto online", "Web lenta (>5s)", "Sin Google Maps", "Sin reseñas gestionadas".
-Score entre 70 y 99 (mayor = mejor oportunidad).
-Para "email": infiere el email de contacto más probable del negocio (info@, contacto@, o hola@ + slug del nombre + .es o .com).
-Devuelve SOLO el array JSON, sin texto adicional.`;
-
-      const resp = await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version':'2023-06-01',
-          'anthropic-dangerous-direct-browser-access':'true'
-        },
-        body: JSON.stringify({
-          model:'claude-haiku-4-5-20251001',
-          max_tokens:2000,
-          messages:[{role:'user',content:prompt}]
-        })
-      });
-
-      const data = await resp.json();
-      if(data.error){ throw new Error(data.error.message); }
-
-      const raw = data.content?.[0]?.text || '[]';
-      const parsed = JSON.parse(raw.match(/\[[\s\S]*\]/)[0]);
-      leads = parsed.map((l,i)=>({...l, id:Date.now()+i, nicho}));
-
-      out.className='stream-box';
-      out.textContent+=`Analizando directorios y Google Maps...\nFiltrando oportunidades...\n\n✓ Rastreo IA completado. ${leads.length} leads identificados en ${ciudad}.`;
-      dot.className='agent-dot dot-active';
-      label.textContent=`Agente Captación — ${leads.length} leads encontrados`;
-      renderLeads(); autoEnviarABartolo(leads);
-      return;
-    }catch(e){
-      out.textContent+=`\n⚠ Error API: ${e.message}\nUsando modo demo...\n`;
-    }
-  } else {
-    // Simulación si no hay API key
-    const pasos = [
-      `Analizando Google Maps — ${ciudad}...\n`,
-      `Consultando directorios sectoriales...\n`,
-      `Filtrando negocios sin presencia digital...\n`,
-      `Verificando dominios y velocidad de carga...\n`
-    ];
-    for(const paso of pasos){
-      out.textContent+=paso;
-      await new Promise(r=>setTimeout(r,500));
-    }
+  document.body.classList.toggle('sort-active', id === 'sort');
+  if(id === 'sort'){
+    setTimeout(() => {
+      const msgs = document.getElementById('term-msgs');
+      if(msgs) msgs.scrollTop = msgs.scrollHeight;
+    }, 50);
   }
-
-  // Fallback demo
-  const pool = NICHOS_DEMO[nicho] || NICHOS_DEMO.clinicas;
-  const problemas = ['Sin web','Web obsoleta (2015)','Web sin adaptación móvil','Sin posicionamiento SEO','Sin contacto online','Web lenta (>5s)','Sin Google Maps','Sin reseñas gestionadas'];
-  leads = Array.from({length:cantidad},(_,i)=>{
-    const nombre = i < pool.length ? pool[i] : pool[i % pool.length] + ' ' + String.fromCharCode(65 + Math.floor(i/pool.length));
-    const slug = nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'').slice(0,20);
-    return { id:Date.now()+i, nombre, ciudad, nicho, email:`info@${slug}.es`, problema:problemas[i%problemas.length], score:Math.floor(Math.random()*30)+70 };
-  });
-  out.className='stream-box';
-  out.textContent+=`\n✓ Rastreo completado. ${leads.length} negocios identificados con oportunidad de mejora digital.`;
-  dot.className='agent-dot dot-active';
-  label.textContent=`Agente Captación — ${leads.length} leads encontrados`;
-  renderLeads(); autoEnviarABartolo(leads);
 }
 
-function renderLeads(){
-  const list = document.getElementById('cap-leads-list');
-  list.innerHTML='';
-  leads.forEach(l=>{
-    list.innerHTML+=`<div class="lead-card">
-      <div><div class="lead-name">${l.nombre}</div><div class="lead-meta">${l.ciudad} · ${l.problema}</div></div>
-      <div class="lead-score">${l.score}</div>
-    </div>`;
-  });
-  document.getElementById('card-cap-leads').style.display='block';
-  document.getElementById('nb-cap').style.display='inline';
-  document.getElementById('nb-cap').textContent=leads.length;
-  updateStats();
+// ─── BARTOLO / SORT POLLING ──────────────────────────────────────────────────
+function guardarBartoloToken(){
+  const val = document.getElementById('bartolo-token-input').value.trim();
+  if(val){ bartoloToken = val; localStorage.setItem('bms_bartolo_token', val); fetchBartoloLeads(); }
 }
 
-function generarLeads(nicho, ciudad){ renderLeads(); }
-
-function enviarAProduccion(){
-  prodLeads=[...leads];
-  document.getElementById('prod-empty').style.display='none';
-  const q=document.getElementById('prod-queue');
-  q.innerHTML='';
-  prodLeads.forEach(l=>{
-    q.innerHTML+=`<div class="lead-card"><div><div class="lead-name">${l.nombre}</div><div class="lead-meta">${l.ciudad} · ${l.problema}</div></div><div class="lead-score">${l.score}</div></div>`;
-  });
-  document.getElementById('prod-btn-row').style.display='flex';
-  document.getElementById('nb-prod').style.display='inline';
-  document.getElementById('nb-prod').textContent=prodLeads.length;
-  goPanel('produccion', document.querySelector('[onclick*=produccion]'));
-  updateStats();
+async function fetchBartoloLeads(){
+  try {
+    const r = await fetch(BARTOLO_URL + '/pipeline?limit=200', {
+      headers: { 'Authorization': 'Bearer ' + bartoloToken }
+    });
+    if(!r.ok) return;
+    const data = await r.json();
+    bartoloLeads = data.leads || [];
+    venLeads = bartoloLeads.filter(l => l.estado === 'completado' || l.asunto);
+    renderChapuHistory();
+    renderPampaHistory();
+    renderMilieHistory();
+    const nb = bartoloLeads.length;
+    setBadge('nb-chapu', nb);
+    document.getElementById('bt-total').textContent = data.total || 0;
+    const now = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    const sync = document.getElementById('chapu-sync');
+    if(sync) sync.textContent = 'Sync ' + now;
+    bartoloCountdown = 30;
+    // Enable El Cerrador
+    const btn = document.getElementById('btn-cerrador');
+    if(btn) btn.disabled = venLeads.length === 0;
+  } catch(e) {}
 }
 
-function analizarLeads(){
-  document.getElementById('dot-prod').className='agent-dot dot-busy';
-  document.getElementById('label-prod').textContent='Agente Producción — analizando...';
-  document.getElementById('card-prod-analysis').style.display='block';
-  const box=document.getElementById('prod-analysis');
-  box.className='stream-box typing';
-  box.textContent='';
+function startBartoloPolling(){
+  fetchBartoloLeads();
+  setInterval(() => {
+    bartoloCountdown--;
+    if(bartoloCountdown <= 0){ fetchBartoloLeads(); bartoloCountdown = 30; }
+    const el = document.getElementById('bt-next');
+    if(el) el.textContent = bartoloCountdown + 's';
+  }, 1000);
+}
 
-  const anlz = [
-    'Accediendo a webs de los leads...\n',
-    'Analizando velocidad de carga (PageSpeed)...\n',
-    'Verificando presencia en Google Maps...\n',
-    'Comprobando adaptación móvil...\n',
-    'Evaluando SEO on-page y meta tags...\n',
-    'Calculando puntuación de oportunidad...\n\n',
-    '✓ Análisis completado. Leads ordenados por potencial:\n\n',
+function setBadge(id, n){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(n > 0){ el.textContent = n; el.classList.add('show'); }
+  else{ el.classList.remove('show'); }
+}
+
+// ─── CHAPU HISTORY ────────────────────────────────────────────────────────────
+function renderChapuHistory(){
+  const container = document.getElementById('chapu-hist');
+  if(!container) return;
+  const filter = (document.getElementById('chapu-filter') || {}).value || 'all';
+  const data = filter === 'all' ? bartoloLeads : bartoloLeads.filter(l => l.estado === filter);
+  if(!data.length){
+    container.innerHTML = '<div class="hist-empty">' +
+      (bartoloLeads.length === 0 ? 'No hay leads todavía.' : 'Sin resultados para ese filtro.') + '</div>';
+    return;
+  }
+  container.innerHTML = data.map((l, i) => {
+    const idx    = bartoloLeads.indexOf(l);
+    const ts     = l.timestamp ? new Date(l.timestamp).toLocaleDateString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    const presn  = l.presencia;
+    const tCount = presn && presn.tiene ? presn.tiene.length : 0;
+    const fCount = presn && presn.falta ? presn.falta.length : 0;
+    const presTag = tCount || fCount
+      ? '<span style="font-size:10px;background:var(--chapu-dim);color:var(--chapu);border-radius:4px;padding:1px 6px;border:1px solid rgba(0,180,255,.2)">' +
+        tCount + ' tienen · ' + fCount + ' faltan</span>'
+      : '';
+    const src = l.source && l.source !== 'api' ? ' <span style="font-size:10px;opacity:.5">['+escHtml(l.source)+']</span>' : '';
+    return '<div class="hist-card" title="Doble clic para ver análisis completo" ondblclick="openLeadModal(' + idx + ')">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="hist-name">' + escHtml(l.nombre||'') + src + '</div>' +
+        '<div class="hist-meta">' + escHtml([l.ubicacion,l.sector,ts].filter(Boolean).join(' · ')) + '</div>' +
+        (presTag ? '<div style="margin-top:5px">' + presTag + '</div>' : '') +
+      '</div>' +
+      '<div class="hist-badge ' + escHtml(l.estado||'captado') + '">' + escHtml(l.estado||'captado') + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ─── PAMPA HISTORY ─────────────────────────────────────────────────────────────
+function renderPampaHistory(){
+  const container = document.getElementById('pampa-hist');
+  if(!container) return;
+  const diagnosed = bartoloLeads.filter(l => l.diagnostico && (l.diagnostico.problema || l.diagnostico.problema_principal));
+  // Sort by revenue descending
+  diagnosed.sort((a, b) => {
+    const ra = parseRevenue(a.diagnostico);
+    const rb = parseRevenue(b.diagnostico);
+    return rb - ra;
+  });
+  // Update stats
+  const totalEl = document.getElementById('pm-total');
+  if(totalEl) totalEl.textContent = diagnosed.length;
+  const countEl = document.getElementById('pampa-count');
+  if(countEl) countEl.textContent = diagnosed.length + ' con datos';
+  setBadge('nb-pampa', diagnosed.length);
+  if(diagnosed.length > 0){
+    const top = diagnosed[0].diagnostico;
+    const revEl = document.getElementById('pm-revenue');
+    if(revEl) revEl.textContent = (top.revenue_anual || top.revenue_perdido_anual || '—').toString().slice(0,20);
+    // Most common problem
+    const problems = diagnosed.map(l => (l.diagnostico.problema || l.diagnostico.problema_principal||'').split(' ')[0]).filter(Boolean);
+    const freq = {};
+    problems.forEach(p => freq[p] = (freq[p]||0)+1);
+    const mostCommon = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
+    const avgEl = document.getElementById('pm-avg');
+    if(avgEl) avgEl.textContent = mostCommon ? mostCommon[0] : '—';
+  }
+  if(!diagnosed.length){
+    container.innerHTML = '<div class="hist-empty">Sin diagnósticos todavía — Sort necesita procesar leads primero.</div>';
+    return;
+  }
+  container.innerHTML = diagnosed.map(l => {
+    const idx = bartoloLeads.indexOf(l);
+    const d = l.diagnostico;
+    const problema = d.problema || d.problema_principal || '—';
+    const revenue  = d.revenue_anual || d.revenue_perdido_anual || '';
+    const quickwin = d.quick_win || '';
+    const ts = l.timestamp ? new Date(l.timestamp).toLocaleDateString('es-ES',{day:'numeric',month:'short'}) : '';
+    return '<div class="hist-card" title="Doble clic para ver diagnóstico completo" ondblclick="openLeadModal(' + idx + ')">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="hist-name">' + escHtml(l.nombre||'') + '</div>' +
+        '<div class="hist-meta">' + escHtml([l.ubicacion, ts].filter(Boolean).join(' · ')) + '</div>' +
+        '<div style="font-size:11px;color:var(--text3);margin-top:3px">' + escHtml(problema.slice(0,80)) + '</div>' +
+      '</div>' +
+      '<div style="text-align:right;flex-shrink:0">' +
+        (revenue ? '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:12px;color:var(--pampa)">' + escHtml(revenue.toString().slice(0,20)) + '</div>' : '') +
+        (quickwin ? '<div style="font-size:10px;color:var(--text3);max-width:120px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap">' + escHtml(quickwin.slice(0,40)) + '</div>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function parseRevenue(d){
+  if(!d) return 0;
+  const s = (d.revenue_anual || d.revenue_perdido_anual || '').toString();
+  const m = s.match(/[\d.,]+/);
+  if(!m) return 0;
+  return parseFloat(m[0].replace(/\./g,'').replace(',','.')) || 0;
+}
+
+// ─── MILIE HISTORY ─────────────────────────────────────────────────────────────
+function renderMilieHistory(){
+  const container = document.getElementById('milie-hist');
+  if(!container) return;
+  const withEmail = bartoloLeads.filter(l => l.email && (l.asunto || l.estado === 'completado'));
+  // Stats
+  const sent    = bartoloLeads.filter(l => l.estado === 'completado' && l.email && !l.preview).length;
+  const preview = bartoloLeads.filter(l => l.preview || (l.estado === 'completado' && l.email && l.email.includes('brandmindstudio'))).length;
+  const pending = bartoloLeads.filter(l => l.email && l.estado !== 'completado').length;
+  const sentEl = document.getElementById('ml-sent'); if(sentEl) sentEl.textContent = sent;
+  const prevEl = document.getElementById('ml-preview'); if(prevEl) prevEl.textContent = preview;
+  const pendEl = document.getElementById('ml-pending'); if(pendEl) pendEl.textContent = pending;
+  const cntEl  = document.getElementById('milie-count'); if(cntEl) cntEl.textContent = withEmail.length + ' emails';
+  setBadge('nb-milie', sent);
+  if(!withEmail.length){
+    container.innerHTML = '<div class="hist-empty">Sin emails todavía — Sort envía emails cuando procesa leads.</div>';
+    return;
+  }
+  container.innerHTML = withEmail.map(l => {
+    const idx = bartoloLeads.indexOf(l);
+    const ts  = l.timestamp ? new Date(l.timestamp).toLocaleDateString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    const isPreview = l.preview || (l.email && l.email.includes('brandmindstudio'));
+    const badgeClass = l.estado === 'completado' ? (isPreview ? 'captado' : 'completado') : 'procesando';
+    const badgeText  = l.estado === 'completado' ? (isPreview ? 'preview' : 'enviado') : (l.estado||'pendiente');
+    return '<div class="hist-card" title="Doble clic para ver email completo" ondblclick="openLeadModal(' + idx + ')">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="hist-name">' + escHtml(l.nombre||'') + '</div>' +
+        '<div class="hist-meta">' + escHtml([l.email, ts].filter(Boolean).join(' · ')) + '</div>' +
+        (l.asunto ? '<div style="font-size:11px;color:var(--text2);margin-top:2px;font-style:italic">"' + escHtml(l.asunto.slice(0,60)) + '"</div>' : '') +
+      '</div>' +
+      '<div class="hist-badge ' + badgeClass + '">' + badgeText + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ─── LEAD DETAIL MODAL ────────────────────────────────────────────────────────
+function openLeadModal(idx){
+  const l = bartoloLeads[idx];
+  if(!l) return;
+  const d = l.diagnostico || {};
+  const p = l.presencia   || {};
+  document.getElementById('lm-nombre').textContent = l.nombre || '—';
+  document.getElementById('lm-meta').textContent   = [l.ubicacion, l.sector, l.source].filter(Boolean).join(' · ');
+  document.getElementById('lm-estado').textContent = (l.estado || 'captado').toUpperCase();
+  document.getElementById('lm-url').innerHTML = l.url
+    ? '<a href="'+escHtml(l.url)+'" target="_blank" style="color:var(--chapu)">'+escHtml(l.url)+'</a>'
+    : '(sin web)';
+  document.getElementById('lm-email').textContent  = l.email || '(no encontrado)';
+  document.getElementById('lm-asunto').textContent = l.asunto || '—';
+  document.getElementById('lm-dest').textContent   = l.email || (l.preview ? 'preview interno' : '—');
+  // Chapu tags
+  const tiene = p.tiene || [];
+  const falta = p.falta || [];
+  document.getElementById('lm-tiene').innerHTML = tiene.length
+    ? tiene.map(t => '<span class="lm-tag">✓ '+escHtml(t)+'</span>').join('')
+    : '<span style="font-size:12px;color:var(--text3)">No disponible</span>';
+  document.getElementById('lm-falta').innerHTML = falta.length
+    ? falta.map(f => '<span class="lm-tag miss">✗ '+escHtml(f)+'</span>').join('')
+    : '<span style="font-size:12px;color:var(--text3)">(sin datos)</span>';
+  // Pampa rows
+  const diagFields = [
+    ['Problema principal',  d.problema || d.problema_principal],
+    ['Revenue/mes (temp.)', d.revenue_temporada || d.revenue_perdido_mensual_temporada],
+    ['Revenue/año perdido', d.revenue_anual || d.revenue_perdido_anual],
+    ['Quick win',           d.quick_win],
+    ['Solución',            d.solucion_recomendada],
+    ['Precio plan',         d.precio_plan],
   ];
-  let i=0;
-  const iv=setInterval(()=>{
-    if(i<anlz.length){ box.textContent+=anlz[i++]; }
-    else{
-      clearInterval(iv);
-      prodLeads.forEach(l=>{ box.textContent+=`  ${l.score}pts — ${l.nombre} (${l.problema})\n`; });
-      box.className='stream-box';
-      document.getElementById('dot-prod').className='agent-dot dot-active';
-      document.getElementById('label-prod').textContent='Agente Producción — completado';
-      mostrarProdDone();
-    }
-  }, 500);
+  document.getElementById('lm-diag-rows').innerHTML = diagFields
+    .filter(([,v]) => v)
+    .map(([k,v]) => '<div class="lm-row"><span class="lm-k">'+escHtml(k)+'</span><span class="lm-v'+(k==='Revenue/año perdido'?' hi':'')+'">'+escHtml(v)+'</span></div>')
+    .join('') || '<div style="font-size:12px;color:var(--text3)">Sin datos de Pampa todavía</div>';
+  // Milie preview
+  const prev = l.email_preview || l.preview_texto || '';
+  const prevWrap = document.getElementById('lm-preview-wrap');
+  if(prev){ prevWrap.style.display='block'; document.getElementById('lm-preview').textContent = prev; }
+  else{ prevWrap.style.display='none'; }
+  document.getElementById('lead-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLeadModal(){
+  document.getElementById('lead-modal').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
-function mostrarProdDone(){
-  venLeads=[...prodLeads];
-  const list=document.getElementById('prod-done-list');
-  list.innerHTML='';
-  venLeads.forEach(l=>{
-    list.innerHTML+=`<div class="lead-card"><div><div class="lead-name">${l.nombre}</div><div class="lead-meta">${l.ciudad} · ${l.problema} · Score: ${l.score}</div></div></div>`;
-  });
-  document.getElementById('card-prod-done').style.display='block';
-  updateStats();
-}
-
-function enviarAVentas(){
-  document.getElementById('ven-empty').style.display='none';
-  renderVenLeads();
-  document.getElementById('nb-ven').style.display='inline';
-  document.getElementById('nb-ven').textContent=venLeads.length;
-  activarCerrador();
-  goPanel('ventas', document.querySelector('[onclick*=ventas]'));
-  updateStats();
-}
-
-function seleccionarLead(id){
-  venSelected = venLeads.find(l=>l.id===id);
-  if(!venSelected) return;
-  document.querySelectorAll('#ven-leads .lead-card').forEach(c=>c.classList.remove('selected'));
-  event.currentTarget.classList.add('selected');
-  document.getElementById('card-ven-selected').style.display='block';
-  document.getElementById('ven-meta').innerHTML=`
-    <span class="meta-tag">🏢 ${venSelected.nombre}</span>
-    <span class="meta-tag">📍 ${venSelected.ciudad}</span>
-    <span class="meta-tag">⚠️ ${venSelected.problema}</span>
-    <span class="meta-tag">Score: ${venSelected.score}</span>
-  `;
-  document.getElementById('ven-output').style.display='none';
-}
-
-async function callAI(tipo){
-  const out = document.getElementById('ven-output');
-  out.style.display='block';
-  out.className='stream-box typing';
-  out.textContent='Generando con IA...';
-
-  const apiKey = document.getElementById('api-key-input').value.trim() || API_KEY;
-  const prompt = buildPrompt(tipo);
-
-  if(apiKey && apiKey.startsWith('sk-ant')){
-    try{
-      const resp = await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version':'2023-06-01',
-          'anthropic-dangerous-direct-browser-access':'true'
-        },
-        body: JSON.stringify({
-          model:'claude-haiku-4-5-20251001',
-          max_tokens:1000,
-          messages:[{role:'user',content:prompt}]
-        })
-      });
-      const data = await resp.json();
-      if(data.error) throw new Error(data.error.message);
-      out.className='stream-box';
-      out.textContent = data.content?.[0]?.text || 'Sin respuesta';
-      contados++; updateStats();
-      return;
-    }catch(e){
-      out.textContent=`⚠ Error API: ${e.message}\n\nUsando modo demo:`;
-    }
-  }
-
-  await new Promise(r=>setTimeout(r,900));
-  out.className='stream-box';
-  out.textContent = generarTextoDemo(tipo);
-  contados++; updateStats();
-}
-
-function buildPrompt(tipo){
-  if(!venSelected) return '';
-  if(tipo==='email') return `Escribe un email de prospección comercial breve y persuasivo (máx 180 palabras) de Brand Mind Studio para ${venSelected.nombre} en ${venSelected.ciudad}. Su problema: ${venSelected.problema}. Ofrece el plan Presencia Pro a 497€. Tono profesional pero cercano. Solo el email, sin explicaciones.`;
-  if(tipo==='propuesta') return `Escribe una propuesta comercial formal de Brand Mind Studio para ${venSelected.nombre} en ${venSelected.ciudad}. Problema detectado: ${venSelected.problema}. Incluye situación actual, solución propuesta (plan 497€), qué incluye, timeline 7 días, inversión. Formato texto limpio.`;
-  if(tipo==='whatsapp') return `Escribe un mensaje de WhatsApp muy corto (máx 80 palabras) de Brand Mind Studio para ${venSelected.nombre}. Su problema: ${venSelected.problema}. Tono informal, con emojis, call to action. Solo el mensaje.`;
-  return `Cómo buscar el CIF de ${venSelected.nombre} en ${venSelected.ciudad} en registros públicos españoles. Lista 3 métodos concretos con URLs.`;
-}
-
-function genEmail(){ callAI('email'); }
-function genPropuesta(){ callAI('propuesta'); }
-function genWhatsapp(){ callAI('whatsapp'); }
-function buscarCIF(){ callAI('cif'); }
-
-function generarTextoDemo(tipo){
-  if(!venSelected) return '';
-  if(tipo==='email') return `Asunto: Propuesta de presencia digital para ${venSelected.nombre}\n\nEstimado equipo de ${venSelected.nombre},\n\nHemos identificado que ${venSelected.problema.toLowerCase()} está limitando su visibilidad en ${venSelected.ciudad}.\n\nEn Brand Mind Studio construimos presencias digitales que trabajan 24/7. En 48h les mostramos una demo personalizada.\n\nPlan recomendado: Web Presencia Pro — 497€ (pago único)\n\n¿Tienen 15 minutos esta semana?\n\nEquipo Brand Mind Studio\nbrandmindstudio.net`;
-  if(tipo==='propuesta') return `PROPUESTA COMERCIAL\nBrand Mind Studio → ${venSelected.nombre}\n${'─'.repeat(40)}\n\nSITUACIÓN: ${venSelected.problema}\nSOLUCIÓN: Plan Presencia Pro — 497€\n\nINCLUYE: Web profesional · Asistente IA 24/7 · QR dinámico · SEO local · Multiidioma · Panel admin\n\nTIMELINE: 7 días\nINVERSIÓN: 497€ (50% depósito + 50% entrega)\n\nbrandmindstudio.net`;
-  if(tipo==='whatsapp') return `Hola! 👋 Somos Brand Mind Studio.\n\nVimos que ${venSelected.nombre} ${venSelected.problema.toLowerCase()} y queremos ayudarles.\n\nEn 48h les mostramos una demo — sin compromiso. 🚀\n\nbrandmindstudio.net`;
-  return `CIF de ${venSelected.nombre}:\n• einforma.com → buscar "${venSelected.nombre}"\n• infocif.es → buscar por nombre\n• Registro Mercantil Central: rmc.es`;
-}
-
-// FACTURACION
-let factNum = 2601;
-function generarFactura(){
-  const cliente=document.getElementById('inv-cliente').value||'Cliente';
-  const cif=document.getElementById('inv-cif').value||'—';
-  const servicio=document.getElementById('inv-servicio').options[document.getElementById('inv-servicio').selectedIndex].text;
-  const importe=parseFloat(document.getElementById('inv-importe').value)||497;
-  const iva=importe*0.21;
-  const total=importe+iva;
-  const fecha=new Date().toLocaleDateString('es-ES');
-  document.getElementById('factura-preview').innerHTML=`
-    <h3>FACTURA Nº BMS-2026-${factNum++}</h3>
-    <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:12px;color:var(--text3)">
-      <div><strong style="color:var(--text)">EMISOR</strong><br>Argón 70 S.L.<br>NIF: B24845695<br>C/ Aníbal 3, 07800 Eivissa</div>
-      <div style="text-align:right"><strong style="color:var(--text)">CLIENTE</strong><br>${cliente}<br>CIF: ${cif}<br>Fecha: ${fecha}</div>
-    </div>
-    <div class="inv-row"><span>${servicio}</span><span>${importe.toFixed(2)}€</span></div>
-    <div class="inv-row"><span>IVA 21%</span><span>${iva.toFixed(2)}€</span></div>
-    <div class="inv-total"><span>TOTAL</span><span>${total.toFixed(2)}€</span></div>
-  `;
-  document.getElementById('card-factura').style.display='block';
-}
-
-function copiarFactura(){
-  const txt=document.getElementById('factura-preview').innerText;
-  navigator.clipboard.writeText(txt).then(()=>alert('Copiado al portapapeles'));
-}
-
-// SELECT PLAN → FACTURA
-document.getElementById('inv-servicio').addEventListener('change',function(){
-  const v=this.value;
-  if(v!=='custom') document.getElementById('inv-importe').value=v;
-});
-
-// ─── KEYS PERSISTENCE ────────────────────────────────────────────────────────
+// ─── KEYS PERSISTENCE ─────────────────────────────────────────────────────────
 function guardarKeys(){
   const ant = document.getElementById('api-key-input').value.trim();
   const res = document.getElementById('resend-key-input').value.trim();
   if(ant) localStorage.setItem('bms_ant_key', ant);
   if(res) localStorage.setItem('bms_resend_key', res);
-  alert('Claves guardadas en este navegador.');
+  alert('Claves guardadas.');
 }
-
 function cargarKeys(){
   const ant = localStorage.getItem('bms_ant_key') || '';
   const res = localStorage.getItem('bms_resend_key') || '';
   if(ant){ const el=document.getElementById('api-key-input'); if(el&&!el.value) el.value=ant; }
   if(res){ const el=document.getElementById('resend-key-input'); if(el&&!el.value) el.value=res; }
+  const tok = document.getElementById('bartolo-token-input');
+  if(tok && !tok.value) tok.value = bartoloToken;
 }
 
-// Activar botón El Cerrador cuando haya leads en ventas
-function activarCerrador(){
-  const btn = document.getElementById('btn-cerrador');
-  if(btn) btn.disabled = venLeads.length === 0;
-}
-
-// ─── EL CERRADOR ─────────────────────────────────────────────────────────────
+// ─── EL CERRADOR ──────────────────────────────────────────────────────────────
 async function elCerrador(){
   const resendKey = document.getElementById('resend-key-input').value.trim() || localStorage.getItem('bms_resend_key') || '';
   const antKey    = document.getElementById('api-key-input').value.trim()   || localStorage.getItem('bms_ant_key')   || '';
-  if(!resendKey){ alert('Necesito la API key de Resend en el campo de arriba.'); return; }
-  if(!venLeads.length){ alert('No hay leads en Ventas todavía.'); return; }
+  if(!resendKey){ alert('Necesito la API key de Resend.'); return; }
+  if(!venLeads.length){ alert('No hay leads con email en el pipeline.'); return; }
 
-  const dot    = document.getElementById('dot-ven');
-  const label  = document.getElementById('label-ven');
   const output = document.getElementById('cerrador-output');
   const btn    = document.getElementById('btn-cerrador');
-
-  dot.className   = 'agent-dot dot-busy';
-  label.textContent = `El Cerrador — procesando ${venLeads.length} leads...`;
   output.style.display = 'block';
-  output.textContent   = `El Cerrador activado ─ ${venLeads.length} leads en cola\n${'─'.repeat(45)}\n`;
+  output.textContent   = 'El Cerrador activado — ' + venLeads.length + ' leads\n' + '─'.repeat(40) + '\n';
   btn.disabled = true;
 
   let enviados = 0, errores = 0;
-
   for(const lead of venLeads){
     const idx = venLeads.indexOf(lead) + 1;
-    output.textContent += `\n[${idx}/${venLeads.length}] ${lead.nombre} (${lead.ciudad})\n`;
+    output.textContent += '\n['+idx+'/'+venLeads.length+'] '+lead.nombre+' ('+lead.ubicacion+')\n';
     output.scrollTop = output.scrollHeight;
-
     let emailTo, emailSubject, emailHtml;
-
-    try{
-      // — Generar email con Claude (o demo) —
+    try {
       if(antKey && antKey.startsWith('sk-ant')){
-        const prompt = `Eres El Cerrador, agente de ventas de Brand Mind Studio.
-Escribe un email de prospección para "${lead.nombre}" en "${lead.ciudad}". Problema detectado: "${lead.problema}". Ofrecemos el plan Presencia Pro a 497€.
-Responde SOLO con JSON válido: {"to":"correo@empresa.es","subject":"asunto del email","html":"<p>cuerpo en HTML simple, máx 200 palabras</p>"}
-Para el campo "to": infiere el email más probable del negocio (formato info@nombreslug.es o contacto@nombreslug.com).`;
-
+        const prompt = `Eres El Cerrador, agente de ventas de Brand Mind Studio. Escribe un email de prospección para "${lead.nombre}" en "${lead.ubicacion||lead.ciudad||''}". ${lead.diagnostico?.problema ? 'Problema: '+lead.diagnostico.problema+'.' : ''} Ofrecemos el plan Presencia Pro a 497€. Responde SOLO con JSON: {"to":"correo@empresa.es","subject":"asunto","html":"<p>cuerpo HTML</p>"}`;
         const r = await fetch('https://api.anthropic.com/v1/messages',{
           method:'POST',
           headers:{'Content-Type':'application/json','x-api-key':antKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
@@ -1047,230 +1007,124 @@ Para el campo "to": infiere el email más probable del negocio (formato info@nom
         if(d.error) throw new Error(d.error.message);
         const raw  = d.content?.[0]?.text || '{}';
         const json = JSON.parse(raw.match(/\{[\s\S]*\}/)[0]);
-        emailTo      = json.to;
-        emailSubject = json.subject;
-        emailHtml    = json.html;
+        emailTo = lead.email || json.to; emailSubject = json.subject; emailHtml = json.html;
       } else {
-        // Demo fallback
-        const slug = lead.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'').slice(0,20);
-        emailTo      = `info@${slug}.es`;
-        emailSubject = `Tu negocio en ${lead.ciudad} merece una web que venda`;
-        emailHtml    = `<p>Hola, equipo de <strong>${lead.nombre}</strong>,</p>
-<p>Detectamos que <strong>${lead.problema.toLowerCase()}</strong> está limitando tu visibilidad en ${lead.ciudad}.</p>
-<p>En <strong>Brand Mind Studio</strong> construimos presencias digitales que trabajan 24/7 por tu negocio. En 48 horas te mostramos una demo personalizada sin compromiso.</p>
-<p><strong>Plan Presencia Pro — 497€ (pago único)</strong><br>
-Web profesional · Asistente IA 24/7 · SEO local · Multiidioma · Panel de administración</p>
-<p>¿Tienes 15 minutos esta semana?</p>
-<p>— Equipo Brand Mind Studio<br><a href="https://brandmindstudio.net">brandmindstudio.net</a></p>`;
+        const slug = (lead.nombre||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'').slice(0,20);
+        emailTo = lead.email || ('info@'+slug+'.es');
+        emailSubject = 'Tu negocio merece una presencia digital que venda';
+        emailHtml = '<p>Hola, equipo de <strong>'+lead.nombre+'</strong>,</p><p>En Brand Mind Studio construimos webs que trabajan 24/7. Plan Presencia Pro — 497€.</p><p>— Equipo BMS</p>';
       }
-
-      output.textContent += `  → ${emailTo}\n  → "${emailSubject}"\n`;
+      output.textContent += '  → '+emailTo+'\n  → "'+emailSubject+'"\n';
       output.scrollTop = output.scrollHeight;
-
-      // — Enviar via Resend —
       const sr = await fetch('https://api.resend.com/emails',{
         method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':`Bearer ${resendKey}`},
-        body: JSON.stringify({
-          from:'Brand Mind Studio <info@brandmindstudio.net>',
-          to:[emailTo],
-          subject: emailSubject,
-          html: emailHtml
-        })
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+resendKey},
+        body: JSON.stringify({from:'Brand Mind Studio <info@brandmindstudio.net>',to:[emailTo],subject:emailSubject,html:emailHtml})
       });
       const sd = await sr.json();
-      if(sd.id){
-        output.textContent += `  ✓ Enviado — ID: ${sd.id}\n`;
-        enviados++;
-        contados++;
-        lead.emailEnviado = true;
-        lead.emailId = sd.id;
-      } else {
-        output.textContent += `  ✗ Resend error: ${JSON.stringify(sd.message || sd)}\n`;
-        errores++;
-      }
-    } catch(e){
-      output.textContent += `  ✗ Error: ${e.message}\n`;
-      errores++;
-    }
-
-    updateStats();
+      if(sd.id){ output.textContent += '  ✓ Enviado — '+sd.id+'\n'; enviados++; }
+      else{ output.textContent += '  ✗ Error: '+JSON.stringify(sd.message||sd)+'\n'; errores++; }
+    } catch(e){ output.textContent += '  ✗ '+e.message+'\n'; errores++; }
     output.scrollTop = output.scrollHeight;
     await new Promise(r=>setTimeout(r,400));
   }
-
-  output.textContent += `\n${'─'.repeat(45)}\nOutreach completado: ${enviados} enviados · ${errores} errores\n`;
-  output.scrollTop = output.scrollHeight;
-  dot.className   = 'agent-dot dot-active';
-  label.textContent = `El Cerrador — ${enviados}/${venLeads.length} emails enviados`;
+  output.textContent += '\n'+'─'.repeat(40)+'\n'+enviados+' enviados · '+errores+' errores\n';
   btn.disabled = false;
-
-  // Refrescar lista de leads con estado
-  renderVenLeads();
+  renderMilieHistory();
 }
 
-function renderVenLeads(){
-  const list = document.getElementById('ven-leads');
-  list.innerHTML = '';
-  venLeads.forEach(l=>{
-    const badge = l.emailEnviado
-      ? `<span style="font-size:10px;background:rgba(0,255,136,.15);color:var(--green);padding:2px 8px;border-radius:10px;border:1px solid var(--border2)">✓ Enviado</span>`
-      : `<div class="lead-score">${l.score}pts</div>`;
-    list.innerHTML += `<div class="lead-card" onclick="seleccionarLead(${l.id})">
-      <div><div class="lead-name">${l.nombre}</div><div class="lead-meta">${l.ciudad} · ${l.problema}</div></div>
-      ${badge}
-    </div>`;
-  });
-}
+// ─── CHAPU RASTREO (manual, desde formulario) ─────────────────────────────────
+const NICHOS_DEMO = {
+  clinicas:['Clínica Mediterránea','Centro Salud Levante','Fisio & Bienestar','Clínica Estética Sol','Psicología Integral'],
+  restaurantes:['Restaurante La Bahía','Bar Tapas El Rincón','Marisquería Don Pedro','La Terraza Bistró','Bodega Artesanal'],
+  abogados:['Bufete García & Asociados','Despacho Jurídico Sur','Lex & Partners','Abogacía Mediterránea','Estudio Legal Sol'],
+  inmobiliarias:['Inmobiliaria Sol & Mar','Pisos & Casas','Home Consulting','Fincas del Valle','Real Estate Plus'],
+  estetica:['Centro Belleza Luna','Spa & Beauty Sol','Estética Avanzada','Centro Bienestar Mar','Salón de Belleza Eva'],
+  dental:['Clínica Dental Sonrisa','Ortodoncia & Estética','Dental Center Plus','Clínica Implantes Sol','Odontología Avanzada'],
+  hoteles:['Hotel Boutique Sol','Apartamentos Vista Mar','Hostal El Puerto','Hotel Rural Sierra','Alojamiento Céntrico'],
+  gimnasios:['Gym Fitness Plus','Centro Deportivo Sur','CrossFit Zone','Body & Mind Studio','Gym & Wellness'],
+  peluquerias:['Salón Marco Antonio','Barbería El Señor','Corte & Estilo','Studio Hair','Peluquería Mía'],
+  talleres:['Taller Mecánico Norte','Auto Servicio Sur','Mecánica Rápida','Taller El Motor','Auto Center Plus'],
+  academias:['Academia Inglés Plus','Centro Formación Norte','Escuela de Idiomas','Academia Informática','Centro de Estudios Sol'],
+  veterinarias:['Clínica Veterinaria Sol','Veterinario de Guardia','Centro Animal Plus','Clínica Mascotas Norte','Vet & Pet'],
+  farmacias:['Farmacia Central','Farmacia Norte','Parafarmacia Plus','Farmacia del Mar','Farmacia 24H'],
+  asesorias:['Asesoría García','Gestoría del Sur','Consultoría Fiscal','Asesoría Laboral Plus','Gestoría Central'],
+  fotografia:['Estudio Fotografía Sol','Photo Studio Norte','Fotografía de Boda','Studio Pro Photo','Fotografía Comercial'],
+  arquitectos:['Estudio Arquitectura Sol','Interiorismo & Diseño','Arquitectos Asociados','Reforma & Diseño','Studio Interiores']
+};
 
-// ═══════════════════════════════════════════════════════════════════════════
-// BARTOLO LIVE — polling y feed en tiempo real
-// ═══════════════════════════════════════════════════════════════════════════
-const BARTOLO_URL = 'https://bartolo.brandmindstudio.net';
-let bartoloLeads  = [];
-let bartoloToken  = localStorage.getItem('bms_bartolo_token') || 'bms-2026';
-let bartoloTimer  = null;
-let bartoloCountdown = 30;
+async function rastrearLeads(){
+  const nicho    = document.getElementById('nicho-select').value;
+  const ciudad   = document.getElementById('ciudad-input').value.trim() || 'España';
+  const cantidad = parseInt(document.getElementById('cantidad-select').value);
+  const apiKey   = document.getElementById('api-key-input').value.trim() || localStorage.getItem('bms_ant_key') || '';
+  const dot      = document.getElementById('dot-chapu');
+  const label    = document.getElementById('label-chapu');
 
-function guardarBartoloToken(){
-  const val = document.getElementById('bartolo-token-input').value.trim();
-  if(val){ bartoloToken = val; localStorage.setItem('bms_bartolo_token', val); fetchBartoloLeads(); }
-}
+  dot.className = 'agent-dot dot-chapu dot-busy';
+  label.textContent = 'Chapu — rastreando con IA...';
+  document.getElementById('cap-output-wrap').style.display='block';
+  const out = document.getElementById('cap-output');
+  out.className='stream-box typing';
+  out.textContent = 'Iniciando rastreo IA — '+cantidad+' leads · '+nicho+' · '+ciudad+'\n';
 
-async function fetchBartoloLeads(){
-  const dot   = document.getElementById('dot-bartolo');
-  const label = document.getElementById('label-bartolo');
-  dot.className = 'agent-dot dot-busy';
-  label.textContent = 'Bartolo — actualizando...';
-  try {
-    const r = await fetch(BARTOLO_URL + '/pipeline?limit=100', {
-      headers: { 'Authorization': 'Bearer ' + bartoloToken }
-    });
-    if(!r.ok){
-      dot.className = 'agent-dot dot-idle';
-      label.textContent = 'Bartolo — error ' + r.status;
-      document.getElementById('bartolo-sync').textContent = 'Error de autenticación';
-      return;
+  let leads = [];
+  if(apiKey && apiKey.startsWith('sk-ant')){
+    out.textContent += 'Conectando con Claude...\n';
+    try {
+      const prompt = `Eres un agente de captación de leads para Brand Mind Studio. Genera una lista de ${cantidad} negocios FICTICIOS pero realistas del sector "${nicho}" en "${ciudad}" que necesitan mejorar su presencia digital. Devuelve SOLO un array JSON: [{"nombre":"...","ciudad":"...","email":"info@slug.es","problema":"...","score":85}]. Score entre 70-99. Problemas posibles: Sin web, Web obsoleta, Sin SEO, Sin adaptación móvil, Sin Google Maps.`;
+      const resp = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body: JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+      });
+      const data = await resp.json();
+      if(data.error) throw new Error(data.error.message);
+      const raw = data.content?.[0]?.text || '[]';
+      leads = JSON.parse(raw.match(/\[[\s\S]*\]/)[0]).map((l,i)=>({...l,id:Date.now()+i,nicho}));
+      out.className='stream-box';
+      out.textContent += '✓ '+leads.length+' leads identificados en '+ciudad+'.';
+    } catch(e) {
+      out.textContent += '⚠ Error API: '+e.message+'\nUsando modo demo...\n';
     }
-    const data = await r.json();
-    bartoloLeads = data.leads || [];
-    renderBartoloLeads();
-    dot.className = 'agent-dot dot-active';
-    const now = new Date().toLocaleTimeString('es-ES');
-    label.textContent = 'Bartolo — en vivo';
-    document.getElementById('bartolo-sync').textContent = 'Sync ' + now;
-    document.getElementById('bt-total').textContent = data.total || 0;
-    const nb = document.getElementById('nb-bartolo');
-    if(bartoloLeads.length > 0){ nb.style.display='inline'; nb.textContent=bartoloLeads.length; }
-    bartoloCountdown = 30;
-  } catch(e) {
-    dot.className = 'agent-dot dot-idle';
-    label.textContent = 'Bartolo — sin conexión';
-    document.getElementById('bartolo-sync').textContent = 'Sin conexión';
   }
-}
 
-function renderBartoloLeads(){
-  const list   = document.getElementById('bartolo-leads-list');
-  const filter = (document.getElementById('bt-filter') || {}).value || 'all';
-  const data   = filter === 'all' ? bartoloLeads : bartoloLeads.filter(l => l.estado === filter);
-  if(!data.length){
-    list.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:12px 0">' +
-      (bartoloLeads.length === 0 ? 'No hay leads todavía.' : 'Sin resultados para ese filtro.') + '</div>';
+  if(!leads.length){
+    // Demo fallback
+    const pool = NICHOS_DEMO[nicho] || NICHOS_DEMO.clinicas;
+    const problemas = ['Sin web','Web obsoleta (2015)','Sin adaptación móvil','Sin SEO','Sin Google Maps'];
+    leads = Array.from({length:cantidad},(_,i)=>{
+      const nombre = pool[i % pool.length] + (i >= pool.length ? ' '+(i+1) : '');
+      const slug = nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'').slice(0,20);
+      return {id:Date.now()+i,nombre,ciudad,nicho,email:'info@'+slug+'.es',problema:problemas[i%problemas.length],score:Math.floor(Math.random()*30)+70};
+    });
+    out.className='stream-box';
+    out.textContent += '✓ Modo demo — '+leads.length+' leads simulados.';
+    dot.className='agent-dot dot-chapu';
+    label.textContent='Chapu — '+leads.length+' leads encontrados (demo)';
     return;
   }
-  const ESTADO_COLOR = { captado:'var(--amber)', procesando:'#4f8ef7', completado:'var(--green)', error:'#ff6b6b' };
-  list.innerHTML = data.map(l => {
-    const color = ESTADO_COLOR[l.estado] || 'var(--text3)';
-    const ts = l.timestamp
-      ? new Date(l.timestamp).toLocaleDateString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
-      : '';
-    const meta = [l.ubicacion, l.sector, ts].filter(Boolean).join(' · ');
-    const src  = l.source && l.source !== 'api' ? ' <span style="font-size:10px;opacity:.6">['+escHtml(l.source)+']</span>' : '';
-    return '<div class="lead-card">' +
-      '<div><div class="lead-name">' + escHtml(l.nombre) + src + '</div>' +
-      (meta ? '<div class="lead-meta">' + escHtml(meta) + '</div>' : '') + '</div>' +
-      '<div style="font-size:10px;font-weight:700;color:' + color + ';text-transform:uppercase;white-space:nowrap;text-align:right">' +
-        escHtml(l.estado || 'captado') +
-        (l.email ? '<br><span style="color:var(--text3);font-weight:400;text-transform:none">' + escHtml(l.email) + '</span>' : '') +
-      '</div></div>';
-  }).join('');
+
+  dot.className='agent-dot dot-chapu';
+  label.textContent='Chapu — '+leads.length+' leads encontrados';
+  // Auto-send to Sort pipeline
+  autoEnviarASort(leads);
 }
 
-function escHtml(s){
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function startBartoloPolling(){
-  fetchBartoloLeads();
-  // Countdown visual
-  setInterval(() => {
-    bartoloCountdown--;
-    if(bartoloCountdown <= 0){
-      fetchBartoloLeads();
-      bartoloCountdown = 30;
-    }
-    const el = document.getElementById('bt-next');
-    if(el) el.textContent = bartoloCountdown + 's';
-  }, 1000);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// BARTOLO TERMINAL — chat integrado con pipeline en tiempo real
-// ═══════════════════════════════════════════════════════════════════════════════
-let termCollapsed   = false;
-let termBusy        = false;
-let termHistory     = [];   // historial para el /chat endpoint
-let termBotBubble   = null; // burbuja activa mientras Bartolo escribe
-let termBotText     = '';
-let termToolCard    = null;
-
-// ── Fix layout: app-body necesita min-height:0 ──────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  const ab = document.querySelector('.app-body');
-  if (ab) ab.style.minHeight = '0';
-});
-
-// ── Toggle ───────────────────────────────────────────────────────────────────
-function toggleTerminal(){
-  const t = document.getElementById('bartolo-terminal');
-  const btn = document.getElementById('term-toggle-btn');
-  termCollapsed = !termCollapsed;
-  t.classList.toggle('collapsed', termCollapsed);
-  btn.textContent = termCollapsed ? '▲' : '▼';
-}
-
-function expandTerminal(){
-  if(!termCollapsed) return;
-  termCollapsed = false;
-  document.getElementById('bartolo-terminal').classList.remove('collapsed');
-  document.getElementById('term-toggle-btn').textContent = '▼';
-}
-
-function clearTerminal(){
-  document.getElementById('term-msgs').innerHTML = '';
-  termHistory = [];
-  termBotBubble = null;
-  termBotText = '';
-  termToolCard = null;
-}
-
-// ── Keyboard shortcut Shift+B ─────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if(e.shiftKey && e.key === 'B' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
-    expandTerminal();
-    setTimeout(() => document.getElementById('term-input').focus(), 250);
-  }
-});
+// ─── SORT TERMINAL ─────────────────────────────────────────────────────────────
+let termBusy      = false;
+let termHistory   = [];
+let termBotBubble = null;
+let termBotText   = '';
+let termToolCard  = null;
 
 function termKeydown(e){
   if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); termSend(); }
 }
 
-// ── Render helpers ────────────────────────────────────────────────────────────
 function termScroll(){
   const m = document.getElementById('term-msgs');
-  m.scrollTop = m.scrollHeight;
+  if(m) m.scrollTop = m.scrollHeight;
 }
 
 function termAddMsg(role, htmlContent){
@@ -1279,7 +1133,7 @@ function termAddMsg(role, htmlContent){
   wrap.className = 'tmsg ' + role;
   const av = document.createElement('div');
   av.className = 'tmsg-av';
-  av.textContent = role === 'user' ? 'F' : 'B';
+  av.textContent = role === 'user' ? 'F' : 'S';
   const bub = document.createElement('div');
   bub.className = 'tmsg-bub';
   bub.innerHTML = htmlContent;
@@ -1301,7 +1155,7 @@ function termAddTyping(){
   const msgs = document.getElementById('term-msgs');
   const wrap = document.createElement('div');
   wrap.className = 'tmsg bot'; wrap.id = 'term-typing';
-  wrap.innerHTML = '<div class="tmsg-av">B</div><div class="tmsg-bub" style="color:var(--green);letter-spacing:3px">···</div>';
+  wrap.innerHTML = '<div class="tmsg-av">S</div><div class="tmsg-bub" style="color:var(--green);letter-spacing:3px">···</div>';
   msgs.appendChild(wrap);
   termScroll();
 }
@@ -1312,32 +1166,30 @@ function termRemoveTyping(){
 }
 
 function termSetStatus(text, state='active'){
-  document.getElementById('term-status').textContent = text;
+  const statusEl = document.getElementById('term-status');
+  if(statusEl) statusEl.textContent = text;
   const dot = document.getElementById('term-dot');
-  dot.className = 'term-hdot' + (state === 'busy' ? ' busy' : state === 'idle' ? ' idle' : '');
+  if(dot) dot.className = 'agent-dot dot-sort' + (state === 'busy' ? ' dot-busy' : state === 'idle' ? ' dot-idle' : '');
 }
 
-// ── Pipeline toast ────────────────────────────────────────────────────────────
-function showPipelineToast(nombre){
-  const t = document.createElement('div');
-  t.className = 'pipeline-toast';
-  t.textContent = '✓ ' + nombre + ' → pipeline';
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3200);
+function clearTerminal(){
+  const msgs = document.getElementById('term-msgs');
+  if(msgs) msgs.innerHTML = '';
+  termHistory = []; termBotBubble = null; termBotText = ''; termToolCard = null;
 }
 
-// ── SEND ──────────────────────────────────────────────────────────────────────
-async function termSend(){
+async function termSend(forcedMsg){
   if(termBusy) return;
   const input = document.getElementById('term-input');
-  const text = input.value.trim();
+  const text = forcedMsg || input.value.trim();
   if(!text) return;
 
-  input.value = '';
+  if(!forcedMsg) input.value = '';
   input.disabled = true;
   document.getElementById('term-send-btn').disabled = true;
   termBusy = true;
-  expandTerminal();
+  // Navigate to Sort panel if not already there
+  goPanel('sort', document.querySelector('[data-agent="sort"]'));
   termSetStatus('— procesando...', 'busy');
 
   termAddMsg('user', termFormatText(text));
@@ -1347,17 +1199,12 @@ async function termSend(){
   try {
     const resp = await fetch(BARTOLO_URL + '/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + bartoloToken
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + bartoloToken },
       body: JSON.stringify({ message: text, history: termHistory.slice(0, -1) })
     });
-
     termRemoveTyping();
-
     if(resp.status === 401){
-      termAddMsg('bot', '<span style="color:var(--red)">⚠ Token inválido. Actualizá el token en el panel Bartolo Live.</span>');
+      termAddMsg('bot', '<span style="color:var(--red)">⚠ Token inválido. Actualizá el token en el sidebar.</span>');
       termSetStatus('— error auth', 'idle');
     } else {
       const ct = resp.headers.get('content-type') || '';
@@ -1371,9 +1218,9 @@ async function termSend(){
         termSetStatus('— listo');
       }
     }
-  } catch(err){
+  } catch(err) {
     termRemoveTyping();
-    termAddMsg('bot', '<span style="color:var(--red)">⚠ Error de conexión: ' + escHtml(err.message) + '</span>');
+    termAddMsg('bot', '<span style="color:var(--red)">⚠ Error: ' + escHtml(err.message) + '</span>');
     termSetStatus('— sin conexión', 'idle');
   }
 
@@ -1383,18 +1230,11 @@ async function termSend(){
   input.focus();
 }
 
-// ── SSE reader ────────────────────────────────────────────────────────────────
 async function termReadSSE(resp){
   const reader = resp.body.getReader();
   const dec = new TextDecoder();
   let buf = '';
-  termBotBubble = null;
-  termBotText   = '';
-  termToolCard  = null;
-
-  const ensureBubble = () => {
-    if(!termBotBubble) termBotBubble = termAddMsg('bot', '');
-  };
+  termBotBubble = null; termBotText = ''; termToolCard = null;
 
   while(true){
     const { done, value } = await reader.read();
@@ -1402,7 +1242,6 @@ async function termReadSSE(resp){
     buf += dec.decode(value, { stream: true });
     const lines = buf.split('\n');
     buf = lines.pop();
-
     let ev = '', da = '';
     for(const line of lines){
       if(line.startsWith('event:')) ev = line.slice(6).trim();
@@ -1413,14 +1252,11 @@ async function termReadSSE(resp){
       }
     }
   }
-
   if(termBotText) termHistory.push({ role: 'assistant', content: termBotText });
   termSetStatus('— listo');
 }
 
 function termHandleSSE(ev, payload){
-
-  // ─── Eventos existentes (lead individual / run_bartolo) ──────────────────
 
   if(ev === 'text'){
     ensureBotBubble();
@@ -1438,19 +1274,19 @@ function termHandleSSE(ev, payload){
       '<div class="tcard-row"><span>Negocio</span><span>' + escHtml(inp.nombre||'') + '</span></div>' +
       '<div class="tcard-row"><span>Ubicación</span><span>' + escHtml(inp.ubicacion||'') + '</span></div>' +
       '<div class="tcard-row"><span>Sector</span><span>' + escHtml(inp.sector||'') + '</span></div>' +
-      '<div class="tcard-row" id="tcard-prog"><span>Estado</span><span style="color:var(--amber)">Eyes → buscando web...</span></div>';
+      '<div class="tcard-row" id="tcard-prog"><span>Estado</span><span style="color:var(--amber)">👁 Chapu → buscando web...</span></div>';
     termBotBubble.appendChild(card);
     termToolCard = card;
-    termSetStatus('— Eyes → buscando...', 'busy');
+    termSetStatus('— Chapu → buscando...', 'busy');
     termScroll();
 
   } else if(ev === 'progress'){
     const m = payload.message || '';
     let label = '';
-    if(m.includes('[EYES]'))  label = 'Eyes → escaneando...';
-    else if(m.includes('[BRAIN]')) label = 'Brain → calculando...';
-    else if(m.includes('[FACE]') && m.includes('Redactando')) label = 'Face → redactando...';
-    else if(m.includes('[FACE]') && m.includes('Enviando'))   label = 'Face → enviando...';
+    if(m.includes('[CHAPU]') || m.includes('[EYES]')) label = 'Chapu → escaneando...';
+    else if(m.includes('[PAMPA]') || m.includes('[BRAIN]')) label = 'Pampa → calculando...';
+    else if((m.includes('[MILIE]')||m.includes('[FACE]')) && m.includes('Redactando')) label = 'Milie → redactando...';
+    else if((m.includes('[MILIE]')||m.includes('[FACE]')) && m.includes('Enviando'))   label = 'Milie → enviando...';
     if(label){
       termSetStatus('— ' + label, 'busy');
       const pr = document.getElementById('tcard-prog');
@@ -1466,35 +1302,33 @@ function termHandleSSE(ev, payload){
       termToolCard.innerHTML =
         '<div class="tcard-title">✓ Pipeline completado' + (dur ? ' · '+dur : '') + '</div>' +
         (d.problema ? '<div class="tcard-row"><span>Problema</span><span>'+escHtml(d.problema)+'</span></div>' : '') +
-        (d.revenue_anual ? '<div class="tcard-row"><span>Revenue perdido/año</span><span>'+escHtml(d.revenue_anual)+'</span></div>' : '') +
+        (d.revenue_anual ? '<div class="tcard-row"><span>Revenue/año</span><span>'+escHtml(d.revenue_anual)+'</span></div>' : '') +
         (r.asunto ? '<div class="tcard-row"><span>Asunto</span><span>'+escHtml(r.asunto)+'</span></div>' : '') +
-        '<div class="tcard-row"><span>Enviado a</span><span>'+escHtml(r.email_destino||'')+(r.preview?' (preview)':'')+'</span></div>';
+        '<div class="tcard-row"><span>Enviado a</span><span>'+escHtml(r.email||r.email_destino||'')+(r.preview?' (preview)':'')+'</span></div>';
     }
     termSetStatus('— listo');
     termScroll();
-
-  // ─── Eventos de orquestación (rastrear_y_procesar) ────────────────────────
+    // Refresh all panels
+    setTimeout(fetchBartoloLeads, 1500);
 
   } else if(ev === 'orchestra_start'){
     ensureBotBubble();
-    // Tarjeta de encabezado de la orquestación
     const hdr = document.createElement('div');
     hdr.className = 'tcard';
     hdr.id = 'orch-header';
     hdr.innerHTML =
-      '<div class="tcard-title">⚡ Bartolo orquesta — ' + escHtml(payload.sector||'') + ' · ' + escHtml(payload.zona||'') + '</div>' +
+      '<div class="tcard-title">⚡ Sort orquesta — ' + escHtml(payload.sector||'') + ' · ' + escHtml(payload.zona||'') + '</div>' +
       '<div class="tcard-row"><span>Leads objetivo</span><span>' + (payload.cantidad||'?') + '</span></div>' +
-      '<div class="tcard-row" id="orch-hstatus"><span>Estado</span><span style="color:var(--amber)">👁 Eyes rastreando sector...</span></div>';
+      '<div class="tcard-row" id="orch-hstatus"><span>Estado</span><span style="color:var(--amber)">👁 Chapu rastreando sector...</span></div>';
     termBotBubble.appendChild(hdr);
-    termSetStatus('— Eyes rastreando ' + escHtml(payload.sector||'') + '...', 'busy');
+    termSetStatus('— Chapu rastreando ' + escHtml(payload.sector||'') + '...', 'busy');
     termScroll();
 
-  } else if(ev === 'eyes_found'){
-    // Actualizar encabezado y añadir lista de leads encontrados
+  } else if(ev === 'chapu_found' || ev === 'eyes_found'){
     const hdr = document.getElementById('orch-header');
     if(hdr){
       const st = hdr.querySelector('#orch-hstatus');
-      if(st) st.innerHTML = '<span>Eyes encontró</span><span style="color:var(--green)">' + payload.count + ' leads</span>';
+      if(st) st.innerHTML = '<span>Chapu encontró</span><span style="color:var(--green)">' + payload.count + ' leads</span>';
       const leadsEl = document.createElement('div');
       leadsEl.style.cssText = 'margin-top:8px;font-size:12px;border-top:1px solid var(--border);padding-top:8px';
       leadsEl.innerHTML = (payload.leads||[]).map(l =>
@@ -1510,17 +1344,15 @@ function termHandleSSE(ev, payload){
     const card = document.createElement('div');
     card.className = 'tcard';
     card.id = 'lead-orch-' + payload.index;
-    const phaseColors = { eyes: 'var(--amber)', brain: '#4f8ef7', face: 'var(--green)' };
     card.innerHTML =
       '<div class="tcard-title" style="color:var(--text2)">▶ [' + (payload.index+1) + '/' + payload.total + '] ' + escHtml(payload.nombre||'') + '</div>' +
       (payload.problema ? '<div style="font-size:11px;color:var(--text3);margin-bottom:4px">' + escHtml(payload.problema) + '</div>' : '') +
-      '<div class="tcard-row" id="lstep-' + payload.index + '"><span style="color:var(--amber)">👁 Eyes</span><span style="color:var(--amber)">Buscando web...</span></div>';
+      '<div class="tcard-row" id="lstep-' + payload.index + '"><span style="color:var(--chapu)">👁 Chapu</span><span style="color:var(--chapu)">Buscando web...</span></div>';
     termBotBubble.appendChild(card);
     termSetStatus('— [' + (payload.index+1) + '/' + payload.total + '] ' + escHtml(payload.nombre||''), 'busy');
     termScroll();
 
   } else if(ev === 'lead_step'){
-    // Actualizar la tarjeta del lead activo
     const cards = termBotBubble ? termBotBubble.querySelectorAll('[id^="lead-orch-"]') : [];
     if(cards.length > 0){
       const lastCard = cards[cards.length - 1];
@@ -1528,13 +1360,13 @@ function termHandleSSE(ev, payload){
       const stepEl = document.getElementById('lstep-' + idx);
       if(stepEl){
         const ph = payload.phase || 'eyes';
-        const color = ph === 'brain' ? '#4f8ef7' : ph === 'face' ? 'var(--green)' : 'var(--amber)';
-        const icon  = ph === 'brain' ? '🧠 Brain' : ph === 'face' ? '📧 Face' : '👁 Eyes';
+        const color = ph === 'brain' ? 'var(--pampa)' : ph === 'face' ? 'var(--milie)' : 'var(--chapu)';
+        const icon  = ph === 'brain' ? '🧠 Pampa' : ph === 'face' ? '📧 Milie' : '👁 Chapu';
         stepEl.innerHTML = '<span style="color:' + color + '">' + icon + '</span><span style="color:' + color + '">' + escHtml(payload.message||'') + '</span>';
       }
     }
     const ph = payload.phase || 'eyes';
-    const icon = ph === 'brain' ? 'Brain' : ph === 'face' ? 'Face' : 'Eyes';
+    const icon = ph === 'brain' ? 'Pampa' : ph === 'face' ? 'Milie' : 'Chapu';
     termSetStatus('— ' + icon + ': ' + escHtml((payload.message||'').slice(0,40)), 'busy');
     termScroll();
 
@@ -1545,12 +1377,13 @@ function termHandleSSE(ev, payload){
       card.className = 'tcard done';
       card.innerHTML =
         '<div class="tcard-title">✓ [' + (payload.index+1) + '/' + payload.total + '] ' + escHtml(payload.nombre||'') + '</div>' +
-        (d.revenue_anual ? '<div class="tcard-row"><span>Revenue/año perdido</span><span>' + escHtml(d.revenue_anual) + '</span></div>' : '') +
-        (d.problema ? '<div class="tcard-row"><span>Gap principal</span><span>' + escHtml(d.problema) + '</span></div>' : '') +
-        (payload.asunto ? '<div class="tcard-row"><span>Asunto email</span><span>' + escHtml(payload.asunto) + '</span></div>' : '') +
+        (d.revenue_anual ? '<div class="tcard-row"><span>Revenue/año</span><span>' + escHtml(d.revenue_anual) + '</span></div>' : '') +
+        (d.problema ? '<div class="tcard-row"><span>Problema</span><span>' + escHtml(d.problema) + '</span></div>' : '') +
+        (payload.asunto ? '<div class="tcard-row"><span>Asunto</span><span>' + escHtml(payload.asunto) + '</span></div>' : '') +
         '<div class="tcard-row"><span>Enviado a</span><span>' + escHtml(payload.email_destino||'') + (payload.preview?' <span style="color:var(--text3)">(preview)</span>':'') + '</span></div>';
     }
     termScroll();
+    setTimeout(fetchBartoloLeads, 1000);
 
   } else if(ev === 'lead_error'){
     const card = document.getElementById('lead-orch-' + payload.index);
@@ -1565,7 +1398,7 @@ function termHandleSSE(ev, payload){
     const card = document.getElementById('lead-orch-' + payload.index);
     if(card){
       card.style.borderLeftColor = 'var(--text3)';
-      card.style.opacity = '0.55';
+      card.style.opacity = '0.5';
       const stepEl = document.getElementById('lstep-' + payload.index);
       if(stepEl) stepEl.innerHTML = '<span style="color:var(--text3)">⏭ Saltado</span><span style="color:var(--text3)">' + escHtml((payload.reason||'').replace('DUPLICADO: ','')) + '</span>';
     }
@@ -1577,10 +1410,33 @@ function termHandleSSE(ev, payload){
     summary.className = 'tcard done';
     summary.innerHTML =
       '<div class="tcard-title">⚡ Orquestación completada · ' + (payload.duracion_min||'?') + ' min</div>' +
-      '<div class="tcard-row"><span>Leads procesados</span><span style="color:var(--green)">' + payload.procesados + ' / ' + payload.total + '</span></div>' +
-      '<div class="tcard-row"><span>Estado pipeline</span><span style="color:var(--green)">✓ Guardados en Bartolo Live</span></div>';
+      '<div class="tcard-row"><span>Procesados</span><span style="color:var(--green)">' + payload.procesados + ' / ' + payload.total + '</span></div>' +
+      '<div class="tcard-row"><span>Pipeline</span><span style="color:var(--green)">✓ Guardados</span></div>';
     termBotBubble.appendChild(summary);
     termSetStatus('— listo');
+    termScroll();
+    setTimeout(fetchBartoloLeads, 1000);
+
+  } else if(ev === 'confirm_required'){
+    ensureBotBubble();
+    const email = payload.email || '(sin email)';
+    const asunto = payload.asunto || '';
+    const count  = payload.count || 1;
+    const card = document.createElement('div');
+    card.className = 'tcard';
+    card.style.cssText = 'border-color:var(--amber);background:rgba(245,200,66,.05)';
+    card.innerHTML =
+      '<div class="tcard-title" style="color:var(--amber)">⚠ Pendiente de autorización</div>' +
+      (count > 1
+        ? '<div class="tcard-row"><span>Emails preparados</span><span style="color:var(--amber);font-weight:700">' + count + ' emails</span></div>' +
+          ((payload.emails||[]).slice(0,3).map(e => '<div class="tcard-row"><span></span><span>→ '+escHtml(e)+'</span></div>').join(''))
+        : '<div class="tcard-row"><span>Destinatario</span><span>'+escHtml(email)+'</span></div>' +
+          (asunto ? '<div class="tcard-row"><span>Asunto</span><span>'+escHtml(asunto)+'</span></div>' : '')) +
+      '<div style="margin-top:10px;display:flex;gap:8px">' +
+        '<button onclick="termSend(\'sí\')" style="background:var(--green);color:#000;border:none;border-radius:6px;padding:6px 16px;font-weight:700;cursor:pointer;font-size:12px">✓ Autorizo el envío</button>' +
+        '<button onclick="termSend(\'no\')" style="background:rgba(255,255,255,.05);color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:6px 16px;cursor:pointer;font-size:12px">✕ Cancelar</button>' +
+      '</div>';
+    termBotBubble.appendChild(card);
     termScroll();
 
   } else if(ev === 'pipeline_update'){
@@ -1597,188 +1453,137 @@ function termHandleSSE(ev, payload){
     termScroll();
   }
 }
+
 function ensureBotBubble(){
   if(!termBotBubble) termBotBubble = termAddMsg('bot', '');
 }
 
-// Destacar el lead más nuevo en el panel Bartolo Live
 function flashNewestLead(){
-  const list = document.getElementById('bartolo-leads-list');
-  const first = list && list.querySelector('.lead-card');
+  const hist = document.getElementById('chapu-hist');
+  const first = hist && hist.querySelector('.hist-card');
   if(first){
     first.classList.remove('new-lead');
-    void first.offsetWidth; // reflow para reiniciar animación
+    void first.offsetWidth;
     first.classList.add('new-lead');
-    // Si no estamos en el panel bartolo, encender el badge extra
-    const panel = document.getElementById('panel-bartolo');
-    if(!panel || !panel.classList.contains('active')){
-      const nb = document.getElementById('nb-bartolo');
-      if(nb){ nb.style.display='inline'; nb.style.background='var(--green)'; }
-    }
+    setBadge('nb-chapu', bartoloLeads.length);
   }
 }
 
+function showPipelineToast(nombre){
+  const t = document.createElement('div');
+  t.className = 'pipeline-toast';
+  t.textContent = '✓ ' + nombre + ' → pipeline';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// AUTO-ENVÍO DE LEADS A BARTOLO — el Rastreador alimenta el pipeline directamente
-// ═══════════════════════════════════════════════════════════════════════════════
-async function autoEnviarABartolo(leadsArr) {
-  if (!leadsArr || leadsArr.length === 0) return;
-
-  expandTerminal();
-
-  // Si el terminal está ocupado, encolar y avisar
-  if (termBusy) {
-    termAddMsg('bot', '<span style="color:var(--amber)">⚠ El terminal está ocupado. Cuando termine te proceso estos ' + leadsArr.length + ' leads.</span>');
-    termScroll();
+// ─── AUTO-SEND LEADS TO SORT ──────────────────────────────────────────────────
+async function autoEnviarASort(leadsArr){
+  if(!leadsArr || !leadsArr.length) return;
+  goPanel('sort', document.querySelector('[data-agent="sort"]'));
+  if(termBusy){
+    termAddMsg('bot', '<span style="color:var(--amber)">⚠ Sort ocupado. '+leadsArr.length+' leads en cola.</span>');
     return;
   }
-
   termBusy = true;
-  document.getElementById('term-input').disabled  = true;
+  document.getElementById('term-input').disabled = true;
   document.getElementById('term-send-btn').disabled = true;
-
-  // Reiniciar estado SSE
   termBotBubble = null; termBotText = ''; termToolCard = null;
 
-  // Mensaje inicial de Bartolo
-  const intro = termAddMsg('bot',
-    'Recibí <strong>' + leadsArr.length + ' lead' + (leadsArr.length > 1 ? 's' : '') +
-    '</strong> del Rastreador — proceso cada uno con Eyes\u2192Brain\u2192Face.'
-  );
-
-  // Botón cancelar
+  const intro = termAddMsg('bot', 'Recibí <strong>'+leadsArr.length+' lead'+(leadsArr.length>1?'s':'')+'</strong> de Chapu — proceso cada uno.');
   let cancelado = false;
   const cancelBtn = document.createElement('button');
-  cancelBtn.className = 'term-hbtn';
-  cancelBtn.style.cssText = 'margin-top:8px;display:inline-block;color:#ff6b6b;border-color:rgba(255,107,107,.3)';
-  cancelBtn.textContent = '\u2715 Cancelar procesamiento';
+  cancelBtn.style.cssText = 'margin-top:8px;display:inline-block;background:none;border:1px solid rgba(255,107,107,.3);color:var(--red);border-radius:5px;padding:4px 10px;cursor:pointer;font-size:11px;font-family:inherit';
+  cancelBtn.textContent = '✕ Cancelar';
   cancelBtn.onclick = () => { cancelado = true; cancelBtn.textContent = 'Cancelando...'; cancelBtn.disabled = true; };
   intro.appendChild(cancelBtn);
-  termScroll();
 
   let procesados = 0, errores = 0;
-
-  for (let i = 0; i < leadsArr.length; i++) {
-    if (cancelado) break;
-
-    const lead     = leadsArr[i];
-    const nombre   = lead.nombre   || '';
-    const ciudad   = lead.ciudad   || lead.ubicacion || '';
-    const sector   = lead.nicho    || lead.sector    || '';
-    const msgText  = 'Procesá "' + nombre + '", ' + ciudad + ', ' + sector;
-
-    termSetStatus('\u2014 [' + (i+1) + '/' + leadsArr.length + '] ' + escHtml(nombre), 'busy');
-    termAddMsg('user', '[' + (i+1) + '/' + leadsArr.length + '] ' + escHtml(msgText));
-
-    // Contexto fresco por lead
-    termHistory = [];
-    termBotBubble = null; termBotText = ''; termToolCard = null;
+  for(let i = 0; i < leadsArr.length; i++){
+    if(cancelado) break;
+    const lead = leadsArr[i];
+    const nombre = lead.nombre || '';
+    const ciudad = lead.ciudad || lead.ubicacion || '';
+    const sector = lead.nicho || lead.sector || '';
+    const msg = 'Procesá "'+nombre+'", '+ciudad+', '+sector;
+    termSetStatus('— [' + (i+1) + '/' + leadsArr.length + '] ' + escHtml(nombre), 'busy');
+    termAddMsg('user', '[' + (i+1) + '/' + leadsArr.length + '] ' + escHtml(msg));
+    termHistory = []; termBotBubble = null; termBotText = ''; termToolCard = null;
     termAddTyping();
-
     try {
       const resp = await fetch(BARTOLO_URL + '/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + bartoloToken
-        },
-        body: JSON.stringify({ message: msgText, history: [] })
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + bartoloToken },
+        body: JSON.stringify({ message: msg, history: [] })
       });
-
       termRemoveTyping();
-
-      if (resp.ok) {
+      if(resp.ok){
         const ct = resp.headers.get('content-type') || '';
-        if (ct.includes('text/event-stream')) {
-          await termReadSSE(resp);
-          procesados++;
-        } else {
-          const d = await resp.json();
-          termAddMsg('bot', termFormatText(d.reply || d.error || 'OK'));
-          procesados++;
-        }
-      } else if (resp.status === 401) {
-        termAddMsg('bot', '<span style="color:var(--red)">\u26a0 Token inválido. Actualizá el token en el panel Bartolo Live.</span>');
-        break; // no seguir si el token es inválido
+        if(ct.includes('text/event-stream')){ await termReadSSE(resp); procesados++; }
+        else { const d = await resp.json(); termAddMsg('bot', termFormatText(d.reply||d.error||'OK')); procesados++; }
+      } else if(resp.status === 401){
+        termAddMsg('bot', '<span style="color:var(--red)">⚠ Token inválido.</span>'); break;
       } else {
-        termAddMsg('bot', '<span style="color:var(--red)">\u26a0 Error ' + resp.status + ' para ' + escHtml(nombre) + '</span>');
-        errores++;
+        termAddMsg('bot', '<span style="color:var(--red)">⚠ Error '+resp.status+'</span>'); errores++;
       }
-    } catch (err) {
+    } catch(err){
       termRemoveTyping();
-      termAddMsg('bot', '<span style="color:var(--red)">\u26a0 ' + escHtml(err.message) + '</span>');
-      errores++;
+      termAddMsg('bot', '<span style="color:var(--red)">⚠ '+escHtml(err.message)+'</span>'); errores++;
     }
-
-    termHistory = []; // limpiar contexto entre leads
-
-    // Pausa corta entre leads
-    if (i < leadsArr.length - 1 && !cancelado) {
-      await new Promise(r => setTimeout(r, 1500));
-    }
+    termHistory = [];
+    if(i < leadsArr.length - 1 && !cancelado) await new Promise(r => setTimeout(r, 1500));
   }
-
-  // Resumen final
-  try { cancelBtn.remove(); } catch(_) {}
-  const resumen = cancelado
-    ? 'Cancelado. ' + procesados + '/' + leadsArr.length + ' leads procesados.'
-    : '\u2713 <strong>' + procesados + ' lead' + (procesados !== 1 ? 's' : '') +
-      ' procesado' + (procesados !== 1 ? 's' : '') + '</strong> y guardados en el pipeline.' +
-      (errores > 0 ? ' (' + errores + ' errores)' : '');
-  termAddMsg('bot', resumen);
-  termSetStatus('\u2014 listo');
-
+  try{ cancelBtn.remove(); }catch(_){}
+  termAddMsg('bot', cancelado
+    ? 'Cancelado. '+procesados+'/'+leadsArr.length+' procesados.'
+    : '✓ <strong>'+procesados+' lead'+(procesados!==1?'s':'')+' procesado'+(procesados!==1?'s':'')+'</strong> y guardados en el pipeline.'+(errores>0?' ('+errores+' errores)':''));
+  termSetStatus('— listo');
   termBusy = false;
-  document.getElementById('term-input').disabled  = false;
+  document.getElementById('term-input').disabled = false;
   document.getElementById('term-send-btn').disabled = false;
   termHistory = [];
 }
 
+// ─── FACTURACIÓN ──────────────────────────────────────────────────────────────
+let factNum = 2601;
+function generarFactura(){
+  const cliente  = document.getElementById('inv-cliente').value||'Cliente';
+  const cif      = document.getElementById('inv-cif').value||'—';
+  const servicio = document.getElementById('inv-servicio').options[document.getElementById('inv-servicio').selectedIndex].text;
+  const importe  = parseFloat(document.getElementById('inv-importe').value)||497;
+  const iva      = importe*0.21;
+  const total    = importe+iva;
+  const fecha    = new Date().toLocaleDateString('es-ES');
+  document.getElementById('factura-preview').innerHTML = `
+    <h3>FACTURA Nº BMS-2026-${factNum++}</h3>
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:12px;color:var(--text3)">
+      <div><strong style="color:var(--text)">EMISOR</strong><br>Argón 70 S.L.<br>NIF: B24845695<br>C/ Aníbal 3, 07800 Eivissa</div>
+      <div style="text-align:right"><strong style="color:var(--text)">CLIENTE</strong><br>${escHtml(cliente)}<br>CIF: ${escHtml(cif)}<br>Fecha: ${fecha}</div>
+    </div>
+    <div class="inv-row"><span>${escHtml(servicio)}</span><span>${importe.toFixed(2)}€</span></div>
+    <div class="inv-row"><span>IVA 21%</span><span>${iva.toFixed(2)}€</span></div>
+    <div class="inv-total"><span>TOTAL</span><span>${total.toFixed(2)}€</span></div>`;
+  document.getElementById('card-factura').style.display='block';
+}
+function copiarFactura(){
+  navigator.clipboard.writeText(document.getElementById('factura-preview').innerText).then(()=>alert('Copiado'));
+}
+document.getElementById('inv-servicio').addEventListener('change',function(){
+  const v=this.value; if(v!=='custom') document.getElementById('inv-importe').value=v;
+});
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function escHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── KEYBOARD SHORTCUT ────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if(e.shiftKey && e.key === 'B' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+    goPanel('sort', document.querySelector('[data-agent="sort"]'));
+    setTimeout(() => { const inp = document.getElementById('term-input'); if(inp) inp.focus(); }, 100);
+  }
+});
 </script>
-
-<!-- ═════════════════════════════ RENDIMIENTO BAR ══════════════════════════════ -->
-<div id="rendimiento-bar">
-  <span class="rend-label">Rendimiento</span>
-  <div class="rend-sep"></div>
-  <div class="rend-item">
-    <span class="rend-key">Activo</span>
-    <span class="rend-val" id="rend-timer">0d 0h 0m</span>
-  </div>
-  <div class="rend-sep"></div>
-  <div class="rend-item">
-    <span class="rend-key">Revenue</span>
-    <div id="rend-revenue-wrap">
-      <input id="rend-revenue" type="text" value="0€" title="Click para editar" />
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════ BARTOLO TERMINAL ═══════════════════════════ -->
-<div id="bartolo-terminal">
-  <div class="term-header" onclick="toggleTerminal()">
-    <div class="term-hgroup">
-      <div class="term-hdot" id="term-dot"></div>
-      <span class="term-hlabel">Bartolo</span>
-      <span class="term-hstatus" id="term-status">— escribí una orden</span>
-    </div>
-    <div class="term-hright">
-      <span id="term-pipe-badge" style="display:none;background:var(--green);color:#000;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px"></span>
-      <button class="term-hbtn" onclick="event.stopPropagation();clearTerminal()">✕ limpiar</button>
-      <button class="term-hbtn" id="term-toggle-btn" onclick="event.stopPropagation();toggleTerminal()">▼</button>
-    </div>
-  </div>
-  <div class="term-body">
-    <div class="term-msgs" id="term-msgs"></div>
-    <div class="term-input-row">
-      <span class="term-prompt">→</span>
-      <input class="term-input" id="term-input"
-        placeholder="Darle una orden a Bartolo...  (Shift+B para enfocar)"
-        maxlength="1000" onkeydown="termKeydown(event)">
-      <button class="term-send-btn" id="term-send-btn" onclick="termSend()">↵ Enviar</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
