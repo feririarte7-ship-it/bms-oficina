@@ -139,6 +139,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
 /* ── APP-BODY: necesita min-height:0 para que el terminal empuje desde abajo ── */
 /* (se parchea inline con JS, ver abajo) */
 
+/* ── RENDIMIENTO BAR ─────────────────────────────────────────────────────────── */
+#rendimiento-bar{
+  flex-shrink:0;background:var(--bg2);border-top:1px solid var(--border);
+  height:32px;display:flex;align-items:center;padding:0 16px;gap:18px;
+}
+.rend-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.rend-sep{width:1px;height:14px;background:var(--border2)}
+.rend-item{display:flex;align-items:center;gap:7px}
+.rend-key{font-size:10px;color:var(--text3)}
+.rend-val{font-size:11px;color:var(--text2);font-family:var(--mono)}
+#rend-revenue-wrap{display:flex;align-items:center;gap:4px}
+#rend-revenue{background:none;border:none;outline:none;color:var(--text2);font-size:11px;font-family:var(--mono);width:72px;cursor:text;padding:0}
+#rend-revenue:focus{color:var(--green)}
+
 /* ── BARTOLO TERMINAL ────────────────────────────────────────────────────────── */
 #bartolo-terminal{
   flex-shrink:0;background:var(--bg2);border-top:2px solid var(--border2);
@@ -607,6 +621,7 @@ document.getElementById('pin-input').addEventListener('keydown',e=>{ if(e.key===
 function initApp(){
   updateClock();
   setInterval(updateClock, 1000);
+  initRevenue();
   startBartoloPolling();
   const h = new Date().getHours();
   document.getElementById('welcome-msg').textContent = (h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches') + ' Fernando 👋';
@@ -615,6 +630,24 @@ function initApp(){
 function updateClock(){
   const n=new Date();
   document.getElementById('clock').textContent = n.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})+' · '+n.toLocaleTimeString('es-ES');
+  // Rendimiento countdown desde 2026-04-03 10:00:00
+  const start = new Date('2026-04-03T10:00:00');
+  const diff  = Math.max(0, n - start);
+  const days  = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins  = Math.floor((diff % 3600000)  / 60000);
+  const el = document.getElementById('rend-timer');
+  if(el) el.textContent = days + 'd ' + hours + 'h ' + mins + 'm';
+}
+
+// REVENUE — persistir en localStorage
+function initRevenue(){
+  const inp = document.getElementById('rend-revenue');
+  if(!inp) return;
+  const saved = localStorage.getItem('bms_revenue');
+  if(saved) inp.value = saved;
+  inp.addEventListener('blur', () => { localStorage.setItem('bms_revenue', inp.value); });
+  inp.addEventListener('keydown', e => { if(e.key==='Enter') inp.blur(); });
 }
 
 // NAV
@@ -1528,6 +1561,16 @@ function termHandleSSE(ev, payload){
     }
     termScroll();
 
+  } else if(ev === 'lead_skip'){
+    const card = document.getElementById('lead-orch-' + payload.index);
+    if(card){
+      card.style.borderLeftColor = 'var(--text3)';
+      card.style.opacity = '0.55';
+      const stepEl = document.getElementById('lstep-' + payload.index);
+      if(stepEl) stepEl.innerHTML = '<span style="color:var(--text3)">⏭ Saltado</span><span style="color:var(--text3)">' + escHtml((payload.reason||'').replace('DUPLICADO: ','')) + '</span>';
+    }
+    termScroll();
+
   } else if(ev === 'orchestra_done'){
     ensureBotBubble();
     const summary = document.createElement('div');
@@ -1693,6 +1736,23 @@ async function autoEnviarABartolo(leadsArr) {
 }
 
 </script>
+
+<!-- ═════════════════════════════ RENDIMIENTO BAR ══════════════════════════════ -->
+<div id="rendimiento-bar">
+  <span class="rend-label">Rendimiento</span>
+  <div class="rend-sep"></div>
+  <div class="rend-item">
+    <span class="rend-key">Activo</span>
+    <span class="rend-val" id="rend-timer">0d 0h 0m</span>
+  </div>
+  <div class="rend-sep"></div>
+  <div class="rend-item">
+    <span class="rend-key">Revenue</span>
+    <div id="rend-revenue-wrap">
+      <input id="rend-revenue" type="text" value="0€" title="Click para editar" />
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════ BARTOLO TERMINAL ═══════════════════════════ -->
 <div id="bartolo-terminal">
