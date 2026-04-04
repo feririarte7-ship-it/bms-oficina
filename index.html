@@ -407,13 +407,21 @@ body.chat-active .content{overflow:hidden;padding:0}
       <span>Planes</span>
     </div>
 
-    <!-- spacer + token -->
+    <!-- spacer + tokens -->
     <div style="flex:1"></div>
-    <div style="padding:10px 14px;border-top:1px solid var(--border);margin-top:8px">
-      <div style="font-size:10px;color:var(--text3);margin-bottom:5px">Token Sort</div>
-      <input type="password" id="bartolo-token-input" placeholder="bms-2026"
-        style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:6px;padding:5px 8px;color:var(--text);font-size:11px;outline:none"
-        onchange="guardarBartoloToken()"/>
+    <div style="padding:10px 14px;border-top:1px solid var(--border);margin-top:8px;display:flex;flex-direction:column;gap:8px">
+      <div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Token Sort</div>
+        <input type="password" id="bartolo-token-input" placeholder="bms-2026"
+          style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:6px;padding:5px 8px;color:var(--text);font-size:11px;outline:none"
+          onchange="guardarBartoloToken()"/>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--orso);margin-bottom:4px">API Key Orso (Anthropic)</div>
+        <input type="password" id="orso-api-key-input" placeholder="sk-ant-…"
+          style="width:100%;background:rgba(167,139,250,.04);border:1px solid rgba(167,139,250,.2);border-radius:6px;padding:5px 8px;color:var(--text);font-size:11px;outline:none"
+          onchange="guardarOrsoApiKey()"/>
+      </div>
     </div>
   </nav>
 
@@ -762,18 +770,18 @@ body.chat-active .content{overflow:hidden;padding:0}
             <div class="gc-bub system">Canal de la oficina activo — todos los agentes conectados</div>
           </div>
           <div class="gc-msg from-agent">
-            <div class="gc-msg-av gc-av sort" style="background:var(--sort-dim);border:1.5px solid rgba(0,255,136,.35)">⚡</div>
+            <div class="gc-msg-av gc-av orso" style="background:var(--orso-dim);border:1.5px solid rgba(167,139,250,.35)">🧬</div>
             <div class="gc-msg-body">
-              <div class="gc-msg-meta"><span class="gc-msg-name" style="color:var(--sort)">Sort</span><span class="gc-msg-time" id="gc-sort-welcome-ts"></span></div>
-              <div class="gc-bub sort">Hola Fernando. Estoy listo. Podés escribirme directo o mencionar a otro agente con @sort, @orso, @chapu, @pampa o @milie.</div>
+              <div class="gc-msg-meta"><span class="gc-msg-name" style="color:var(--orso)">Orso</span><span class="gc-msg-time" id="gc-sort-welcome-ts"></span></div>
+              <div class="gc-bub orso">Hola Fernando. Soy Orso, el orquestador de Brand Mind Studio. Hablame directo o mencioná a @sort, @chapu, @pampa o @milie para hablarles a ellos.</div>
             </div>
           </div>
         </div>
 
         <!-- Input -->
         <div class="gc-input-row">
-          <span class="gc-mention sel" id="gc-target-badge">@sort</span>
-          <input class="gc-inp" id="gc-inp" placeholder="Escribile a los agentes…" maxlength="1000"
+          <span class="gc-mention sel" id="gc-target-badge" style="color:var(--orso);border-color:var(--orso)">@orso</span>
+          <input class="gc-inp" id="gc-inp" placeholder="Hablale a Orso… o @sort, @chapu, @pampa, @milie" maxlength="1000"
             onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();gcSend()}"
             oninput="gcDetectMention(this.value)"/>
           <button class="gc-send" id="gc-send-btn" onclick="gcSend()">↵ Enviar</button>
@@ -1201,7 +1209,7 @@ const GC_AGENTS = {
   pampa: { name:'Pampa', emoji:'🧠', col:'var(--pampa)', cls:'pampa', avBg:'var(--pampa-dim)', avBor:'rgba(245,200,66,.35)' },
   milie: { name:'Milie', emoji:'📧', col:'var(--milie)', cls:'milie', avBg:'var(--milie-dim)', avBor:'rgba(255,126,179,.35)' },
 };
-let gcTarget = 'sort';
+let gcTarget = 'orso';
 let gcBusy = false;
 let gcUnread = 0;
 let gcLastOrsoStatus = null;
@@ -1385,42 +1393,148 @@ async function gcAskSort(text) {
   }
 }
 
+const ORSO_SYSTEM = `Sos Orso, el orquestador de Brand Mind Studio (BMS), una agencia argentina de IA y automatización para PYMES.
+
+Tu rol: coordinás a los agentes de la oficina y respondés directamente a Fernando (el fundador de BMS).
+
+Los agentes que tenés bajo tu mando:
+- **Chapu** (👁): captación y rastreo de leads. Usa Eyes para escanear negocios en Google Maps y LinkedIn.
+- **Pampa** (🧠): análisis de revenue potential y scoring de oportunidades.
+- **Milie** (📧): redacción personalizada y envío de emails de prospección.
+- **Sort** (⚡): coordinador general, maneja el pipeline completo y el chat con Fernando.
+
+BMS vende tres planes: Presencia (297€), Presencia Pro (497€) y Ecosistema IA (797€).
+
+Personalidad: sos directo, inteligente, hablás en español rioplatense. No sos servicial al pedo — sos un colega de trabajo. Si algo no sabe, lo buscás.
+
+Cuando Fernando te pide que ejecutes una tarea real (buscar leads, enviar emails, correr un pipeline), avisale que lo vas a delegar a Sort vía el endpoint /run, pero primero conversás sobre qué hace exactamente.
+
+Si necesitás información actualizada, usá la herramienta de búsqueda web.`;
+
+const ORSO_HISTORY = []; // historial de conversación para contexto
+
 async function gcAskOrso(text) {
+  const apiKey = localStorage.getItem('bms_orso_api_key');
+  if(!apiKey) {
+    gcAddMsg('orso', '⚠ No tengo API key configurada. Agregala en el sidebar (campo "API Key Orso").');
+    return;
+  }
+
+  gcSetStatus('orso','busy');
+  ORSO_HISTORY.push({ role:'user', content: text });
+
+  // mostrar typing
   gcShowTyping('orso');
+  const bubId = 'gc-orso-bub-' + Date.now();
+
   try {
-    const r = await fetch(ORSO_BASE + '/run', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({objetivo: text})
+    const body = {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      system: ORSO_SYSTEM,
+      messages: ORSO_HISTORY,
+      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      stream: true,
+    };
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify(body),
     });
+
+    if(!resp.ok) {
+      const err = await resp.json().catch(()=>({error:{message:resp.statusText}}));
+      throw new Error(err?.error?.message || 'HTTP ' + resp.status);
+    }
+
     gcRemoveTyping();
-    const d = await r.json();
-    if(r.status === 409) {
-      gcAddMsg('orso', '⚠ Ya estoy ejecutando una tarea. Esperá que termine.');
-    } else {
-      gcAddMsg('orso', `✓ Tarea iniciada: _${d.objetivo}_\n\nVoy a delegar a Sort y reportar aquí cuando termine.`);
-      gcSetStatus('orso','busy');
-      // poll until done
-      const poll = setInterval(async () => {
-        try {
-          const rs = await fetch(ORSO_BASE + '/run/status');
-          const st = await rs.json();
-          if(!st.corriendo && st.resultado) {
-            clearInterval(poll);
-            gcSetStatus('orso','online');
-            if(st.resultado.ok) {
-              const lines = (st.resultado.stdout||'').split('\n').filter(l=>l.includes('RESUMEN')||l.includes('Completadas')||l.includes('Gasto')||l.includes('objetivo')).slice(0,5);
-              gcAddMsg('orso', '✓ Ejecución completada.\n' + lines.join('\n'));
-            } else {
-              gcAddMsg('orso', '✗ Error en la ejecución: ' + (st.resultado.error||'ver logs'));
+    const wrap = gcAddMsg('orso', '', { bubId });
+    const bub = document.getElementById(bubId);
+    let accumulated = '';
+    let searching = false;
+    let assistantContent = [];
+    let currentBlock = null;
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while(true) {
+      const { done, value } = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // keep incomplete line
+
+      for(const line of lines) {
+        if(!line.startsWith('data:')) continue;
+        const raw = line.slice(5).trim();
+        if(raw === '[DONE]') break;
+        let ev;
+        try { ev = JSON.parse(raw); } catch(e){ continue; }
+
+        if(ev.type === 'content_block_start') {
+          currentBlock = ev.content_block;
+          if(currentBlock.type === 'tool_use' && currentBlock.name === 'web_search') {
+            searching = true;
+            if(bub) {
+              bub.innerHTML = gcMarkdown(accumulated) + '<br><span style="color:var(--text3);font-size:11px">🔍 Buscando en la web…</span>';
+              gcScrollBottom();
             }
           }
-        } catch(e){ clearInterval(poll); gcSetStatus('orso','idle'); }
-      }, 5000);
+          if(currentBlock.type === 'text') {
+            assistantContent.push({ type:'text', text:'' });
+          }
+        }
+
+        if(ev.type === 'content_block_delta') {
+          if(ev.delta?.type === 'text_delta' && ev.delta.text) {
+            accumulated += ev.delta.text;
+            if(assistantContent.length && assistantContent[assistantContent.length-1].type==='text') {
+              assistantContent[assistantContent.length-1].text += ev.delta.text;
+            }
+            if(bub) {
+              bub.innerHTML = gcMarkdown(accumulated);
+              gcScrollBottom();
+            }
+          }
+        }
+
+        if(ev.type === 'content_block_stop') {
+          if(searching && currentBlock?.type === 'tool_use') {
+            searching = false;
+            assistantContent.push(currentBlock);
+          }
+          currentBlock = null;
+        }
+      }
     }
+
+    if(bub && !accumulated) bub.textContent = '(sin respuesta)';
+
+    // guardar respuesta en historial
+    if(accumulated) {
+      ORSO_HISTORY.push({ role:'assistant', content: accumulated });
+      // limitar historial a últimos 20 mensajes
+      if(ORSO_HISTORY.length > 20) ORSO_HISTORY.splice(0, ORSO_HISTORY.length - 20);
+    }
+
   } catch(e) {
     gcRemoveTyping();
-    gcAddMsg('orso', '⚠ No pude conectar con Orso: ' + e.message);
+    // limpiar bub si ya se creó pero está vacío
+    const existBub = document.getElementById(bubId);
+    if(existBub && !existBub.textContent.trim()) existBub.closest('.gc-msg')?.remove();
+    gcAddMsg('orso', '⚠ Error al llamar a Anthropic: ' + e.message);
+    // revertir último mensaje del historial
+    ORSO_HISTORY.pop();
+  } finally {
+    gcSetStatus('orso','online');
   }
 }
 
@@ -1495,6 +1609,15 @@ document.addEventListener('DOMContentLoaded', () => {
 function guardarBartoloToken(){
   const val = document.getElementById('bartolo-token-input').value.trim();
   if(val){ bartoloToken = val; localStorage.setItem('bms_bartolo_token', val); fetchBartoloLeads(); }
+}
+
+function guardarOrsoApiKey(){
+  const val = document.getElementById('orso-api-key-input').value.trim();
+  if(val){
+    localStorage.setItem('bms_orso_api_key', val);
+    gcAddMsg('orso','✓ API key configurada. Listo para responder.');
+    gcSetStatus('orso','online');
+  }
 }
 
 async function fetchBartoloLeads(){
@@ -1734,6 +1857,10 @@ function cargarKeys(){
   if(res){ const el=document.getElementById('resend-key-input'); if(el&&!el.value) el.value=res; }
   const tok = document.getElementById('bartolo-token-input');
   if(tok && !tok.value) tok.value = bartoloToken;
+  const orsoKey = localStorage.getItem('bms_orso_api_key');
+  const orsoInp = document.getElementById('orso-api-key-input');
+  if(orsoInp && orsoKey && !orsoInp.value) orsoInp.value = orsoKey;
+  if(orsoKey) gcSetStatus('orso','online');
 }
 
 // ─── EL CERRADOR ──────────────────────────────────────────────────────────────
