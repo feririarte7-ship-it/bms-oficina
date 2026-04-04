@@ -1405,14 +1405,103 @@ Los agentes que tenés bajo tu mando:
 
 BMS vende tres planes: Presencia (297€), Presencia Pro (497€) y Ecosistema IA (797€).
 
-Personalidad: sos directo, inteligente, hablás en español rioplatense. No sos servicial al pedo — sos un colega de trabajo. Si algo no sabe, lo buscás.
+Personalidad: sos directo, inteligente, hablás en español rioplatense. No sos servicial al pedo — sos un colega de trabajo.
 
-Cuando Fernando te pide que ejecutes una tarea real (buscar leads, enviar emails, correr un pipeline), avisale que lo vas a delegar a Sort vía el endpoint /run, pero primero conversás sobre qué hace exactamente.
+Cuando Fernando pregunta por leads, negocios, contactos, emails enviados o estado del pipeline, usá la herramienta consultar_sort para traer datos reales de la base de datos. Siempre que la respuesta requiera datos actualizados del negocio, consultá primero.
 
-Si necesitás información actualizada, usá la herramienta de búsqueda web.`;
+Cuando Fernando te pide ejecutar una tarea real, avisale que lo vas a delegar al pipeline de Sort.`;
 
-const ORSO_HISTORY = []; // historial de conversación para contexto
+const ORSO_TOOLS = [
+  { type: 'web_search_20250305', name: 'web_search' },
+  {
+    name: 'consultar_sort',
+    description: 'Consulta datos reales de Brand Mind Studio: leads del pipeline, negocios rastreados, contactos, emails enviados y métricas de agentes. Úsalo cuando Fernando pregunte por el estado del negocio, cuántos leads hay, qué negocios se rastrearon, qué emails se mandaron, etc.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        consulta: {
+          type: 'string',
+          description: 'La consulta específica, ej: "cuántos leads hay en el pipeline", "últimos negocios rastreados", "estado de contactos"'
+        }
+      },
+      required: ['consulta']
+    }
+  }
+];
 
+const ORSO_HISTORY = [];
+
+// ── Stream helper: lee un ReadableStream SSE de Anthropic y llama callbacks ──
+async function orsoStream(resp, { onText, onToolStart, onToolInput, onToolEnd, onStop }) {
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let currentBlock = null;
+  let stopReason = 'end_turn';
+  let toolUseBlocks = [];
+
+  while(true) {
+    const { done, value } = await reader.read();
+    if(done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+
+    for(const line of lines) {
+      if(!line.startsWith('data:')) continue;
+      let ev;
+      try { ev = JSON.parse(line.slice(5).trim()); } catch(e){ continue; }
+
+      if(ev.type === 'content_block_start') {
+        currentBlock = { ...ev.content_block, inputStr: '' };
+        if(currentBlock.type === 'tool_use') {
+          onToolStart?.(currentBlock.name, currentBlock.id);
+        }
+      }
+
+      if(ev.type === 'content_block_delta') {
+        const d = ev.delta;
+        if(d?.type === 'text_delta' && d.text) {
+          onText?.(d.text);
+        }
+        if(d?.type === 'input_json_delta' && currentBlock) {
+          currentBlock.inputStr = (currentBlock.inputStr || '') + d.partial_json;
+          onToolInput?.(currentBlock.name, currentBlock.inputStr);
+        }
+      }
+
+      if(ev.type === 'content_block_stop' && currentBlock) {
+        if(currentBlock.type === 'tool_use') {
+          let input = {};
+          try { input = JSON.parse(currentBlock.inputStr || '{}'); } catch(e){}
+          currentBlock.input = input;
+          toolUseBlocks.push(currentBlock);
+          onToolEnd?.(currentBlock.name, input, currentBlock.id);
+        }
+        currentBlock = null;
+      }
+
+      if(ev.type === 'message_delta' && ev.delta?.stop_reason) {
+        stopReason = ev.delta.stop_reason;
+      }
+    }
+  }
+  onStop?.(stopReason);
+  return { stopReason, toolUseBlocks };
+}
+
+// ── Ejecutar consultar_sort: fetch a /query-sort ──────────────────────────────
+async function orsoRunConsultarSort(consulta) {
+  const r = await fetch(ORSO_BASE + '/query-sort', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ consulta }),
+  });
+  if(!r.ok) throw new Error('query-sort HTTP ' + r.status);
+  return await r.json();
+}
+
+// ── Llamada a Anthropic con agentic loop (web_search server-side + consultar_sort client-side) ──
 async function gcAskOrso(text) {
   const apiKey = localStorage.getItem('bms_orso_api_key');
   if(!apiKey) {
@@ -1423,115 +1512,158 @@ async function gcAskOrso(text) {
   gcSetStatus('orso','busy');
   ORSO_HISTORY.push({ role:'user', content: text });
 
-  // mostrar typing
+  // burbuja de respuesta que se va llenando con streaming
   gcShowTyping('orso');
   const bubId = 'gc-orso-bub-' + Date.now();
+  let wrap = null;
+  let bub = null;
+  let accumulated = '';
+
+  const ensureBub = () => {
+    if(!bub) {
+      gcRemoveTyping();
+      wrap = gcAddMsg('orso', '', { bubId });
+      bub = document.getElementById(bubId);
+    }
+  };
+
+  const appendText = (t) => {
+    ensureBub();
+    accumulated += t;
+    if(bub) { bub.innerHTML = gcMarkdown(accumulated); gcScrollBottom(); }
+  };
+
+  const showIndicator = (msg) => {
+    ensureBub();
+    if(bub) {
+      bub.innerHTML = gcMarkdown(accumulated) +
+        `<span class="gc-tool-indicator" style="display:block;margin-top:4px;font-size:11px;color:var(--text3)">${msg}</span>`;
+      gcScrollBottom();
+    }
+  };
+
+  const clearIndicator = () => {
+    if(bub) { bub.querySelectorAll('.gc-tool-indicator').forEach(e => e.remove()); }
+  };
 
   try {
-    const body = {
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
-      system: ORSO_SYSTEM,
-      messages: ORSO_HISTORY,
-      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-      stream: true,
-    };
+    // Historial de mensajes para el loop
+    const messages = [...ORSO_HISTORY];
+    // Contenido del asistente acumulado para el historial (puede tener múltiples bloques)
+    let assistantBlocks = [];
+    let loopCount = 0;
 
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify(body),
-    });
+    while(loopCount++ < 5) {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1500,
+          system: ORSO_SYSTEM,
+          messages,
+          tools: ORSO_TOOLS,
+          stream: true,
+        }),
+      });
 
-    if(!resp.ok) {
-      const err = await resp.json().catch(()=>({error:{message:resp.statusText}}));
-      throw new Error(err?.error?.message || 'HTTP ' + resp.status);
-    }
+      if(!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err?.error?.message || 'HTTP ' + resp.status);
+      }
 
-    gcRemoveTyping();
-    const wrap = gcAddMsg('orso', '', { bubId });
-    const bub = document.getElementById(bubId);
-    let accumulated = '';
-    let searching = false;
-    let assistantContent = [];
-    let currentBlock = null;
+      let textThisTurn = '';
+      const turnBlocks = [];
 
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
+      const { stopReason, toolUseBlocks } = await orsoStream(resp, {
+        onText: (t) => { textThisTurn += t; appendText(t); },
+        onToolStart: (name) => {
+          if(name === 'web_search') showIndicator('🔍 Buscando en la web…');
+          if(name === 'consultar_sort') showIndicator('📡 Consultando Sort…');
+        },
+        onToolEnd: (name, input, id) => {
+          clearIndicator();
+          turnBlocks.push({ type:'tool_use', id, name, input });
+        },
+        onStop: () => {},
+      });
 
-    while(true) {
-      const { done, value } = await reader.read();
-      if(done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop(); // keep incomplete line
+      // Construir bloque del asistente para este turno
+      const assistantContent = [];
+      if(textThisTurn) assistantContent.push({ type:'text', text: textThisTurn });
+      assistantContent.push(...turnBlocks);
 
-      for(const line of lines) {
-        if(!line.startsWith('data:')) continue;
-        const raw = line.slice(5).trim();
-        if(raw === '[DONE]') break;
-        let ev;
-        try { ev = JSON.parse(raw); } catch(e){ continue; }
+      if(assistantContent.length) {
+        messages.push({ role:'assistant', content: assistantContent });
+      }
 
-        if(ev.type === 'content_block_start') {
-          currentBlock = ev.content_block;
-          if(currentBlock.type === 'tool_use' && currentBlock.name === 'web_search') {
-            searching = true;
-            if(bub) {
-              bub.innerHTML = gcMarkdown(accumulated) + '<br><span style="color:var(--text3);font-size:11px">🔍 Buscando en la web…</span>';
-              gcScrollBottom();
-            }
-          }
-          if(currentBlock.type === 'text') {
-            assistantContent.push({ type:'text', text:'' });
+      // Si terminó normalmente, salir del loop
+      if(stopReason !== 'tool_use' || toolUseBlocks.length === 0) break;
+
+      // Ejecutar herramientas client-side (consultar_sort)
+      const toolResults = [];
+      for(const tb of toolUseBlocks) {
+        if(tb.name === 'consultar_sort') {
+          showIndicator('📡 Obteniendo datos de Sort…');
+          try {
+            const data = await orsoRunConsultarSort(tb.input.consulta || '');
+            clearIndicator();
+            toolResults.push({
+              type: 'tool_result',
+              tool_use_id: tb.id,
+              content: JSON.stringify(data),
+            });
+          } catch(e) {
+            clearIndicator();
+            toolResults.push({
+              type: 'tool_result',
+              tool_use_id: tb.id,
+              content: JSON.stringify({ error: e.message }),
+              is_error: true,
+            });
           }
         }
-
-        if(ev.type === 'content_block_delta') {
-          if(ev.delta?.type === 'text_delta' && ev.delta.text) {
-            accumulated += ev.delta.text;
-            if(assistantContent.length && assistantContent[assistantContent.length-1].type==='text') {
-              assistantContent[assistantContent.length-1].text += ev.delta.text;
-            }
-            if(bub) {
-              bub.innerHTML = gcMarkdown(accumulated);
-              gcScrollBottom();
-            }
-          }
+        // web_search es server-side: Anthropic lo resuelve solo,
+        // pero si llega aquí como tool_use necesita un placeholder
+        if(tb.name === 'web_search') {
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: tb.id,
+            content: '(búsqueda procesada por el servidor)',
+          });
         }
+      }
 
-        if(ev.type === 'content_block_stop') {
-          if(searching && currentBlock?.type === 'tool_use') {
-            searching = false;
-            assistantContent.push(currentBlock);
-          }
-          currentBlock = null;
-        }
+      if(toolResults.length) {
+        messages.push({ role:'user', content: toolResults });
+      } else {
+        break; // sin resultados que enviar
       }
     }
 
-    if(bub && !accumulated) bub.textContent = '(sin respuesta)';
+    gcRemoveTyping();
+    if(!accumulated) {
+      wrap = gcAddMsg('orso', '(sin respuesta)');
+    }
 
-    // guardar respuesta en historial
+    // Guardar en historial (solo el texto final)
     if(accumulated) {
       ORSO_HISTORY.push({ role:'assistant', content: accumulated });
-      // limitar historial a últimos 20 mensajes
       if(ORSO_HISTORY.length > 20) ORSO_HISTORY.splice(0, ORSO_HISTORY.length - 20);
+    } else {
+      ORSO_HISTORY.pop(); // revertir el mensaje del usuario
     }
 
   } catch(e) {
     gcRemoveTyping();
-    // limpiar bub si ya se creó pero está vacío
     const existBub = document.getElementById(bubId);
     if(existBub && !existBub.textContent.trim()) existBub.closest('.gc-msg')?.remove();
-    gcAddMsg('orso', '⚠ Error al llamar a Anthropic: ' + e.message);
-    // revertir último mensaje del historial
+    gcAddMsg('orso', '⚠ Error: ' + e.message);
     ORSO_HISTORY.pop();
   } finally {
     gcSetStatus('orso','online');
