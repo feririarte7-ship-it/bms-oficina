@@ -537,48 +537,108 @@ body.sort-active .content{overflow:hidden;padding:0}
 
     <!-- ══════════════════ ORSO / BRAIN CHAINS ═══════════════════════════════ -->
     <div class="panel" id="panel-orso">
+      <!-- Header -->
       <div class="agent-header" style="border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0">
         <div style="width:28px;height:28px;background:var(--orso-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px">🧬</div>
         <div>
           <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--orso)">Brain Chains</div>
           <div style="font-size:10px;color:var(--text3)">powered by Orso — orquestador LangGraph</div>
         </div>
-        <a href="https://orso.brandmindstudio.net/dashboard/app.html" target="_blank"
-           style="margin-left:auto;font-size:11px;color:var(--orso);text-decoration:none;border:1px solid var(--orso);padding:4px 10px;border-radius:6px;opacity:.8;transition:opacity .2s"
-           onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.8">
-          ↗ Dashboard
-        </a>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+          <span id="orso-polling-badge" style="display:none;font-size:10px;color:var(--orso);font-family:'DM Sans',monospace">● live</span>
+          <span id="orso-estado-chip" style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:1px;background:rgba(245,200,66,.12);color:var(--amber);border:1px solid var(--amber)">ESPERANDO</span>
+        </div>
       </div>
 
-      <div style="padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1">
+      <div style="padding:16px 20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px">
 
-        <!-- Ejecutar tarea -->
-        <div class="card" style="border-color:var(--orso-dim)">
-          <div class="card-title">
-            <div class="card-icon" style="background:var(--orso-dim)">▶</div>
-            Nueva ejecución
+        <!-- Métricas -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div class="card" style="border-color:var(--orso-dim);padding:12px;text-align:center;margin-bottom:0">
+            <div style="font-size:26px;font-weight:700;color:var(--orso);font-family:'Syne',sans-serif" id="orso-m-total">—</div>
+            <div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:2px">TAREAS</div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <textarea id="orso-objetivo" rows="3" placeholder="Ej: Encontrar 10 contadores en LinkedIn de Argentina"
-              style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;transition:border-color .2s"
-              onfocus="this.style.borderColor='var(--orso)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
-            <button onclick="orsoEjecutar()"
-              style="background:var(--orso);color:#000;border:none;padding:10px 20px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:opacity .2s;align-self:flex-start"
-              onmouseover="this.style.opacity=.85" onmouseout="this.style.opacity=1">
-              Ejecutar
-            </button>
+          <div class="card" style="border-color:var(--orso-dim);padding:12px;text-align:center;margin-bottom:0">
+            <div style="font-size:26px;font-weight:700;color:var(--green);font-family:'Syne',sans-serif" id="orso-m-completadas">—</div>
+            <div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:2px">COMPLETADAS</div>
+          </div>
+          <div class="card" style="border-color:var(--orso-dim);padding:12px;text-align:center;margin-bottom:0">
+            <div style="font-size:26px;font-weight:700;color:var(--amber);font-family:'Syne',sans-serif" id="orso-m-aprobaciones">—</div>
+            <div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:2px">APROBACIONES</div>
+          </div>
+          <div class="card" style="border-color:var(--orso-dim);padding:12px;text-align:center;margin-bottom:0">
+            <div style="font-size:26px;font-weight:700;color:var(--orso);font-family:'Syne',sans-serif" id="orso-m-gasto">—</div>
+            <div style="font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:2px">USD GASTO</div>
           </div>
         </div>
 
-        <!-- Estado en tiempo real -->
-        <div class="card" style="border-color:var(--orso-dim)">
-          <div class="card-title">
-            <div class="card-icon" style="background:var(--orso-dim)">◉</div>
-            Estado en tiempo real
-            <span id="orso-polling-badge" style="display:none;margin-left:auto;font-size:10px;color:var(--orso);font-family:'DM Sans',monospace">● polling</span>
+        <!-- Objetivo activo + barra de gasto -->
+        <div class="card" style="border-color:var(--orso-dim);margin-bottom:0">
+          <div class="card-title" style="margin-bottom:10px">
+            <div class="card-icon" style="background:var(--orso-dim)">◎</div>
+            Objetivo activo
           </div>
-          <div id="orso-status-box" style="font-size:12px;color:var(--text2);line-height:1.8;font-family:'DM Sans',monospace;min-height:60px">
-            <span style="color:var(--text3)">Sin ejecuciones todavía.</span>
+          <div id="orso-objetivo-activo" style="font-size:13px;color:var(--text);margin-bottom:12px">—</div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:5px">
+            <span>Gasto: USD <span id="orso-gasto-val">0.00</span></span>
+            <span>Límite: USD <span id="orso-gasto-limite">100</span></span>
+          </div>
+          <div style="background:rgba(255,255,255,.05);border-radius:3px;height:6px;overflow:hidden">
+            <div id="orso-gasto-barra" style="height:100%;width:0%;background:var(--orso);border-radius:3px;transition:width .4s ease"></div>
+          </div>
+        </div>
+
+        <!-- Tareas -->
+        <div class="card" style="border-color:var(--orso-dim);margin-bottom:0">
+          <div class="card-title" style="margin-bottom:10px">
+            <div class="card-icon" style="background:var(--orso-dim)">≡</div>
+            Tareas
+          </div>
+          <div id="orso-tareas-lista" style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:12px;color:var(--text3)">Sin tareas.</span>
+          </div>
+        </div>
+
+        <!-- Aprobación humana pendiente -->
+        <div id="orso-aprobacion-card" class="card" style="border-color:var(--amber);display:none;margin-bottom:0">
+          <div class="card-title" style="margin-bottom:10px;color:var(--amber)">
+            <div class="card-icon" style="background:rgba(245,200,66,.12)">⚠</div>
+            Aprobación requerida
+          </div>
+          <div id="orso-aprobacion-content" style="font-size:12px;color:var(--text2);line-height:1.9;margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px">
+            <button onclick="orsoDecidir('A')" style="background:var(--green);color:#000;border:none;padding:7px 18px;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer">✓ Aprobar</button>
+            <button onclick="orsoDecidir('R')" style="background:transparent;color:var(--red);border:1px solid var(--red);padding:7px 18px;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;cursor:pointer">✗ Rechazar</button>
+          </div>
+        </div>
+
+        <!-- Nueva ejecución -->
+        <div class="card" style="border-color:var(--orso-dim);margin-bottom:0">
+          <div class="card-title" style="margin-bottom:10px">
+            <div class="card-icon" style="background:var(--orso-dim)">▶</div>
+            Nueva ejecución
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <textarea id="orso-objetivo" rows="2" placeholder="Ej: Encontrar 10 contadores en LinkedIn de Argentina"
+              style="flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;resize:none;transition:border-color .2s"
+              onfocus="this.style.borderColor='var(--orso)'" onblur="this.style.borderColor='var(--border2)'"
+              onkeydown="if(event.key==='Enter'&&(event.metaKey||event.ctrlKey))orsoEjecutar()"></textarea>
+            <button onclick="orsoEjecutar()" id="orso-run-btn"
+              style="background:var(--orso);color:#000;border:none;padding:9px 18px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;flex-shrink:0">
+              Ejecutar
+            </button>
+          </div>
+          <div id="orso-run-msg" style="font-size:11px;color:var(--text3);margin-top:6px;min-height:16px"></div>
+        </div>
+
+        <!-- Log de auditoría -->
+        <div class="card" style="border-color:var(--orso-dim);margin-bottom:0">
+          <div class="card-title" style="margin-bottom:10px">
+            <div class="card-icon" style="background:var(--orso-dim)">▤</div>
+            Log de auditoría
+          </div>
+          <div id="orso-audit-log" style="font-size:11px;font-family:'DM Sans',monospace;color:var(--text3);line-height:1.9;max-height:160px;overflow-y:auto">
+            <span>Sin eventos.</span>
           </div>
         </div>
 
@@ -780,7 +840,8 @@ function goPanel(id, el){
   if(panel) panel.classList.add('active');
   if(el) el.classList.add('active');
   document.body.classList.toggle('sort-active', id === 'sort');
-  if(id === 'orso') orsoPollStatus();
+  if(id === 'orso') orsoStartPolling();
+  else orsoStopPolling();
   if(id === 'sort'){
     setTimeout(() => {
       const msgs = document.getElementById('term-msgs');
@@ -792,28 +853,123 @@ function goPanel(id, el){
 // ─── ORSO / BRAIN CHAINS ─────────────────────────────────────────────────────
 const ORSO_BASE = 'https://orso.brandmindstudio.net';
 let orsoPollingInterval = null;
+let orsoEstadoActual = null;
 
-async function orsoEjecutar() {
-  const objetivo = document.getElementById('orso-objetivo').value.trim();
-  if (!objetivo) return;
-  const box = document.getElementById('orso-status-box');
-  box.innerHTML = '<span style="color:var(--orso)">Iniciando ejecución...</span>';
-  try {
-    const r = await fetch(ORSO_BASE + '/run', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ objetivo })
-    });
-    const data = await r.json();
-    if (r.status === 409) {
-      box.innerHTML = '<span style="color:var(--amber)">⚠ Ya hay una ejecución en curso.</span>';
-    } else {
-      box.innerHTML = '<span style="color:var(--orso)">✓ Ejecución iniciada.</span><br><span style="color:var(--text3)">' + (data.objetivo || '') + '</span>';
-      orsoStartPolling();
-    }
-  } catch(e) {
-    box.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
+const ORSO_DOT = {
+  completado: `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:7px;flex-shrink:0"></span>`,
+  pendiente:  `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--border2);margin-right:7px;flex-shrink:0"></span>`,
+  en_progreso:`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--orso);margin-right:7px;flex-shrink:0;animation:pulse 1s infinite"></span>`,
+  rechazado:  `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:7px;flex-shrink:0"></span>`,
+  error:      `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:7px;flex-shrink:0"></span>`,
+};
+
+function orsoRenderEstado(estado) {
+  // chip
+  const chip = document.getElementById('orso-estado-chip');
+  const chipMap = {
+    iniciando:  ['INICIANDO',  'var(--amber)',  'rgba(245,200,66,.12)'],
+    ejecutando: ['EJECUTANDO', 'var(--orso)',   'var(--orso-dim)'],
+    finalizado: ['FINALIZADO', 'var(--green)',  'rgba(0,255,136,.1)'],
+    error:      ['ERROR',      'var(--red)',    'rgba(255,107,107,.1)'],
+  };
+  const [label, col, bg] = chipMap[estado.estado_sistema] || ['ESPERANDO','var(--amber)','rgba(245,200,66,.12)'];
+  chip.textContent = label;
+  chip.style.color = col; chip.style.background = bg; chip.style.borderColor = col;
+
+  // métricas
+  document.getElementById('orso-m-total').textContent       = estado.tareas_total ?? '—';
+  document.getElementById('orso-m-completadas').textContent = estado.tareas_completadas ?? '—';
+  document.getElementById('orso-m-aprobaciones').textContent= estado.aprobaciones_humanas ?? '—';
+  document.getElementById('orso-m-gasto').textContent       = (estado.gasto_total_usd ?? 0).toFixed(2);
+
+  // objetivo activo
+  document.getElementById('orso-objetivo-activo').textContent = estado.objetivo || '—';
+
+  // barra de gasto
+  const gasto = estado.gasto_total_usd || 0;
+  const limite = 100;
+  const pct = Math.min(100, (gasto / limite) * 100);
+  document.getElementById('orso-gasto-val').textContent = gasto.toFixed(2);
+  const barra = document.getElementById('orso-gasto-barra');
+  barra.style.width = pct + '%';
+  barra.style.background = pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--amber)' : 'var(--orso)';
+
+  // tareas
+  const lista = document.getElementById('orso-tareas-lista');
+  if (estado.tareas && estado.tareas.length) {
+    lista.innerHTML = estado.tareas.map(t => {
+      const dot = ORSO_DOT[t.estado] || ORSO_DOT.pendiente;
+      return `<div style="display:flex;align-items:center;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border)">
+        ${dot}
+        <span style="flex:1;color:var(--text)">${t.nombre}</span>
+        <span style="color:var(--text3);font-size:10px;margin-left:8px">[${t.agente}]</span>
+        <span style="color:var(--text3);font-size:10px;margin-left:8px">$${(t.costo_estimado_usd||0).toFixed(2)}</span>
+      </div>`;
+    }).join('');
+  } else {
+    lista.innerHTML = '<span style="font-size:12px;color:var(--text3)">Sin tareas.</span>';
   }
+
+  // log de auditoría
+  const log = document.getElementById('orso-audit-log');
+  const eventos = [];
+  (estado.historial_decisiones || []).forEach(d => {
+    eventos.push({ ts: d.ts, tipo: 'DECISIÓN', msg: `[${d.decision}] ${d.tarea_id} — ${d.motivo || ''}` });
+  });
+  (estado.log_razonamiento || []).forEach(msg => {
+    eventos.push({ ts: '', tipo: 'RAZON', msg });
+  });
+  if (eventos.length) {
+    log.innerHTML = eventos.map(e =>
+      `<div><span style="color:var(--border2)">${e.ts ? e.ts.substring(11,19) : '--:--:--'}</span> <span style="color:var(--orso)">${e.tipo}</span> ${e.msg}</div>`
+    ).join('');
+    log.scrollTop = log.scrollHeight;
+  } else {
+    log.innerHTML = '<span>Sin eventos.</span>';
+  }
+
+  // aprobaciones pendientes
+  const aprobCard = document.getElementById('orso-aprobacion-card');
+  const aprobContent = document.getElementById('orso-aprobacion-content');
+  const pendientes = (estado.decisiones_pendientes || []);
+  if (pendientes.length) {
+    const p = pendientes[0];
+    aprobContent.innerHTML = `<b style="color:var(--text)">${p.nombre || p.tarea_id}</b><br>
+      Agente: ${p.agente || '—'} &nbsp;·&nbsp; Motivo: ${p.motivo || '—'}<br>
+      Costo est.: USD ${(p.costo_estimado_usd||0).toFixed(2)} &nbsp;·&nbsp; Contactos: ${p.contactos_estimados||0}`;
+    aprobCard.style.display = 'block';
+    aprobCard.dataset.tareaId = p.tarea_id || p.id;
+  } else {
+    aprobCard.style.display = 'none';
+  }
+
+  orsoEstadoActual = estado;
+}
+
+async function orsoPollStatus() {
+  try {
+    // 1) estado de ejecución en curso
+    const rs = await fetch(ORSO_BASE + '/run/status');
+    const runData = await rs.json();
+
+    const msg = document.getElementById('orso-run-msg');
+    if (runData.corriendo) {
+      msg.style.color = 'var(--orso)';
+      msg.textContent = '● Ejecutando...';
+    } else if (runData.resultado) {
+      const ok = runData.resultado.ok;
+      msg.style.color = ok ? 'var(--green)' : 'var(--red)';
+      msg.textContent = ok ? '✓ Última ejecución completada' : '✗ Error: ' + (runData.resultado.error || 'ver logs');
+      if (!runData.corriendo) orsoStopPolling();
+    }
+
+    // 2) estado del dashboard (tareas, métricas, log)
+    const re = await fetch(ORSO_BASE + '/estado_actual.json?t=' + Date.now());
+    if (re.ok) {
+      const estado = await re.json();
+      orsoRenderEstado(estado);
+    }
+  } catch(e) { /* sin conexión, reintento en 5s */ }
 }
 
 function orsoStartPolling() {
@@ -829,34 +985,49 @@ function orsoStopPolling() {
   document.getElementById('orso-polling-badge').style.display = 'none';
 }
 
-async function orsoPollStatus() {
+async function orsoEjecutar() {
+  const objetivo = document.getElementById('orso-objetivo').value.trim();
+  if (!objetivo) return;
+  const btn = document.getElementById('orso-run-btn');
+  const msg = document.getElementById('orso-run-msg');
+  btn.disabled = true; btn.style.opacity = '.6';
+  msg.style.color = 'var(--text3)'; msg.textContent = 'Iniciando...';
   try {
-    const r = await fetch(ORSO_BASE + '/run/status');
-    const d = await r.json();
-    const box = document.getElementById('orso-status-box');
-    let html = '';
-    if (d.corriendo) {
-      html += '<span style="color:var(--orso)">● Ejecutando...</span><br>';
+    const r = await fetch(ORSO_BASE + '/run', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ objetivo })
+    });
+    const data = await r.json();
+    if (r.status === 409) {
+      msg.style.color = 'var(--amber)'; msg.textContent = '⚠ Ya hay una ejecución en curso.';
+    } else {
+      msg.style.color = 'var(--orso)'; msg.textContent = '✓ Iniciado: ' + (data.objetivo || '');
+      document.getElementById('orso-objetivo').value = '';
+      orsoStartPolling();
     }
-    if (d.ultima_ejecucion) {
-      html += '<span style="color:var(--text3)">Última: ' + d.ultima_ejecucion.substring(0,19).replace('T',' ') + '</span><br>';
-    }
-    if (d.resultado) {
-      const ok = d.resultado.ok;
-      html += '<span style="color:' + (ok ? 'var(--green)' : 'var(--red)') + '">' + (ok ? '✓ Completado' : '✗ Error') + '</span>';
-      if (d.resultado.stdout) {
-        const lines = d.resultado.stdout.split('\n').filter(l => l.trim()).slice(-6);
-        html += '<pre style="margin-top:8px;font-size:11px;color:var(--text2);white-space:pre-wrap;word-break:break-word">' + lines.join('\n') + '</pre>';
-      }
-      if (!d.corriendo) orsoStopPolling();
-    }
-    if (!html) html = '<span style="color:var(--text3)">Sin ejecuciones todavía.</span>';
-    box.innerHTML = html;
-  } catch(e) { /* red issue, retry on next tick */ }
+  } catch(e) {
+    msg.style.color = 'var(--red)'; msg.textContent = 'Error: ' + e.message;
+  } finally {
+    btn.disabled = false; btn.style.opacity = '1';
+  }
 }
 
-// Poll pasivo al abrir el panel
-const _origGoPanel = typeof goPanel === 'function' ? goPanel : null;
+async function orsoDecidir(accion) {
+  const card = document.getElementById('orso-aprobacion-card');
+  const tareaId = card.dataset.tareaId;
+  try {
+    await fetch(ORSO_BASE + '/decision', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ tarea_id: tareaId, decision: accion })
+    });
+    card.style.display = 'none';
+    orsoPollStatus();
+  } catch(e) {
+    alert('Error enviando decisión: ' + e.message);
+  }
+}
 
 // ─── BARTOLO / SORT POLLING ──────────────────────────────────────────────────
 function guardarBartoloToken(){
