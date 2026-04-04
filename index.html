@@ -19,6 +19,7 @@
   --pampa:#f5c842;--pampa-dim:rgba(245,200,66,.08);
   --milie:#ff7eb3;--milie-dim:rgba(255,126,179,.08);
   --sort:#00ff88;--sort-dim:rgba(0,255,136,.08);
+  --orso:#a78bfa;--orso-dim:rgba(167,139,250,.08);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
@@ -63,6 +64,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;hei
 .nav-item.active[data-agent="pampa"]{background:var(--pampa-dim);border-right-color:var(--pampa)}
 .nav-item.active[data-agent="milie"]{background:var(--milie-dim);border-right-color:var(--milie)}
 .nav-item.active[data-agent="sort"]{background:var(--sort-dim);border-right-color:var(--sort)}
+.nav-item.active[data-agent="orso"]{background:var(--orso-dim);border-right-color:var(--orso)}
 .nav-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:9px;margin-left:auto;display:none}
 .nav-badge.show{display:inline}
 
@@ -323,6 +325,11 @@ body.sort-active .content{overflow:hidden;padding:0}
       <span class="nav-badge" id="nb-sort" style="background:var(--sort);color:#000"></span>
     </div>
 
+    <div class="nav-item" data-agent="orso" onclick="goPanel('orso',this)">
+      <div class="nav-icon-box" style="background:var(--orso-dim)">🧬</div>
+      <span>Orso</span>
+    </div>
+
     <div class="nav-section">Gestión</div>
     <div class="nav-item" onclick="goPanel('facturacion',this)">
       <div class="nav-icon-box" style="background:rgba(255,255,255,.04)">◻</div>
@@ -528,6 +535,56 @@ body.sort-active .content{overflow:hidden;padding:0}
       </div>
     </div>
 
+    <!-- ══════════════════ ORSO / BRAIN CHAINS ═══════════════════════════════ -->
+    <div class="panel" id="panel-orso">
+      <div class="agent-header" style="border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <div style="width:28px;height:28px;background:var(--orso-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px">🧬</div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--orso)">Brain Chains</div>
+          <div style="font-size:10px;color:var(--text3)">powered by Orso — orquestador LangGraph</div>
+        </div>
+        <a href="https://orso.brandmindstudio.net/dashboard/app.html" target="_blank"
+           style="margin-left:auto;font-size:11px;color:var(--orso);text-decoration:none;border:1px solid var(--orso);padding:4px 10px;border-radius:6px;opacity:.8;transition:opacity .2s"
+           onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.8">
+          ↗ Dashboard
+        </a>
+      </div>
+
+      <div style="padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1">
+
+        <!-- Ejecutar tarea -->
+        <div class="card" style="border-color:var(--orso-dim)">
+          <div class="card-title">
+            <div class="card-icon" style="background:var(--orso-dim)">▶</div>
+            Nueva ejecución
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <textarea id="orso-objetivo" rows="3" placeholder="Ej: Encontrar 10 contadores en LinkedIn de Argentina"
+              style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;transition:border-color .2s"
+              onfocus="this.style.borderColor='var(--orso)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
+            <button onclick="orsoEjecutar()"
+              style="background:var(--orso);color:#000;border:none;padding:10px 20px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:opacity .2s;align-self:flex-start"
+              onmouseover="this.style.opacity=.85" onmouseout="this.style.opacity=1">
+              Ejecutar
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado en tiempo real -->
+        <div class="card" style="border-color:var(--orso-dim)">
+          <div class="card-title">
+            <div class="card-icon" style="background:var(--orso-dim)">◉</div>
+            Estado en tiempo real
+            <span id="orso-polling-badge" style="display:none;margin-left:auto;font-size:10px;color:var(--orso);font-family:'DM Sans',monospace">● polling</span>
+          </div>
+          <div id="orso-status-box" style="font-size:12px;color:var(--text2);line-height:1.8;font-family:'DM Sans',monospace;min-height:60px">
+            <span style="color:var(--text3)">Sin ejecuciones todavía.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- ══════════════════ FACTURACIÓN ════════════════════════════════════════ -->
     <div class="panel" id="panel-facturacion">
       <div style="margin-bottom:14px">
@@ -723,6 +780,7 @@ function goPanel(id, el){
   if(panel) panel.classList.add('active');
   if(el) el.classList.add('active');
   document.body.classList.toggle('sort-active', id === 'sort');
+  if(id === 'orso') orsoPollStatus();
   if(id === 'sort'){
     setTimeout(() => {
       const msgs = document.getElementById('term-msgs');
@@ -730,6 +788,75 @@ function goPanel(id, el){
     }, 50);
   }
 }
+
+// ─── ORSO / BRAIN CHAINS ─────────────────────────────────────────────────────
+const ORSO_BASE = 'https://orso.brandmindstudio.net';
+let orsoPollingInterval = null;
+
+async function orsoEjecutar() {
+  const objetivo = document.getElementById('orso-objetivo').value.trim();
+  if (!objetivo) return;
+  const box = document.getElementById('orso-status-box');
+  box.innerHTML = '<span style="color:var(--orso)">Iniciando ejecución...</span>';
+  try {
+    const r = await fetch(ORSO_BASE + '/run', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ objetivo })
+    });
+    const data = await r.json();
+    if (r.status === 409) {
+      box.innerHTML = '<span style="color:var(--amber)">⚠ Ya hay una ejecución en curso.</span>';
+    } else {
+      box.innerHTML = '<span style="color:var(--orso)">✓ Ejecución iniciada.</span><br><span style="color:var(--text3)">' + (data.objetivo || '') + '</span>';
+      orsoStartPolling();
+    }
+  } catch(e) {
+    box.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
+  }
+}
+
+function orsoStartPolling() {
+  if (orsoPollingInterval) return;
+  document.getElementById('orso-polling-badge').style.display = 'inline';
+  orsoPollingInterval = setInterval(orsoPollStatus, 5000);
+  orsoPollStatus();
+}
+
+function orsoStopPolling() {
+  clearInterval(orsoPollingInterval);
+  orsoPollingInterval = null;
+  document.getElementById('orso-polling-badge').style.display = 'none';
+}
+
+async function orsoPollStatus() {
+  try {
+    const r = await fetch(ORSO_BASE + '/run/status');
+    const d = await r.json();
+    const box = document.getElementById('orso-status-box');
+    let html = '';
+    if (d.corriendo) {
+      html += '<span style="color:var(--orso)">● Ejecutando...</span><br>';
+    }
+    if (d.ultima_ejecucion) {
+      html += '<span style="color:var(--text3)">Última: ' + d.ultima_ejecucion.substring(0,19).replace('T',' ') + '</span><br>';
+    }
+    if (d.resultado) {
+      const ok = d.resultado.ok;
+      html += '<span style="color:' + (ok ? 'var(--green)' : 'var(--red)') + '">' + (ok ? '✓ Completado' : '✗ Error') + '</span>';
+      if (d.resultado.stdout) {
+        const lines = d.resultado.stdout.split('\n').filter(l => l.trim()).slice(-6);
+        html += '<pre style="margin-top:8px;font-size:11px;color:var(--text2);white-space:pre-wrap;word-break:break-word">' + lines.join('\n') + '</pre>';
+      }
+      if (!d.corriendo) orsoStopPolling();
+    }
+    if (!html) html = '<span style="color:var(--text3)">Sin ejecuciones todavía.</span>';
+    box.innerHTML = html;
+  } catch(e) { /* red issue, retry on next tick */ }
+}
+
+// Poll pasivo al abrir el panel
+const _origGoPanel = typeof goPanel === 'function' ? goPanel : null;
 
 // ─── BARTOLO / SORT POLLING ──────────────────────────────────────────────────
 function guardarBartoloToken(){
